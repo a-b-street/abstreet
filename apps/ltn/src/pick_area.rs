@@ -36,7 +36,7 @@ impl PickArea {
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
                 if &app.partitioning().map != app.per_map.map.get_name() {
-                    app.per_map.alt_proposals = crate::save::AltProposals::new();
+                    app.per_map.alt_proposals = crate::save::AltProposals::new(&app.per_map.map);
                     crate::clear_current_proposal(ctx, app, timer);
                 }
                 (make_world(ctx, app), draw_over_roads(ctx, app))

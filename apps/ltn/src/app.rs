@@ -66,6 +66,8 @@ impl PerMap {
         let draw_poi_icons = render_poi_icons(ctx, &map);
         let draw_bus_routes = render_bus_routes(ctx, &map);
 
+        let alt_proposals = crate::save::AltProposals::new(&map);
+
         let per_map = Self {
             map,
             draw_map,
@@ -73,7 +75,7 @@ impl PerMap {
             current_neighbourhood: None,
 
             routing_params_before_changes: RoutingParams::default(),
-            alt_proposals: crate::save::AltProposals::new(),
+            alt_proposals,
             impact: crate::impact::Impact::empty(ctx),
 
             consultation: None,
@@ -264,10 +266,10 @@ impl App {
     }
 
     pub fn edits(&self) -> &Edits {
-        &self.per_map.alt_proposals.edits
+        &self.per_map.alt_proposals.current_proposal.edits
     }
     pub fn partitioning(&self) -> &Partitioning {
-        &self.per_map.alt_proposals.partitioning
+        &self.per_map.alt_proposals.current_proposal.partitioning
     }
 }
 

@@ -10,7 +10,6 @@ use widgetry::{
     DrawBaselayer, EventCtx, GfxCtx, Key, Line, Panel, SimpleState, State, Text, TextExt, Widget,
 };
 
-use super::Proposal;
 use crate::{App, Transition};
 
 pub const PROPOSAL_HOST_URL: &str = "https://aorta-routes.appspot.com/v1";
@@ -21,7 +20,7 @@ pub struct ShareProposal {
 
 impl ShareProposal {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let checksum = match Proposal::from_app(app).checksum(app) {
+        let checksum = match app.per_map.alt_proposals.current_proposal.checksum(app) {
             Ok(checksum) => checksum,
             Err(err) => {
                 return PopupMsg::new_state(
@@ -123,7 +122,12 @@ impl SimpleState<App> for ShareProposal {
             "Upload" => {
                 let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
                 let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-                let proposal_contents = Proposal::from_app(app).to_gzipped_bytes(app).unwrap();
+                let proposal_contents = app
+                    .per_map
+                    .alt_proposals
+                    .current_proposal
+                    .to_gzipped_bytes(app)
+                    .unwrap();
                 return Transition::Replace(FutureLoader::<App, String>::new_state(
                     ctx,
                     Box::pin(async move {

@@ -138,7 +138,7 @@ fn setup_initial_states(
 
         // If we already loaded something from a saved proposal, then don't clear anything
         if &app.partitioning().map != app.per_map.map.get_name() {
-            app.per_map.alt_proposals = crate::save::AltProposals::new();
+            app.per_map.alt_proposals = crate::save::AltProposals::new(&app.per_map.map);
             ctx.loading_screen("initialize", |ctx, timer| {
                 crate::clear_current_proposal(ctx, app, timer);
             });
@@ -247,9 +247,9 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
 
     // Reset this first. transform_existing_filters will fill some out.
     app.per_map.routing_params_before_changes = RoutingParams::default();
-    app.per_map.alt_proposals.edits = Edits::default();
+    mut_edits!(app) = Edits::default();
     crate::filters::transform_existing_filters(ctx, app, timer);
-    app.per_map.alt_proposals.partitioning = Partitioning::seed_using_heuristics(app, timer);
+    mut_partitioning!(app) = Partitioning::seed_using_heuristics(app, timer);
     app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 }
 
@@ -268,13 +268,13 @@ fn is_driveable(road: &Road, map: &Map) -> bool {
 #[macro_export]
 macro_rules! mut_edits {
     ($app:ident) => {
-        $app.per_map.alt_proposals.edits
+        $app.per_map.alt_proposals.current_proposal.edits
     };
 }
 
 #[macro_export]
 macro_rules! mut_partitioning {
     ($app:ident) => {
-        $app.per_map.alt_proposals.partitioning
+        $app.per_map.alt_proposals.current_proposal.partitioning
     };
 }

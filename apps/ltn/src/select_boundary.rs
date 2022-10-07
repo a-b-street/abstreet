@@ -287,7 +287,7 @@ impl State<App> for SelectBoundary {
                     // TODO If we destroyed the current neighbourhood, then we cancel, we'll pop
                     // back to a different neighbourhood than we started with. And also the original
                     // partitioning will have been lost!!!
-                    app.per_map.alt_proposals.partitioning = self.orig_partitioning.clone();
+                    mut_partitioning!(app) = self.orig_partitioning.clone();
                     return Transition::Replace(crate::design_ltn::DesignLTN::new_state(
                         ctx, app, self.id,
                     ));

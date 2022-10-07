@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use abstio::MapName;
 use abstutil::{Counter, Timer};
-use map_model::EditRoad;
+use map_model::{EditRoad, Map};
 use widgetry::tools::{ChooseSomething, PopupMsg, PromptInput};
 use widgetry::{Choice, EventCtx, Key, State, Widget};
 
@@ -18,7 +18,7 @@ pub use share::PROPOSAL_HOST_URL;
 
 /// Captures all of the edits somebody makes to a map in the LTN tool. Note this is separate from
 /// `map_model::MapEdits`.
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Proposal {
     pub map: MapName,
     pub name: String,
@@ -29,22 +29,6 @@ pub struct Proposal {
 }
 
 impl Proposal {
-    fn from_app(app: &App) -> Self {
-        Self {
-            map: app.per_map.map.get_name().clone(),
-            name: app
-                .per_map
-                .alt_proposals
-                .proposal_name
-                .clone()
-                .unwrap_or(String::from("existing LTNs")),
-            abst_version: map_gui::tools::version().to_string(),
-
-            partitioning: app.partitioning().clone(),
-            edits: app.edits().clone(),
-        }
-    }
-
     fn make_active(self, ctx: &EventCtx, app: &mut App) {
         // First undo any one-way changes
         let mut edits = app.per_map.map.new_edits();
@@ -58,9 +42,7 @@ impl Proposal {
             }));
         }
 
-        app.per_map.alt_proposals.proposal_name = Some(self.name);
-        app.per_map.alt_proposals.partitioning = self.partitioning;
-        app.per_map.alt_proposals.edits = self.edits;
+        app.per_map.alt_proposals.current_proposal = self;
         app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 
         // Then append any new one-way changes. Edits are applied in order, so the net effect
@@ -149,11 +131,12 @@ impl Proposal {
 }
 
 fn stash_current_proposal(app: &mut App) {
+    // TODO Could we swap and be more efficient?
     *app.per_map
         .alt_proposals
         .list
         .get_mut(app.per_map.alt_proposals.current)
-        .unwrap() = Some(Proposal::from_app(app));
+        .unwrap() = Some(app.per_map.alt_proposals.current_proposal.clone());
 }
 
 fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
@@ -173,18 +156,13 @@ fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
 }
 
 fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<dyn State<App>> {
-    let default_name = app
-        .per_map
-        .alt_proposals
-        .proposal_name
-        .clone()
-        .unwrap_or_else(String::new);
+    let default_name = app.per_map.alt_proposals.current_proposal.name.clone();
     PromptInput::new_state(
         ctx,
         "Name this proposal",
         default_name,
         Box::new(|name, ctx, app| {
-            app.per_map.alt_proposals.proposal_name = Some(name.clone());
+            app.per_map.alt_proposals.current_proposal.name = name;
 
             match inner_save(app) {
                 // If we changed the name, we'll want to recreate the panel
@@ -203,7 +181,7 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
 }
 
 fn inner_save(app: &App) -> Result<()> {
-    let proposal = Proposal::from_app(app);
+    let proposal = &app.per_map.alt_proposals.current_proposal;
     let path = abstio::path_ltn_proposals(app.per_map.map.get_name(), &proposal.name);
     let output_buffer = proposal.to_gzipped_bytes(app)?;
     abstio::write_raw(path, &output_buffer)
@@ -241,26 +219,29 @@ fn load_picker_ui(
     )
 }
 
+// TODO Rename? This manages all proposals
 pub struct AltProposals {
     // All entries are filled out, except for the current proposal being worked on
     list: Vec<Option<Proposal>>,
     current: usize,
 
-    // TODO Just moving state here first
-    proposal_name: Option<String>,
-    pub partitioning: Partitioning,
-    pub edits: Edits,
+    pub current_proposal: Proposal,
 }
 
 impl AltProposals {
-    pub fn new() -> Self {
+    // TODO The result is invalid; partitioning is temporary
+    pub fn new(map: &Map) -> Self {
         Self {
             list: vec![None],
             current: 0,
 
-            proposal_name: None,
-            partitioning: Partitioning::empty(),
-            edits: Edits::default(),
+            current_proposal: Proposal {
+                map: map.get_name().clone(),
+                name: "existing LTNs".to_string(),
+                abst_version: map_gui::tools::version().to_string(),
+                partitioning: Partitioning::empty(),
+                edits: Edits::default(),
+            },
         }
     }
 
@@ -294,11 +275,7 @@ impl AltProposals {
                     .text(format!(
                         "{} - {}",
                         idx + 1,
-                        app.per_map
-                            .alt_proposals
-                            .proposal_name
-                            .as_ref()
-                            .unwrap_or(&String::from("existing LTNs")),
+                        app.per_map.alt_proposals.current_proposal.name
                     ))
                     .disabled(true)
                     .build_def(ctx)
