@@ -31,11 +31,6 @@ pub struct PerMap {
     pub map: Map,
     pub draw_map: DrawMap,
 
-    // These come from a save::Proposal
-    pub proposal_name: Option<String>,
-    pub partitioning: Partitioning,
-    pub edits: Edits,
-
     // The last edited neighbourhood
     pub current_neighbourhood: Option<NeighbourhoodID>,
 
@@ -74,10 +69,6 @@ impl PerMap {
         let per_map = Self {
             map,
             draw_map,
-
-            proposal_name: None,
-            partitioning: Partitioning::empty(),
-            edits: Edits::default(),
 
             current_neighbourhood: None,
 
@@ -270,6 +261,13 @@ impl App {
         );
         g.redraw(&self.per_map.draw_map.draw_all_buildings);
         g.redraw(&self.per_map.draw_map.draw_all_building_outlines);
+    }
+
+    pub fn edits(&self) -> &Edits {
+        &self.per_map.alt_proposals.edits
+    }
+    pub fn partitioning(&self) -> &Partitioning {
+        &self.per_map.alt_proposals.partitioning
     }
 }
 

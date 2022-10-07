@@ -137,7 +137,7 @@ fn setup_initial_states(
         };
 
         // If we already loaded something from a saved proposal, then don't clear anything
-        if &app.per_map.partitioning.map != app.per_map.map.get_name() {
+        if &app.partitioning().map != app.per_map.map.get_name() {
             app.per_map.alt_proposals = crate::save::AltProposals::new();
             ctx.loading_screen("initialize", |ctx, timer| {
                 crate::clear_current_proposal(ctx, app, timer);
@@ -154,8 +154,7 @@ fn setup_initial_states(
             .expect(&format!("Can't find {focus_on_street}"))
             .id;
         let (neighbourhood, _) = app
-            .per_map
-            .partitioning
+            .partitioning()
             .all_neighbourhoods()
             .iter()
             .find(|(_, info)| info.block.perimeter.interior.contains(&r))
@@ -232,7 +231,7 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
 }
 
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
-    app.per_map.draw_all_filters = app.per_map.edits.draw(ctx, &app.per_map.map);
+    app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 }
 
 pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Timer) {
@@ -248,10 +247,10 @@ pub fn clear_current_proposal(ctx: &mut EventCtx, app: &mut App, timer: &mut Tim
 
     // Reset this first. transform_existing_filters will fill some out.
     app.per_map.routing_params_before_changes = RoutingParams::default();
-    app.per_map.edits = Edits::default();
+    app.per_map.alt_proposals.edits = Edits::default();
     crate::filters::transform_existing_filters(ctx, app, timer);
-    app.per_map.partitioning = Partitioning::seed_using_heuristics(app, timer);
-    app.per_map.draw_all_filters = app.per_map.edits.draw(ctx, &app.per_map.map);
+    app.per_map.alt_proposals.partitioning = Partitioning::seed_using_heuristics(app, timer);
+    app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 }
 
 fn is_private(road: &Road) -> bool {
@@ -261,4 +260,21 @@ fn is_private(road: &Road) -> bool {
 
 fn is_driveable(road: &Road, map: &Map) -> bool {
     PathConstraints::Car.can_use_road(road, map) && !is_private(road)
+}
+
+// The current edits and partitioning are stored deeply nested in App. For read-only access, we can
+// use a regular helper method. For writing, we can't, because we'll get a borrow error -- so
+// instead just use macros to make it less annoying to modify
+#[macro_export]
+macro_rules! mut_edits {
+    ($app:ident) => {
+        $app.per_map.alt_proposals.edits
+    };
+}
+
+#[macro_export]
+macro_rules! mut_partitioning {
+    ($app:ident) => {
+        $app.per_map.alt_proposals.partitioning
+    };
 }

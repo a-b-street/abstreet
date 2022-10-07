@@ -35,7 +35,7 @@ impl PickArea {
 
         let (world, draw_over_roads) =
             ctx.loading_screen("calculate neighbourhoods", |ctx, timer| {
-                if &app.per_map.partitioning.map != app.per_map.map.get_name() {
+                if &app.partitioning().map != app.per_map.map.get_name() {
                     app.per_map.alt_proposals = crate::save::AltProposals::new();
                     crate::clear_current_proposal(ctx, app, timer);
                 }
@@ -127,9 +127,9 @@ fn make_world(ctx: &mut EventCtx, app: &App) -> World<NeighbourhoodID> {
     ctx.loading_screen("render neighbourhoods", |ctx, timer| {
         timer.start_iter(
             "render neighbourhoods",
-            app.per_map.partitioning.all_neighbourhoods().len(),
+            app.partitioning().all_neighbourhoods().len(),
         );
-        for (id, info) in app.per_map.partitioning.all_neighbourhoods() {
+        for (id, info) in app.partitioning().all_neighbourhoods() {
             timer.next();
             match app.session.draw_neighbourhood_style {
                 Style::Simple => {
@@ -196,7 +196,7 @@ fn draw_over_roads(ctx: &mut EventCtx, app: &App) -> Drawable {
     let mut count_per_road = Counter::new();
     let mut count_per_intersection = Counter::new();
 
-    for id in app.per_map.partitioning.all_neighbourhoods().keys() {
+    for id in app.partitioning().all_neighbourhoods().keys() {
         let neighbourhood = Neighbourhood::new(app, *id);
         count_per_road.extend(neighbourhood.shortcuts.count_per_road);
         count_per_intersection.extend(neighbourhood.shortcuts.count_per_intersection);
@@ -215,7 +215,7 @@ pub fn draw_boundary_roads(ctx: &EventCtx, app: &App) -> Drawable {
     let mut seen_roads = HashSet::new();
     let mut seen_borders = HashSet::new();
     let mut batch = GeomBatch::new();
-    for info in app.per_map.partitioning.all_neighbourhoods().values() {
+    for info in app.partitioning().all_neighbourhoods().values() {
         for id in &info.block.perimeter.roads {
             let r = id.road;
             if seen_roads.contains(&r) {

@@ -13,7 +13,9 @@ use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Line, Outcome, Panel, State, Text, Widget};
 
-use crate::{after_edit, is_private, App, FilterType, Neighbourhood, RoadFilter, Transition};
+use crate::{
+    after_edit, is_private, mut_edits, App, FilterType, Neighbourhood, RoadFilter, Transition,
+};
 
 pub enum EditMode {
     Filters,
@@ -245,19 +247,19 @@ impl State<App> for ResolveOneWayAndFilter {
                 app.per_map.map.must_apply_edits(edits, timer);
             });
 
-            app.per_map.edits.before_edit();
+            mut_edits!(app).before_edit();
 
             for r in &self.roads {
                 let r = *r;
                 let road = app.per_map.map.get_r(r);
                 let r_edit = app.per_map.map.get_r_edit(r);
                 if r_edit == EditRoad::get_orig_from_osm(road, app.per_map.map.get_config()) {
-                    app.per_map.edits.one_ways.remove(&r);
+                    mut_edits!(app).one_ways.remove(&r);
                 } else {
-                    app.per_map.edits.one_ways.insert(r, r_edit);
+                    mut_edits!(app).one_ways.insert(r, r_edit);
                 }
 
-                app.per_map.edits.roads.insert(
+                mut_edits!(app).roads.insert(
                     r,
                     RoadFilter::new_by_user(road.length() / 2.0, app.session.filter_type),
                 );
@@ -330,10 +332,9 @@ impl State<App> for ResolveBusGate {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             if x == "Place bus gates" {
-                app.per_map.edits.before_edit();
+                mut_edits!(app).before_edit();
                 for (r, dist) in self.roads.drain(..) {
-                    app.per_map
-                        .edits
+                    mut_edits!(app)
                         .roads
                         .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
                 }

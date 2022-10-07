@@ -60,7 +60,7 @@ impl ShowResults {
             });
         }
 
-        if app.per_map.impact.change_key != app.per_map.edits.get_change_key() {
+        if app.per_map.impact.change_key != app.edits().get_change_key() {
             ctx.loading_screen("recalculate impact", |ctx, timer| {
                 // Avoid a double borrow
                 let mut impact = std::mem::replace(&mut app.per_map.impact, Impact::empty(ctx));

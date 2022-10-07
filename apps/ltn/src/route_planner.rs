@@ -53,7 +53,7 @@ impl RoutePlanner {
 
         // Fade all neighbourhood interiors, so it's very clear when a route cuts through
         let mut batch = GeomBatch::new();
-        for info in app.per_map.partitioning.all_neighbourhoods().values() {
+        for info in app.partitioning().all_neighbourhoods().values() {
             batch.push(app.cs.fade_map_dark, info.block.polygon.clone());
         }
 
@@ -190,7 +190,7 @@ impl RoutePlanner {
         // The route respecting the filters
         let driving_after_changes_time = {
             let mut params = map.routing_params().clone();
-            app.per_map.edits.update_routing_params(&mut params);
+            app.edits().update_routing_params(&mut params);
             params.main_road_penalty = app.session.main_road_penalty;
 
             let mut total_time = Duration::ZERO;
