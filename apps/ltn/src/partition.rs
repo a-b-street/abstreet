@@ -77,10 +77,9 @@ impl Partitioning {
         self.neighbourhoods.is_empty()
     }
 
-    pub fn seed_using_heuristics(app: &App, timer: &mut Timer) -> Partitioning {
+    pub fn seed_using_heuristics(map: &Map, timer: &mut Timer) -> Partitioning {
         // Try the easy thing first, but then give up
         'METHOD: for use_expensive_blockfinding in [false, true] {
-            let map = &app.per_map.map;
             timer.start("find single blocks");
             let mut single_blocks = Vec::new();
             let mut single_block_perims = Vec::new();

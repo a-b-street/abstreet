@@ -43,8 +43,6 @@ pub struct PerMap {
 
     pub consultation: Option<NeighbourhoodID>,
     pub consultation_id: Option<String>,
-    // The current consultation should always be based off a built-in proposal
-    pub consultation_proposal_path: Option<String>,
 
     pub draw_all_filters: Toggle3Zoomed,
     pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
@@ -66,7 +64,7 @@ impl PerMap {
         let draw_poi_icons = render_poi_icons(ctx, &map);
         let draw_bus_routes = render_bus_routes(ctx, &map);
 
-        let alt_proposals = crate::save::AltProposals::new(&map);
+        let alt_proposals = crate::save::AltProposals::new(&map, timer);
 
         let per_map = Self {
             map,
@@ -80,7 +78,6 @@ impl PerMap {
 
             consultation: None,
             consultation_id: None,
-            consultation_proposal_path: None,
 
             draw_all_filters: Toggle3Zoomed::empty(ctx),
             draw_all_road_labels: None,
@@ -89,6 +86,7 @@ impl PerMap {
 
             current_trip_name: None,
         };
+
         if !CameraState::load(ctx, per_map.map.get_name()) {
             // If we didn't restore a previous camera position, start zoomed out, centered on the
             // map's center.
@@ -154,6 +152,15 @@ impl AppLike for App {
         CameraState::save(ctx.canvas, self.per_map.map.get_name());
         self.per_map = PerMap::new(ctx, map, &self.opts, &self.cs, timer);
         self.opts.units.metric = self.per_map.map.get_name().city.uses_metric();
+
+        // These two logically belong in PerMap::new, but it's easier to have the full App
+        crate::filters::transform_existing_filters(ctx, self, timer);
+        self.per_map.draw_all_filters = self
+            .per_map
+            .alt_proposals
+            .current_proposal
+            .edits
+            .draw(ctx, &self.per_map.map);
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, _l: DrawOptions) {
