@@ -141,6 +141,9 @@ fn setup_initial_states(
                 panic!("Consultation mode broken; go fix {path} manually");
             }
             app.per_map.alt_proposals.clear_all_but_current();
+            // TODO Kind of a weird hack -- rename this to "existing LTNs" so we can't overwrite
+            // it!
+            app.per_map.alt_proposals.current_proposal.name = "existing LTNs".to_string();
         }
 
         // Look for the neighbourhood containing one small street
