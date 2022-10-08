@@ -7,8 +7,11 @@ use serde::{Deserialize, Serialize};
 use abstio::MapName;
 use abstutil::{Counter, Timer};
 use map_model::{EditRoad, Map};
-use widgetry::tools::{ChooseSomething, PopupMsg, PromptInput};
-use widgetry::{Choice, EventCtx, Key, State, Widget};
+use widgetry::tools::{ChooseSomething, PopupMsg};
+use widgetry::{
+    Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, MultiKey, Outcome, Panel, State, TextBox,
+    Widget,
+};
 
 use crate::edit::EditMode;
 use crate::partition::BlockID;
@@ -160,44 +163,188 @@ fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
     proposal.make_active(ctx, app);
 }
 
-// TODO We've outgrown PromptInput
-fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<dyn State<App>> {
-    let default_name = app.per_map.alt_proposals.current_proposal.name.clone();
-    PromptInput::new_state(
-        ctx,
-        "Name this proposal",
-        default_name,
-        Box::new(|name, ctx, app| {
-            if let Some(err) = if name == "existing LTNs" {
-                Some("You can't overwrite the name \"existing LTNs\"")
-            } else if name.is_empty() {
-                Some("You have to name this proposal")
-            } else {
-                None
-            } {
-                return Transition::Multi(vec![
-                    preserve_state.switch_to_state(ctx, app),
-                    Transition::Push(PopupMsg::new_state(ctx, "Error", vec![err])),
-                ]);
-            }
+struct SaveDialog {
+    panel: Panel,
+    preserve_state: PreserveState,
+    can_overwrite: bool,
+}
 
-            // TODO If the name matches parent...
+impl SaveDialog {
+    fn new_state(
+        ctx: &mut EventCtx,
+        app: &App,
+        preserve_state: PreserveState,
+    ) -> Box<dyn State<App>> {
+        let parent = app
+            .per_map
+            .alt_proposals
+            .current_proposal
+            .unsaved_parent
+            .clone();
+        let can_overwrite = parent.is_some() && parent != Some("existing LTNs".to_string());
 
-            app.per_map.alt_proposals.current_proposal.name = name;
-            match inner_save(app) {
-                // If we changed the name, we'll want to recreate the panel
-                Ok(()) => preserve_state.switch_to_state(ctx, app),
-                Err(err) => Transition::Multi(vec![
-                    preserve_state.switch_to_state(ctx, app),
-                    Transition::Push(PopupMsg::new_state(
-                        ctx,
-                        "Error",
-                        vec![format!("Couldn't save proposal: {}", err)],
-                    )),
+        let mut state = Self {
+            panel: Panel::new_builder(Widget::col(vec![
+                Widget::row(vec![
+                    Line("Save proposal").small_heading().into_widget(ctx),
+                    ctx.style().btn_close_widget(ctx),
                 ]),
+                if can_overwrite {
+                    Widget::row(vec![
+                        ctx.style()
+                            .btn_solid_destructive
+                            .text(format!("Overwrite \"{}\"", parent.unwrap()))
+                            .build_widget(ctx, "Overwrite"),
+                        Line("Or save a new copy below")
+                            .secondary()
+                            .into_widget(ctx),
+                    ])
+                } else {
+                    Widget::nothing()
+                },
+                Widget::row(vec![
+                    TextBox::default_widget(ctx, "input", String::new()),
+                    Widget::placeholder(ctx, "Save as"),
+                ]),
+                Widget::placeholder(ctx, "warning"),
+            ]))
+            .build(ctx),
+            preserve_state,
+            can_overwrite,
+        };
+        state.name_updated(ctx);
+        Box::new(state)
+    }
+
+    fn name_updated(&mut self, ctx: &mut EventCtx) {
+        let name = self.panel.text_box("input");
+
+        let warning = if name == "existing LTNs" {
+            Some("You can't overwrite the name \"existing LTNs\"")
+        } else if name.is_empty() {
+            Some("You have to name this proposal")
+        } else {
+            None
+        };
+
+        let btn = ctx
+            .style()
+            .btn_solid_primary
+            .text("Save as")
+            .disabled(warning.is_some())
+            .hotkey(if self.can_overwrite {
+                None
+            } else {
+                Some(MultiKey::from(Key::Enter))
+            })
+            .build_def(ctx);
+        self.panel.replace(ctx, "Save as", btn);
+
+        if let Some(warning) = warning {
+            self.panel
+                .replace(ctx, "warning", Line(warning).into_widget(ctx));
+        } else {
+            self.panel
+                .replace(ctx, "warning", Widget::placeholder(ctx, "warning"));
+        }
+    }
+
+    fn error(&self, ctx: &mut EventCtx, app: &mut App, err: impl AsRef<str>) -> Transition {
+        Transition::Multi(vec![
+            self.preserve_state.switch_to_state(ctx, app),
+            Transition::Push(PopupMsg::new_state(ctx, "Error", vec![err])),
+        ])
+    }
+}
+
+impl State<App> for SaveDialog {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        match self.panel.event(ctx) {
+            Outcome::Clicked(x) => match x.as_ref() {
+                "close" => Transition::Pop,
+                "Save as" => {
+                    let name = self.panel.text_box("input");
+
+                    // TODO If we're overwriting something that exists in AltProposals
+                    // especially... watch out
+
+                    app.per_map.alt_proposals.current_proposal.name = name;
+                    app.per_map.alt_proposals.current_proposal.unsaved_parent = None;
+                    return match inner_save(app) {
+                        // If we changed the name, we'll want to recreate the panel
+                        Ok(()) => self.preserve_state.switch_to_state(ctx, app),
+                        Err(err) => {
+                            self.error(ctx, app, format!("Couldn't save proposal: {}", err))
+                        }
+                    };
+                }
+                "Overwrite" => {
+                    let alt_proposals = &mut app.per_map.alt_proposals;
+
+                    // Usually the previous proposal is the one we'll overwrite
+                    if alt_proposals.current != 0
+                        && &alt_proposals.list[alt_proposals.current - 1]
+                            .as_ref()
+                            .unwrap()
+                            .name
+                            == alt_proposals
+                                .current_proposal
+                                .unsaved_parent
+                                .as_ref()
+                                .unwrap()
+                    {
+                        let parent = alt_proposals
+                            .list
+                            .remove(alt_proposals.current - 1)
+                            .unwrap();
+                        alt_proposals.current -= 1;
+                        assert!(alt_proposals.list[alt_proposals.current].is_none());
+                        alt_proposals.current_proposal.unsaved_parent = None;
+                        alt_proposals.current_proposal.name = parent.name;
+                    } else {
+                        // But the user may have hidden it before saving these changes. Just rename
+                        // the current, then.
+                        // TODO If they hid it, then loaded it again and it changed places in the
+                        // list... oh well?
+                        alt_proposals.current_proposal.name = alt_proposals
+                            .current_proposal
+                            .unsaved_parent
+                            .take()
+                            .unwrap();
+                    }
+
+                    return match inner_save(app) {
+                        Ok(()) => self.preserve_state.switch_to_state(ctx, app),
+                        // TODO If we fail to save for some reason, the AltProposals panel gets out
+                        // of sync with the filesystem
+                        Err(err) => {
+                            self.error(ctx, app, format!("Couldn't save proposal: {}", err))
+                        }
+                    };
+                }
+                _ => unreachable!(),
+            },
+            Outcome::Changed(_) => {
+                self.name_updated(ctx);
+                Transition::Keep
             }
-        }),
-    )
+            _ => {
+                if ctx.normal_left_click() && ctx.canvas.get_cursor_in_screen_space().is_none() {
+                    return Transition::Pop;
+                }
+                Transition::Keep
+            }
+        }
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        map_gui::tools::grey_out_map(g, app);
+        self.panel.draw(g);
+    }
 }
 
 fn inner_save(app: &App) -> Result<()> {
@@ -226,7 +373,7 @@ fn load_picker_ui(
                 .map(abstutil::basename)
                 .collect(),
         ),
-        Box::new(|name, ctx, app| {
+        Box::new(move |name, ctx, app| {
             match Proposal::load_from_path(
                 ctx,
                 app,
@@ -436,7 +583,11 @@ impl AltProposals {
                 )));
             }
             "Save" => {
-                return Some(Transition::Push(save_ui(ctx, app, preserve_state.clone())));
+                return Some(Transition::Push(SaveDialog::new_state(
+                    ctx,
+                    app,
+                    preserve_state.clone(),
+                )));
             }
             "Share" => {
                 return Some(Transition::Push(share::ShareProposal::new_state(ctx, app)));
@@ -494,7 +645,7 @@ pub enum PreserveState {
 }
 
 impl PreserveState {
-    fn switch_to_state(self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+    fn switch_to_state(&self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         match self {
             PreserveState::PickArea => Transition::Replace(PickArea::new_state(ctx, app)),
             PreserveState::Route => {
@@ -505,7 +656,7 @@ impl PreserveState {
                 // with the most matches
                 let mut count = Counter::new();
                 for block in blocks {
-                    count.inc(app.partitioning().block_to_neighbourhood(block));
+                    count.inc(app.partitioning().block_to_neighbourhood(*block));
                 }
 
                 if let EditMode::Shortcuts(ref mut maybe_focus) = app.session.edit_mode {

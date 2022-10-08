@@ -91,6 +91,12 @@ pub fn handle_world_outcome(
 // This is defined here because some of the heavy lifting deals with one-ways, but it might not
 // even undo that kind of change
 pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
+    // use before_edit to maybe fork the proposal, but then we need to undo the no-op change it
+    // pushes onto edit history
+    app.per_map.alt_proposals.before_edit();
+    mut_edits!(app) = mut_edits!(app).previous_version.take().unwrap();
+
+    // This is the real previous state that we'll rollback to
     let prev = mut_edits!(app).previous_version.take().unwrap();
 
     // Generate edits to undo possible changes to a one-way. Note there may be multiple in one
