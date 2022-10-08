@@ -30,7 +30,7 @@ fn make_filters_along_path(
     let mut oneways = Vec::new();
     let mut bus_roads = Vec::new();
 
-    mut_edits!(app).before_edit();
+    app.per_map.alt_proposals.before_edit();
     for r in &neighbourhood.orig_perimeter.interior {
         if app.edits().roads.contains_key(r) {
             continue;

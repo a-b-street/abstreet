@@ -63,7 +63,7 @@ pub fn handle_world_outcome(
                 // We always create it from-scratch when needed.
             });
 
-            mut_edits!(app).before_edit();
+            app.per_map.alt_proposals.before_edit();
 
             let r_edit = app.per_map.map.get_r_edit(r);
             // Was the road originally like this? Use the original OSM tags to decide.
