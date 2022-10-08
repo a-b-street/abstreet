@@ -197,7 +197,8 @@ impl SaveDialog {
                             .build_widget(ctx, "Overwrite"),
                         Line("Or save a new copy below")
                             .secondary()
-                            .into_widget(ctx),
+                            .into_widget(ctx)
+                            .centered_vert(),
                     ])
                 } else {
                     Widget::nothing()
@@ -469,7 +470,6 @@ impl AltProposals {
     pub fn to_widget_expanded(&self, ctx: &EventCtx, app: &App) -> Widget {
         let mut col = Vec::new();
         for (action, icon) in [
-            ("New", "pencil"),
             ("Load", "folder"),
             ("Save", "save"),
             ("Share", "share"),
@@ -503,10 +503,16 @@ impl AltProposals {
             };
             col.push(Widget::row(vec![
                 button,
-                ctx.style()
-                    .btn_close()
-                    .disabled(self.list.len() == 1)
-                    .build_widget(ctx, &format!("hide proposal {}", idx)),
+                // The first proposal (usually "existing LTNs", unless we're in a special consultation
+                // mode) is special and can't ever be removed
+                if idx != 0 {
+                    ctx.style()
+                        .btn_close()
+                        .disabled(self.list.len() == 1)
+                        .build_widget(ctx, &format!("hide proposal {}", idx))
+                } else {
+                    Widget::nothing()
+                },
             ]));
             // If somebody tries to load too many proposals, just stop
             if idx == 9 {
@@ -519,7 +525,6 @@ impl AltProposals {
     pub fn to_widget_collapsed(&self, ctx: &EventCtx) -> Widget {
         let mut col = Vec::new();
         for (action, icon) in [
-            ("New", "pencil"),
             ("Load", "folder"),
             ("Save", "save"),
             ("Share", "share"),
@@ -542,39 +547,6 @@ impl AltProposals {
         action: &str,
     ) -> Option<Transition> {
         match action {
-            "New" => {
-                // TODO Hack. We want to lock people into a special base proposal. This "New"
-                // button will go away entirely soon, fixing this properly
-                if app.per_map.consultation_id == Some("pt2".to_string()) {
-                    return None;
-                }
-
-                stash_current_proposal(app);
-
-                // This is expensive -- maybe we should just calculate this once and keep a copy
-                // forever
-                ctx.loading_screen("create new proposal", |_, timer| {
-                    // First undo any one-way changes. This is messy to repeat here, but it's not
-                    // straightforward to use make_active.
-                    let mut edits = app.per_map.map.new_edits();
-                    for r in app.edits().one_ways.keys().cloned() {
-                        edits.commands.push(app.per_map.map.edit_road_cmd(r, |new| {
-                            *new = EditRoad::get_orig_from_osm(
-                                app.per_map.map.get_r(r),
-                                app.per_map.map.get_config(),
-                            );
-                        }));
-                    }
-                    app.per_map.map.must_apply_edits(edits, timer);
-
-                    app.per_map.alt_proposals.current_proposal =
-                        AltProposals::new(&app.per_map.map, timer).current_proposal;
-                });
-
-                // Start a new proposal
-                app.per_map.alt_proposals.list.push(None);
-                app.per_map.alt_proposals.current = app.per_map.alt_proposals.list.len() - 1;
-            }
             "Load" => {
                 return Some(Transition::Push(load_picker_ui(
                     ctx,
