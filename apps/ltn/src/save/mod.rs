@@ -21,11 +21,16 @@ pub use share::PROPOSAL_HOST_URL;
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Proposal {
     pub map: MapName,
+    /// "existing LTNs" is a special reserved name
     pub name: String,
     pub abst_version: String,
 
     pub partitioning: Partitioning,
     pub edits: Edits,
+
+    /// If this proposal is an edit to another proposal, store its name
+    #[serde(skip_serializing, skip_deserializing)]
+    pub unsaved_parent: Option<String>,
 }
 
 impl Proposal {
@@ -155,6 +160,7 @@ fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
     proposal.make_active(ctx, app);
 }
 
+// TODO We've outgrown PromptInput
 fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<dyn State<App>> {
     let default_name = app.per_map.alt_proposals.current_proposal.name.clone();
     PromptInput::new_state(
@@ -162,8 +168,22 @@ fn save_ui(ctx: &mut EventCtx, app: &App, preserve_state: PreserveState) -> Box<
         "Name this proposal",
         default_name,
         Box::new(|name, ctx, app| {
-            app.per_map.alt_proposals.current_proposal.name = name;
+            if let Some(err) = if name == "existing LTNs" {
+                Some("You can't overwrite the name \"existing LTNs\"")
+            } else if name.is_empty() {
+                Some("You have to name this proposal")
+            } else {
+                None
+            } {
+                return Transition::Multi(vec![
+                    preserve_state.switch_to_state(ctx, app),
+                    Transition::Push(PopupMsg::new_state(ctx, "Error", vec![err])),
+                ]);
+            }
 
+            // TODO If the name matches parent...
+
+            app.per_map.alt_proposals.current_proposal.name = name;
             match inner_save(app) {
                 // If we changed the name, we'll want to recreate the panel
                 Ok(()) => preserve_state.switch_to_state(ctx, app),
@@ -240,6 +260,7 @@ impl AltProposals {
                 abst_version: map_gui::tools::version().to_string(),
                 partitioning: Partitioning::seed_using_heuristics(map, timer),
                 edits: Edits::default(),
+                unsaved_parent: None,
             },
         }
     }
@@ -248,6 +269,54 @@ impl AltProposals {
     pub fn clear_all_but_current(&mut self) {
         self.list = vec![None];
         self.current = 0;
+    }
+
+    /// Call before making any changes to fork a copy of the proposal and to preserve edit history
+    pub fn before_edit(&mut self) {
+        // Fork the proposal or not?
+        if self.current_proposal.unsaved_parent.is_none() {
+            self.list
+                .insert(self.current, Some(self.current_proposal.clone()));
+            self.current += 1;
+            assert!(self.list[self.current].is_none());
+            self.current_proposal.unsaved_parent = Some(self.current_proposal.name.clone());
+            self.current_proposal.name = format!("(unsaved) {}", self.current_proposal.name);
+        }
+
+        // Handle undo history
+        let copy = self.current_proposal.edits.clone();
+        self.current_proposal.edits.previous_version = Box::new(Some(copy));
+    }
+
+    /// If it's possible no edits were made, undo the previous call to `before_edit` and collapse
+    /// the redundant piece of history. Returns true if the edit was indeed empty.
+    pub fn cancel_empty_edit(&mut self) -> bool {
+        if let Some(prev) = self.current_proposal.edits.previous_version.take() {
+            if self.current_proposal.edits.roads == prev.roads
+                && self.current_proposal.edits.intersections == prev.intersections
+                && self.current_proposal.edits.one_ways == prev.one_ways
+            {
+                self.current_proposal.edits.previous_version = prev.previous_version;
+
+                // Unfork the proposal?
+                // Make some assertions here -- the user shouldn't have had a chance to modify the
+                // list of proposals.
+                assert!(self.current != 0);
+                assert_eq!(
+                    &self.list[self.current - 1].as_ref().unwrap().name,
+                    self.current_proposal.unsaved_parent.as_ref().unwrap()
+                );
+                assert!(self.list.remove(self.current).is_none());
+                self.current -= 1;
+                self.current_proposal = self.list.get_mut(self.current).unwrap().take().unwrap();
+
+                return true;
+            } else {
+                // There was a real difference, keep
+                self.current_proposal.edits.previous_version = Box::new(Some(prev));
+            }
+        }
+        false
     }
 
     pub fn to_widget_expanded(&self, ctx: &EventCtx, app: &App) -> Widget {

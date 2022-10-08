@@ -103,30 +103,6 @@ pub struct DiagonalFilter {
 }
 
 impl Edits {
-    /// Call before making any changes to preserve edit history
-    pub fn before_edit(&mut self) {
-        let copy = self.clone();
-        self.previous_version = Box::new(Some(copy));
-    }
-
-    /// If it's possible no edits were made, undo the previous call to `before_edit` and collapse
-    /// the redundant piece of history. Returns true if the edit was indeed empty.
-    pub fn cancel_empty_edit(&mut self) -> bool {
-        if let Some(prev) = self.previous_version.take() {
-            if self.roads == prev.roads
-                && self.intersections == prev.intersections
-                && self.one_ways == prev.one_ways
-            {
-                self.previous_version = prev.previous_version;
-                return true;
-            } else {
-                // There was a real difference, keep
-                self.previous_version = Box::new(Some(prev));
-            }
-        }
-        false
-    }
-
     /// Modify RoutingParams to respect these modal filters
     pub fn update_routing_params(&self, params: &mut RoutingParams) {
         params.avoid_roads.extend(self.roads.keys().cloned());
