@@ -20,7 +20,7 @@ pub struct ShareProposal {
 
 impl ShareProposal {
     pub fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
-        let checksum = match app.per_map.alt_proposals.current_proposal.checksum(app) {
+        let checksum = match app.per_map.proposals.current_proposal.checksum(app) {
             Ok(checksum) => checksum,
             Err(err) => {
                 return PopupMsg::new_state(
@@ -124,7 +124,7 @@ impl SimpleState<App> for ShareProposal {
                 let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
                 let proposal_contents = app
                     .per_map
-                    .alt_proposals
+                    .proposals
                     .current_proposal
                     .to_gzipped_bytes(app)
                     .unwrap();

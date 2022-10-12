@@ -81,7 +81,7 @@ impl AppwidePanel {
                 app.session.manage_proposals = false;
                 Some(Transition::Recreate)
             } else {
-                crate::save::AltProposals::handle_action(ctx, app, preserve_state, &x)
+                crate::save::Proposals::handle_action(ctx, app, preserve_state, &x)
             };
         }
 
@@ -230,7 +230,7 @@ fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode)
                 .build_widget(ctx, "hide proposals")
                 .align_right(),
         );
-        col.push(app.per_map.alt_proposals.to_widget_expanded(ctx, app));
+        col.push(app.per_map.proposals.to_widget_expanded(ctx, app));
     } else {
         col.push(
             ctx.style()
@@ -241,7 +241,7 @@ fn make_left_panel(ctx: &mut EventCtx, app: &App, top_panel: &Panel, mode: Mode)
                 .align_right(),
         );
         if mode != Mode::Impact && mode != Mode::SelectBoundary {
-            col.push(app.per_map.alt_proposals.to_widget_collapsed(ctx));
+            col.push(app.per_map.proposals.to_widget_collapsed(ctx));
         }
     }
 

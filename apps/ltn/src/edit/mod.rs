@@ -247,7 +247,7 @@ impl State<App> for ResolveOneWayAndFilter {
                 app.per_map.map.must_apply_edits(edits, timer);
             });
 
-            app.per_map.alt_proposals.before_edit();
+            app.per_map.proposals.before_edit();
 
             for r in &self.roads {
                 let r = *r;
@@ -332,7 +332,7 @@ impl State<App> for ResolveBusGate {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
             if x == "Place bus gates" {
-                app.per_map.alt_proposals.before_edit();
+                app.per_map.proposals.before_edit();
                 for (r, dist) in self.roads.drain(..) {
                     mut_edits!(app)
                         .roads

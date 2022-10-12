@@ -50,7 +50,7 @@ impl Proposal {
             }));
         }
 
-        app.per_map.alt_proposals.current_proposal = self;
+        app.per_map.proposals.current_proposal = self;
         app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 
         // Then append any new one-way changes. Edits are applied in order, so the net effect
@@ -111,8 +111,8 @@ impl Proposal {
             stash_current_proposal(app);
 
             // Start a new proposal
-            app.per_map.alt_proposals.list.push(None);
-            app.per_map.alt_proposals.current = app.per_map.alt_proposals.list.len() - 1;
+            app.per_map.proposals.list.push(None);
+            app.per_map.proposals.current = app.per_map.proposals.list.len() - 1;
         }
 
         proposal.make_active(ctx, app);
@@ -141,10 +141,10 @@ impl Proposal {
 fn stash_current_proposal(app: &mut App) {
     // TODO Could we swap and be more efficient?
     *app.per_map
-        .alt_proposals
+        .proposals
         .list
-        .get_mut(app.per_map.alt_proposals.current)
-        .unwrap() = Some(app.per_map.alt_proposals.current_proposal.clone());
+        .get_mut(app.per_map.proposals.current)
+        .unwrap() = Some(app.per_map.proposals.current_proposal.clone());
 }
 
 fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
@@ -152,13 +152,13 @@ fn switch_to_existing_proposal(ctx: &mut EventCtx, app: &mut App, idx: usize) {
 
     let proposal = app
         .per_map
-        .alt_proposals
+        .proposals
         .list
         .get_mut(idx)
         .unwrap()
         .take()
         .unwrap();
-    app.per_map.alt_proposals.current = idx;
+    app.per_map.proposals.current = idx;
 
     proposal.make_active(ctx, app);
 }
@@ -177,7 +177,7 @@ impl SaveDialog {
     ) -> Box<dyn State<App>> {
         let parent = app
             .per_map
-            .alt_proposals
+            .proposals
             .current_proposal
             .unsaved_parent
             .clone();
@@ -266,11 +266,11 @@ impl State<App> for SaveDialog {
                 "Save as" => {
                     let name = self.panel.text_box("input");
 
-                    // TODO If we're clobbering something that exists in AltProposals especially...
+                    // TODO If we're clobbering something that exists in Proposals especially...
                     // watch out
 
-                    app.per_map.alt_proposals.current_proposal.name = name;
-                    app.per_map.alt_proposals.current_proposal.unsaved_parent = None;
+                    app.per_map.proposals.current_proposal.name = name;
+                    app.per_map.proposals.current_proposal.unsaved_parent = None;
                     return match inner_save(app) {
                         // If we changed the name, we'll want to recreate the panel
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
@@ -283,16 +283,13 @@ impl State<App> for SaveDialog {
                     // TODO If the user loaded the parent file again, this'll be confusing. Maybe
                     // ban that?
 
-                    let alt_proposals = &mut app.per_map.alt_proposals;
-                    alt_proposals.current_proposal.name = alt_proposals
-                        .current_proposal
-                        .unsaved_parent
-                        .take()
-                        .unwrap();
+                    let proposals = &mut app.per_map.proposals;
+                    proposals.current_proposal.name =
+                        proposals.current_proposal.unsaved_parent.take().unwrap();
 
                     return match inner_save(app) {
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
-                        // TODO If we fail to save for some reason, the AltProposals panel gets out
+                        // TODO If we fail to save for some reason, the Proposals panel gets out
                         // of sync with the filesystem
                         Err(err) => {
                             self.error(ctx, app, format!("Couldn't save proposal: {}", err))
@@ -325,7 +322,7 @@ impl State<App> for SaveDialog {
 }
 
 fn inner_save(app: &App) -> Result<()> {
-    let proposal = &app.per_map.alt_proposals.current_proposal;
+    let proposal = &app.per_map.proposals.current_proposal;
     let path = abstio::path_ltn_proposals(app.per_map.map.get_name(), &proposal.name);
     let output_buffer = proposal.to_gzipped_bytes(app)?;
     abstio::write_raw(path, &output_buffer)
@@ -363,8 +360,7 @@ fn load_picker_ui(
     )
 }
 
-// TODO Rename? This manages all proposals
-pub struct AltProposals {
+pub struct Proposals {
     // All entries are filled out, except for the current proposal being worked on
     list: Vec<Option<Proposal>>,
     current: usize,
@@ -372,7 +368,7 @@ pub struct AltProposals {
     pub current_proposal: Proposal,
 }
 
-impl AltProposals {
+impl Proposals {
     pub fn new(map: &Map, timer: &mut Timer) -> Self {
         Self {
             list: vec![None],
@@ -485,7 +481,7 @@ impl AltProposals {
                     .text(format!(
                         "{} - {}",
                         idx + 1,
-                        app.per_map.alt_proposals.current_proposal.name
+                        app.per_map.proposals.current_proposal.name
                     ))
                     .disabled(true)
                     .build_def(ctx)
@@ -539,11 +535,11 @@ impl AltProposals {
         match action {
             "New" => {
                 // Fork a new proposal from the first one
-                if app.per_map.alt_proposals.current != 0 {
+                if app.per_map.proposals.current != 0 {
                     switch_to_existing_proposal(ctx, app, 0);
                 }
 
-                app.per_map.alt_proposals.before_edit();
+                app.per_map.proposals.before_edit();
             }
             "Load" => {
                 return Some(Transition::Push(load_picker_ui(
@@ -579,17 +575,17 @@ impl AltProposals {
                     switch_to_existing_proposal(ctx, app, idx);
                 } else if let Some(x) = action.strip_prefix("hide proposal ") {
                     let idx = x.parse::<usize>().unwrap();
-                    if idx == app.per_map.alt_proposals.current {
+                    if idx == app.per_map.proposals.current {
                         // First make sure we're not hiding the current proposal
                         switch_to_existing_proposal(ctx, app, if idx == 0 { 1 } else { idx - 1 });
                     }
 
                     // Remove it
-                    app.per_map.alt_proposals.list.remove(idx);
+                    app.per_map.proposals.list.remove(idx);
 
                     // Fix up indices
-                    if idx < app.per_map.alt_proposals.current {
-                        app.per_map.alt_proposals.current -= 1;
+                    if idx < app.per_map.proposals.current {
+                        app.per_map.proposals.current -= 1;
                     }
                 } else {
                     return None;
