@@ -99,12 +99,17 @@ pub fn find_shortcuts(app: &App, neighbourhood: &Neighbourhood, timer: &mut Time
     let mut requests = Vec::new();
 
     for cell in &neighbourhood.cells {
-        let entrances = find_entrances(map, neighbourhood, cell);
-        let exits = find_exits(map, neighbourhood, cell);
+        let entrances = find_entrances_or_exits(map, neighbourhood, cell, true);
+        let exits = find_entrances_or_exits(map, neighbourhood, cell, false);
 
         for entrance in &entrances {
             for exit in &exits {
-                if entrance.major_road_name != exit.major_road_name {
+                // Most of the time, an entrance/exit connects to only "one" major road. But where
+                // a road name changes, or two major roads meet, we'll have multiple. If two
+                // corners meet and share one main road, still consider that a shortcut -- it might
+                // be a "false positive" or there could be some legitimate reason for a driver to
+                // attempt the shortcut.
+                if entrance.major_road_names != exit.major_road_names {
                     requests.push(PathRequest::vehicle(
                         Position::start(entrance.lane),
                         Position::end(exit.lane, map),
@@ -166,66 +171,48 @@ struct EntryExit {
     // Really this is a DirectedRoadID, but since the pathfinding request later needs to know
     // lanes, just use this
     lane: LaneID,
-    major_road_name: String,
+    major_road_names: BTreeSet<String>,
 }
 
-fn find_entrances(map: &Map, neighbourhood: &Neighbourhood, cell: &Cell) -> Vec<EntryExit> {
-    let mut entrances = Vec::new();
+fn find_entrances_or_exits(
+    map: &Map,
+    neighbourhood: &Neighbourhood,
+    cell: &Cell,
+    entrances: bool,
+) -> Vec<EntryExit> {
+    let mut entry_exits = Vec::new();
     for i in &cell.borders {
-        if let Some(major_road_name) = find_major_road_name(map, neighbourhood, *i) {
-            let mut seen: HashSet<DirectedRoadID> = HashSet::new();
-            for l in map.get_i(*i).get_outgoing_lanes(map, PathConstraints::Car) {
-                let dr = map.get_l(l).get_directed_parent();
-                if !seen.contains(&dr) && cell.roads.contains_key(&dr.road) {
-                    entrances.push(EntryExit {
-                        lane: l,
-                        major_road_name: major_road_name.clone(),
-                    });
-                    seen.insert(dr);
-                }
+        let major_road_names = find_major_road_names(map, neighbourhood, *i);
+        let mut seen: HashSet<DirectedRoadID> = HashSet::new();
+        let lanes = if entrances {
+            map.get_i(*i).get_outgoing_lanes(map, PathConstraints::Car)
+        } else {
+            map.get_i(*i).get_incoming_lanes(map, PathConstraints::Car)
+        };
+        for l in lanes {
+            let dr = map.get_l(l).get_directed_parent();
+            if !seen.contains(&dr) && cell.roads.contains_key(&dr.road) {
+                entry_exits.push(EntryExit {
+                    lane: l,
+                    major_road_names: major_road_names.clone(),
+                });
+                seen.insert(dr);
             }
         }
     }
-    entrances
+    entry_exits
 }
 
-fn find_exits(map: &Map, neighbourhood: &Neighbourhood, cell: &Cell) -> Vec<EntryExit> {
-    let mut exits = Vec::new();
-    for i in &cell.borders {
-        if let Some(major_road_name) = find_major_road_name(map, neighbourhood, *i) {
-            let mut seen: HashSet<DirectedRoadID> = HashSet::new();
-            for l in map.get_i(*i).get_incoming_lanes(map, PathConstraints::Car) {
-                let dr = map.get_l(l).get_directed_parent();
-                if !seen.contains(&dr) && cell.roads.contains_key(&dr.road) {
-                    exits.push(EntryExit {
-                        lane: l,
-                        major_road_name: major_road_name.clone(),
-                    });
-                    seen.insert(dr);
-                }
-            }
-        }
-    }
-    exits
-}
-
-fn find_major_road_name(
+fn find_major_road_names(
     map: &Map,
     neighbourhood: &Neighbourhood,
     i: IntersectionID,
-) -> Option<String> {
-    let mut names = Vec::new();
+) -> BTreeSet<String> {
+    let mut names = BTreeSet::new();
     for r in &map.get_i(i).roads {
         if neighbourhood.perimeter.contains(r) {
-            names.push(map.get_r(*r).get_name(None));
+            names.insert(map.get_r(*r).get_name(None));
         }
     }
-    names.sort();
-    names.dedup();
-    // TODO If the major road changes names or we found a corner, bail out
-    if names.len() == 1 {
-        names.pop()
-    } else {
-        None
-    }
+    names
 }
