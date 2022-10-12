@@ -429,17 +429,8 @@ impl Proposals {
             {
                 self.current_proposal.edits.previous_version = prev.previous_version;
 
-                // Unfork the proposal?
-                // Make some assertions here -- the user shouldn't have had a chance to modify the
-                // list of proposals.
-                assert!(self.current != 0);
-                assert_eq!(
-                    &self.list[self.current - 1].as_ref().unwrap().name,
-                    self.current_proposal.unsaved_parent.as_ref().unwrap()
-                );
-                assert!(self.list.remove(self.current).is_none());
-                self.current -= 1;
-                self.current_proposal = self.list.get_mut(self.current).unwrap().take().unwrap();
+                // TODO Maybe "unfork" the proposal -- remove the unsaved marker. But that depends
+                // on if the previous proposal was already modified or not.
 
                 return true;
             } else {
