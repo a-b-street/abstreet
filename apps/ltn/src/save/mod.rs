@@ -9,8 +9,8 @@ use abstutil::{Counter, Timer};
 use map_model::{EditRoad, Map};
 use widgetry::tools::{ChooseSomething, PopupMsg};
 use widgetry::{
-    Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, MultiKey, Outcome, Panel, State, TextBox,
-    Widget,
+    lctrl, Choice, DrawBaselayer, EventCtx, GfxCtx, Key, Line, MultiKey, Outcome, Panel, State,
+    TextBox, Widget,
 };
 
 use crate::edit::EditMode;
@@ -33,7 +33,7 @@ pub struct Proposal {
 
     /// If this proposal is an edit to another proposal, store its name
     #[serde(skip_serializing, skip_deserializing)]
-    pub unsaved_parent: Option<String>,
+    unsaved_parent: Option<String>,
 }
 
 impl Proposal {
@@ -266,8 +266,8 @@ impl State<App> for SaveDialog {
                 "Save as" => {
                     let name = self.panel.text_box("input");
 
-                    // TODO If we're overwriting something that exists in AltProposals
-                    // especially... watch out
+                    // TODO If we're clobbering something that exists in AltProposals especially...
+                    // watch out
 
                     app.per_map.alt_proposals.current_proposal.name = name;
                     app.per_map.alt_proposals.current_proposal.unsaved_parent = None;
@@ -280,39 +280,15 @@ impl State<App> for SaveDialog {
                     };
                 }
                 "Overwrite" => {
-                    let alt_proposals = &mut app.per_map.alt_proposals;
+                    // TODO If the user loaded the parent file again, this'll be confusing. Maybe
+                    // ban that?
 
-                    // Usually the previous proposal is the one we'll overwrite
-                    if alt_proposals.current != 0
-                        && &alt_proposals.list[alt_proposals.current - 1]
-                            .as_ref()
-                            .unwrap()
-                            .name
-                            == alt_proposals
-                                .current_proposal
-                                .unsaved_parent
-                                .as_ref()
-                                .unwrap()
-                    {
-                        let parent = alt_proposals
-                            .list
-                            .remove(alt_proposals.current - 1)
-                            .unwrap();
-                        alt_proposals.current -= 1;
-                        assert!(alt_proposals.list[alt_proposals.current].is_none());
-                        alt_proposals.current_proposal.unsaved_parent = None;
-                        alt_proposals.current_proposal.name = parent.name;
-                    } else {
-                        // But the user may have hidden it before saving these changes. Just rename
-                        // the current, then.
-                        // TODO If they hid it, then loaded it again and it changed places in the
-                        // list... oh well?
-                        alt_proposals.current_proposal.name = alt_proposals
-                            .current_proposal
-                            .unsaved_parent
-                            .take()
-                            .unwrap();
-                    }
+                    let alt_proposals = &mut app.per_map.alt_proposals;
+                    alt_proposals.current_proposal.name = alt_proposals
+                        .current_proposal
+                        .unsaved_parent
+                        .take()
+                        .unwrap();
 
                     return match inner_save(app) {
                         Ok(()) => self.preserve_state.switch_to_state(ctx, app),
@@ -423,12 +399,23 @@ impl AltProposals {
     pub fn before_edit(&mut self) {
         // Fork the proposal or not?
         if self.current_proposal.unsaved_parent.is_none() {
-            self.list
-                .insert(self.current, Some(self.current_proposal.clone()));
-            self.current += 1;
-            assert!(self.list[self.current].is_none());
+            // Fork a new proposal if we're starting from the immutable baseline
+            let from_immutable = self.current == 0;
+            if from_immutable {
+                self.list
+                    .insert(self.current, Some(self.current_proposal.clone()));
+                self.current += 1;
+                assert!(self.list[self.current].is_none());
+            }
+            // Otherwise, just replace the current proposal with something that's clearly edited
             self.current_proposal.unsaved_parent = Some(self.current_proposal.name.clone());
-            self.current_proposal.name = format!("(unsaved) {}", self.current_proposal.name);
+            if from_immutable {
+                // There'll be name collision if people start multiple unsaved files, but it
+                // shouldn't cause problems
+                self.current_proposal.name = "new proposal*".to_string();
+            } else {
+                self.current_proposal.name = format!("{}*", self.current_proposal.name);
+            }
         }
 
         // Handle undo history
@@ -469,16 +456,18 @@ impl AltProposals {
 
     pub fn to_widget_expanded(&self, ctx: &EventCtx, app: &App) -> Widget {
         let mut col = Vec::new();
-        for (action, icon) in [
-            ("Load", "folder"),
-            ("Save", "save"),
-            ("Share", "share"),
-            ("Export GeoJSON", "export"),
+        for (action, icon, hotkey) in [
+            ("New", "pencil", None),
+            ("Load", "folder", None),
+            ("Save", "save", Some(MultiKey::from(lctrl(Key::S)))),
+            ("Share", "share", None),
+            ("Export GeoJSON", "export", None),
         ] {
             col.push(
                 ctx.style()
                     .btn_plain
                     .icon_text(&format!("system/assets/tools/{icon}.svg"), action)
+                    .hotkey(hotkey)
                     .build_def(ctx),
             );
         }
@@ -525,6 +514,7 @@ impl AltProposals {
     pub fn to_widget_collapsed(&self, ctx: &EventCtx) -> Widget {
         let mut col = Vec::new();
         for (action, icon) in [
+            ("New", "pencil"),
             ("Load", "folder"),
             ("Save", "save"),
             ("Share", "share"),
@@ -547,6 +537,14 @@ impl AltProposals {
         action: &str,
     ) -> Option<Transition> {
         match action {
+            "New" => {
+                // Fork a new proposal from the first one
+                if app.per_map.alt_proposals.current != 0 {
+                    switch_to_existing_proposal(ctx, app, 0);
+                }
+
+                app.per_map.alt_proposals.before_edit();
+            }
             "Load" => {
                 return Some(Transition::Push(load_picker_ui(
                     ctx,
