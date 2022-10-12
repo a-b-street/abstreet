@@ -1514,9 +1514,9 @@ dependencies = [
 
 [[package]]
 name = "geo"
-version = "0.22.0"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f9a9248b7d4f0168bbf24d66d1cf6f11f49949abe44f8b8c15657dafd067cd0"
+checksum = "b684179d4c034f9e6718692601a7ec77e4a3b654dbc09b5e4fd342f0e48f2ba1"
 dependencies = [
  "float_next_after",
  "geo-types",
@@ -1529,9 +1529,9 @@ dependencies = [
 
 [[package]]
 name = "geo-types"
-version = "0.7.6"
+version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9805fbfcea97de816e6408e938603241879cc41eea3fba3f84f122f4f6f9c54"
+checksum = "e8d77ceb80f375dc4cda113a3ae1b06a36ef623f8f035c03752ca6698f4ddfee"
 dependencies = [
  "approx",
  "num-traits",
@@ -3149,8 +3149,9 @@ dependencies = [
 
 [[package]]
 name = "polylabel"
-version = "2.4.0"
-source = "git+https://github.com/urschrei/polylabel-rs?rev=b919b8587b491b9a952a6d4c0670558bfd38e034#b919b8587b491b9a952a6d4c0670558bfd38e034"
+version = "2.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "070cbd209eeb23454a6536be5cc62e52e55ed56c0b42a87812c1cbaec5b2fdc7"
 dependencies = [
  "geo",
  "libc",
