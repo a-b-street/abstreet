@@ -63,7 +63,7 @@ pub fn handle_world_outcome(
                 // We always create it from-scratch when needed.
             });
 
-            app.per_map.alt_proposals.before_edit();
+            app.per_map.proposals.before_edit();
 
             let r_edit = app.per_map.map.get_r_edit(r);
             // Was the road originally like this? Use the original OSM tags to decide.
@@ -93,7 +93,7 @@ pub fn handle_world_outcome(
 pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
     // use before_edit to maybe fork the proposal, but then we need to undo the no-op change it
     // pushes onto edit history
-    app.per_map.alt_proposals.before_edit();
+    app.per_map.proposals.before_edit();
     mut_edits!(app) = mut_edits!(app).previous_version.take().unwrap();
 
     // This is the real previous state that we'll rollback to

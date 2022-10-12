@@ -38,7 +38,7 @@ pub struct PerMap {
     // in the "before changes" case, we have to use these. Do NOT use the map's built-in
     // pathfinder. (https://github.com/a-b-street/abstreet/issues/852 would make this more clear)
     pub routing_params_before_changes: RoutingParams,
-    pub alt_proposals: crate::save::AltProposals,
+    pub proposals: crate::save::Proposals,
     pub impact: crate::impact::Impact,
 
     pub consultation: Option<NeighbourhoodID>,
@@ -64,7 +64,7 @@ impl PerMap {
         let draw_poi_icons = render_poi_icons(ctx, &map);
         let draw_bus_routes = render_bus_routes(ctx, &map);
 
-        let alt_proposals = crate::save::AltProposals::new(&map, timer);
+        let proposals = crate::save::Proposals::new(&map, timer);
 
         let per_map = Self {
             map,
@@ -73,7 +73,7 @@ impl PerMap {
             current_neighbourhood: None,
 
             routing_params_before_changes: RoutingParams::default(),
-            alt_proposals,
+            proposals,
             impact: crate::impact::Impact::empty(ctx),
 
             consultation: None,
@@ -157,7 +157,7 @@ impl AppLike for App {
         crate::filters::transform_existing_filters(ctx, self, timer);
         self.per_map.draw_all_filters = self
             .per_map
-            .alt_proposals
+            .proposals
             .current_proposal
             .edits
             .draw(ctx, &self.per_map.map);
@@ -273,10 +273,10 @@ impl App {
     }
 
     pub fn edits(&self) -> &Edits {
-        &self.per_map.alt_proposals.current_proposal.edits
+        &self.per_map.proposals.current_proposal.edits
     }
     pub fn partitioning(&self) -> &Partitioning {
-        &self.per_map.alt_proposals.current_proposal.partitioning
+        &self.per_map.proposals.current_proposal.partitioning
     }
 }
 

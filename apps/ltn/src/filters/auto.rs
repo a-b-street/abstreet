@@ -62,7 +62,7 @@ impl Heuristic {
 
         // TODO If we already have no shortcuts, stop
 
-        app.per_map.alt_proposals.before_edit();
+        app.per_map.proposals.before_edit();
 
         match self {
             Heuristic::Greedy => greedy(app, neighbourhood),
@@ -71,7 +71,7 @@ impl Heuristic {
             Heuristic::OnlyOneBorder => only_one_border(app, neighbourhood),
         }
 
-        let empty = app.per_map.alt_proposals.cancel_empty_edit();
+        let empty = app.per_map.proposals.cancel_empty_edit();
         after_edit(ctx, app);
         if empty {
             bail!("No new filters created");
