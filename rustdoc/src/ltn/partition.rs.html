@@ -447,7 +447,6 @@
 <span id="447">447</span>
 <span id="448">448</span>
 <span id="449">449</span>
-<span id="450">450</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BTreeMap</span>, <span class="ident">BTreeSet</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
@@ -527,10 +526,9 @@
         <span class="self">self</span>.<span class="ident">neighbourhoods</span>.<span class="ident">is_empty</span>()
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_using_heuristics</span>(<span class="ident">app</span>: <span class="kw-2">&amp;</span><span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Partitioning</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">seed_using_heuristics</span>(<span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) -&gt; <span class="ident">Partitioning</span> {
         <span class="comment">// Try the easy thing first, but then give up</span>
         <span class="lifetime">&#39;METHOD</span>: <span class="kw">for</span> <span class="ident">use_expensive_blockfinding</span> <span class="kw">in</span> [<span class="bool-val">false</span>, <span class="bool-val">true</span>] {
-            <span class="kw">let</span> <span class="ident">map</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>;
             <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;find single blocks&quot;</span>);
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_blocks</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">single_block_perims</span> <span class="op">=</span> <span class="ident">Vec::new</span>();

@@ -547,12 +547,6 @@
 <span id="547">547</span>
 <span id="548">548</span>
 <span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">osm2streets::Direction</span>;
@@ -602,8 +596,7 @@
                 .<span class="ident">get_outer_ring</span>()
                 .<span class="ident">clone</span>(),
             <span class="macro">vec!</span>[<span class="ident">app</span>
-                .<span class="ident">per_map</span>
-                .<span class="ident">partitioning</span>
+                .<span class="ident">partitioning</span>()
                 .<span class="ident">neighbourhood_boundary_polygon</span>(<span class="ident">app</span>, <span class="ident">id</span>)
                 .<span class="ident">into_outer_ring</span>()],
         );
@@ -629,7 +622,7 @@
             <span class="ident">highlight_cell</span>: <span class="ident">World::unbounded</span>(),
             <span class="ident">edit</span>: <span class="ident">EditNeighbourhood::temporary</span>(),
             <span class="ident">preserve_state</span>: <span class="ident"><span class="kw">crate</span>::save::PreserveState::DesignLTN</span>(
-                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_blocks_in_neighbourhood</span>(<span class="ident">id</span>),
+                <span class="ident">app</span>.<span class="ident">partitioning</span>().<span class="ident">all_blocks_in_neighbourhood</span>(<span class="ident">id</span>),
             ),
 
             <span class="ident">show_error</span>: <span class="ident">Drawable::empty</span>(<span class="ident">ctx</span>),
@@ -682,8 +675,7 @@
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="macro">format!</span>(
                     <span class="string">&quot;Area: {}&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">per_map</span>
-                        .<span class="ident">partitioning</span>
+                    <span class="ident">app</span>.<span class="ident">partitioning</span>()
                         .<span class="ident">neighbourhood_area_km2</span>(<span class="self">self</span>.<span class="ident">neighbourhood</span>.<span class="ident">id</span>)
                 )
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
@@ -976,21 +968,17 @@
             <span class="ident">ctx</span>.<span class="ident">style</span>()
                 .<span class="ident">btn_plain</span>
                 .<span class="ident">icon</span>(<span class="string">&quot;system/assets/tools/undo.svg&quot;</span>)
-                .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
+                .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">previous_version</span>.<span class="ident">is_none</span>())
                 .<span class="ident">hotkey</span>(<span class="ident">lctrl</span>(<span class="ident">Key::Z</span>))
                 .<span class="ident">build_widget</span>(<span class="ident">ctx</span>, <span class="string">&quot;undo&quot;</span>),
             <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
                 <span class="comment">// TODO Only count new filters, not existing</span>
                 <span class="macro">format!</span>(
                     <span class="string">&quot;{} filters added&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">len</span>()
+                    <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">intersections</span>.<span class="ident">len</span>()
                 )
                 .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
-                <span class="macro">format!</span>(
-                    <span class="string">&quot;{} road directions changed&quot;</span>,
-                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">one_ways</span>.<span class="ident">len</span>()
-                )
-                .<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                <span class="macro">format!</span>(<span class="string">&quot;{} road directions changed&quot;</span>, <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">one_ways</span>.<span class="ident">len</span>()).<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
             ]),
         ]),
         <span class="ident">per_tab_contents</span>,

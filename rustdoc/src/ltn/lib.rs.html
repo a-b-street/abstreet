@@ -261,14 +261,12 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
-<span id="264">264</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
-<span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>, <span class="ident">RoutingParams</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">Map</span>, <span class="ident">PathConstraints</span>, <span class="ident">Road</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::FutureLoader</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">EventCtx</span>, <span class="ident">Settings</span>, <span class="ident">State</span>};
 
@@ -353,8 +351,6 @@
                     .<span class="ident">layers</span>
                     .<span class="ident">event</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">cs</span>, <span class="ident">components::Mode::PickArea</span>, <span class="prelude-val">None</span>);
 
-                <span class="comment">// Load a proposal first? Make sure to restore the partitioning from a file before</span>
-                <span class="comment">// calling PickArea</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="kw-2">ref</span> <span class="ident">name</span>) <span class="op">=</span> <span class="ident">args</span>.<span class="ident">proposal</span> {
                     <span class="comment">// Remote edits require another intermediate state to load</span>
                     <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">id</span>) <span class="op">=</span> <span class="ident">name</span>.<span class="ident">strip_prefix</span>(<span class="string">&quot;remote/&quot;</span>) {
@@ -375,7 +371,7 @@
     });
 }
 
-<span class="comment">// Proposal should already be loaded by now</span>
+<span class="comment">// A Proposal should already be loaded by now, unless consultation is set</span>
 <span class="kw">fn</span> <span class="ident">setup_initial_states</span>(
     <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>,
     <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>,
@@ -388,11 +384,13 @@
             <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode not supported on this map&quot;</span>);
         }
 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+
         <span class="kw">let</span> <span class="ident">focus_on_street</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">consultation</span>.<span class="ident">as_ref</span>() {
             <span class="string">&quot;pt1&quot;</span> =&gt; <span class="string">&quot;Gregory Street&quot;</span>,
             <span class="string">&quot;pt2&quot;</span> =&gt; {
                 <span class="comment">// Start from a baked-in proposal with special boundaries</span>
-                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">abstio::path</span>(
+                <span class="ident">consultation_proposal_path</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">abstio::path</span>(
                     <span class="string">&quot;system/ltn_proposals/bristol_beaufort_road.json.gz&quot;</span>,
                 ));
                 <span class="string">&quot;Jubilee Road&quot;</span>
@@ -401,11 +399,14 @@
         };
 
         <span class="comment">// If we already loaded something from a saved proposal, then don&#39;t clear anything</span>
-        <span class="kw">if</span> <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">map</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>.<span class="ident">get_name</span>() {
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">alt_proposals</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::save::AltProposals::new</span>();
-            <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;initialize&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
-                <span class="ident"><span class="kw">crate</span>::clear_current_proposal</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
-            });
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">consultation_proposal_path</span> {
+            <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">path</span>.<span class="ident">clone</span>()).<span class="ident">is_some</span>() {
+                <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode broken; go fix {path} manually&quot;</span>);
+            }
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">clear_all_but_current</span>();
+            <span class="comment">// TODO Kind of a weird hack -- rename this to &quot;existing LTNs&quot; so we can&#39;t overwrite</span>
+            <span class="comment">// it!</span>
+            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;existing LTNs&quot;</span>.<span class="ident">to_string</span>();
         }
 
         <span class="comment">// Look for the neighbourhood containing one small street</span>
@@ -418,8 +419,7 @@
             .<span class="ident">expect</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;Can&#39;t find {focus_on_street}&quot;</span>))
             .<span class="ident">id</span>;
         <span class="kw">let</span> (<span class="ident">neighbourhood</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">app</span>
-            .<span class="ident">per_map</span>
-            .<span class="ident">partitioning</span>
+            .<span class="ident">partitioning</span>()
             .<span class="ident">all_neighbourhoods</span>()
             .<span class="ident">iter</span>()
             .<span class="ident">find</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="ident">info</span>)<span class="op">|</span> <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">perimeter</span>.<span class="ident">interior</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">r</span>))
@@ -496,26 +496,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">after_edit</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;</span><span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) {
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>);
-}
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">clear_current_proposal</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">path</span>) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation_proposal_path</span>.<span class="ident">clone</span>() {
-        <span class="kw">if</span> <span class="ident"><span class="kw">crate</span>::save::Proposal::load_from_path</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">path</span>.<span class="ident">clone</span>()).<span class="ident">is_some</span>() {
-            <span class="macro">panic!</span>(<span class="string">&quot;Consultation mode broken; go fix {path} manually&quot;</span>);
-        }
-        <span class="kw">return</span>;
-    }
-
-    <span class="comment">// TODO How much of this can go to PerMap? Maybe we need to explicitly store the original</span>
-    <span class="comment">// detected filters as an immutable proposal, calculated in PerMap::new</span>
-
-    <span class="comment">// Reset this first. transform_existing_filters will fill some out.</span>
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">routing_params_before_changes</span> <span class="op">=</span> <span class="ident">RoutingParams::default</span>();
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span> <span class="op">=</span> <span class="ident">Edits::default</span>();
-    <span class="ident"><span class="kw">crate</span>::filters::transform_existing_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">timer</span>);
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span> <span class="op">=</span> <span class="ident">Partitioning::seed_using_heuristics</span>(<span class="ident">app</span>, <span class="ident">timer</span>);
-    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>);
+    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">draw_all_filters</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">draw</span>(<span class="ident">ctx</span>, <span class="kw-2">&amp;</span><span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">map</span>);
 }
 
 <span class="kw">fn</span> <span class="ident">is_private</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>) -&gt; <span class="ident">bool</span> {
@@ -525,6 +506,23 @@
 
 <span class="kw">fn</span> <span class="ident">is_driveable</span>(<span class="ident">road</span>: <span class="kw-2">&amp;</span><span class="ident">Road</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span><span class="ident">Map</span>) -&gt; <span class="ident">bool</span> {
     <span class="ident">PathConstraints::Car</span>.<span class="ident">can_use_road</span>(<span class="ident">road</span>, <span class="ident">map</span>) <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">is_private</span>(<span class="ident">road</span>)
+}
+
+<span class="comment">// The current edits and partitioning are stored deeply nested in App. For read-only access, we can</span>
+<span class="comment">// use a regular helper method. For writing, we can&#39;t, because we&#39;ll get a borrow error -- so</span>
+<span class="comment">// instead just use macros to make it less annoying to modify</span>
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">mut_edits</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>:<span class="ident">ident</span>) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">edits</span>
+    };
+}
+
+<span class="attribute">#[<span class="ident">macro_export</span>]</span>
+<span class="macro">macro_rules!</span> <span class="ident">mut_partitioning</span> {
+    (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>:<span class="ident">ident</span>) =&gt; {
+        <span class="macro-nonterminal">$</span><span class="macro-nonterminal">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">current_proposal</span>.<span class="ident">partitioning</span>
+    };
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>

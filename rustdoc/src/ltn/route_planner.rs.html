@@ -474,7 +474,7 @@
 
         <span class="comment">// Fade all neighbourhood interiors, so it&#39;s very clear when a route cuts through</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">batch</span> <span class="op">=</span> <span class="ident">GeomBatch::new</span>();
-        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">partitioning</span>.<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
+        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">app</span>.<span class="ident">partitioning</span>().<span class="ident">all_neighbourhoods</span>().<span class="ident">values</span>() {
             <span class="ident">batch</span>.<span class="ident">push</span>(<span class="ident">app</span>.<span class="ident">cs</span>.<span class="ident">fade_map_dark</span>, <span class="ident">info</span>.<span class="ident">block</span>.<span class="ident">polygon</span>.<span class="ident">clone</span>());
         }
 
@@ -611,7 +611,7 @@
         <span class="comment">// The route respecting the filters</span>
         <span class="kw">let</span> <span class="ident">driving_after_changes_time</span> <span class="op">=</span> {
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">params</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">routing_params</span>().<span class="ident">clone</span>();
-            <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
+            <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">update_routing_params</span>(<span class="kw-2">&amp;mut</span> <span class="ident">params</span>);
             <span class="ident">params</span>.<span class="ident">main_road_penalty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">main_road_penalty</span>;
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_time</span> <span class="op">=</span> <span class="ident">Duration::ZERO</span>;

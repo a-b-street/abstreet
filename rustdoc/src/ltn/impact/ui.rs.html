@@ -560,7 +560,7 @@
             });
         }
 
-        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">impact</span>.<span class="ident">change_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">get_change_key</span>() {
+        <span class="kw">if</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">impact</span>.<span class="ident">change_key</span> <span class="op">!</span><span class="op">=</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">get_change_key</span>() {
             <span class="ident">ctx</span>.<span class="ident">loading_screen</span>(<span class="string">&quot;recalculate impact&quot;</span>, <span class="op">|</span><span class="ident">ctx</span>, <span class="ident">timer</span><span class="op">|</span> {
                 <span class="comment">// Avoid a double borrow</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">impact</span> <span class="op">=</span> <span class="ident">std::mem::replace</span>(<span class="kw-2">&amp;mut</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">impact</span>, <span class="ident">Impact::empty</span>(<span class="ident">ctx</span>));

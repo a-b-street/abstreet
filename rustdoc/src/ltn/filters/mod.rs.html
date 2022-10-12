@@ -399,34 +399,6 @@
 <span id="399">399</span>
 <span id="400">400</span>
 <span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -441,7 +413,7 @@
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::existing::transform_existing_filters</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::App</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">mut_edits</span>, <span class="ident">App</span>};
 
 <span class="doccomment">/// Stored in App per-map state. Before making any changes, call `before_edit`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -532,30 +504,6 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Edits</span> {
-    <span class="doccomment">/// Call before making any changes to preserve edit history</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">before_edit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">copy</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">clone</span>();
-        <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">copy</span>));
-    }
-
-    <span class="doccomment">/// If it&#39;s possible no edits were made, undo the previous call to `before_edit` and collapse</span>
-    <span class="doccomment">/// the redundant piece of history. Returns true if the edit was indeed empty.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cancel_empty_edit</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">prev</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">previous_version</span>.<span class="ident">take</span>() {
-            <span class="kw">if</span> <span class="self">self</span>.<span class="ident">roads</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">roads</span>
-                <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">intersections</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">intersections</span>
-                <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">one_ways</span> <span class="op">==</span> <span class="ident">prev</span>.<span class="ident">one_ways</span>
-            {
-                <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">prev</span>.<span class="ident">previous_version</span>;
-                <span class="kw">return</span> <span class="bool-val">true</span>;
-            } <span class="kw">else</span> {
-                <span class="comment">// There was a real difference, keep</span>
-                <span class="self">self</span>.<span class="ident">previous_version</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="prelude-val">Some</span>(<span class="ident">prev</span>));
-            }
-        }
-        <span class="bool-val">false</span>
-    }
-
     <span class="doccomment">/// Modify RoutingParams to respect these modal filters</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">update_routing_params</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">params</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RoutingParams</span>) {
         <span class="ident">params</span>.<span class="ident">avoid_roads</span>.<span class="ident">extend</span>(<span class="self">self</span>.<span class="ident">roads</span>.<span class="ident">keys</span>().<span class="ident">cloned</span>());
@@ -693,18 +641,18 @@
             <span class="kw">let</span> <span class="ident">alt1</span> <span class="op">=</span> <span class="ident">DiagonalFilter::new</span>(<span class="ident">app</span>, <span class="ident">i</span>, <span class="ident">roads</span>[<span class="number">0</span>], <span class="ident">roads</span>[<span class="number">1</span>]);
             <span class="kw">let</span> <span class="ident">alt2</span> <span class="op">=</span> <span class="ident">DiagonalFilter::new</span>(<span class="ident">app</span>, <span class="ident">i</span>, <span class="ident">roads</span>[<span class="number">1</span>], <span class="ident">roads</span>[<span class="number">2</span>]);
 
-            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
+            <span class="kw">match</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">intersections</span>.<span class="ident">get</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>) {
                 <span class="prelude-val">Some</span>(<span class="ident">prev</span>) =&gt; {
                     <span class="kw">if</span> <span class="ident">alt1</span>.<span class="ident">approx_eq</span>(<span class="ident">prev</span>) {
-                        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt2</span>);
+                        <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt2</span>);
                     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">alt2</span>.<span class="ident">approx_eq</span>(<span class="ident">prev</span>) {
-                        <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
+                        <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">intersections</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">i</span>);
                     } <span class="kw">else</span> {
                         <span class="macro">unreachable!</span>()
                     }
                 }
                 <span class="prelude-val">None</span> =&gt; {
-                    <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt1</span>);
+                    <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">intersections</span>.<span class="ident">insert</span>(<span class="ident">i</span>, <span class="ident">alt1</span>);
                 }
             }
         } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">&gt;</span> <span class="number">1</span> {
@@ -727,11 +675,8 @@
             }
 
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">add_filter_to</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">roads</span>
-                .<span class="ident">iter</span>()
-                .<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>))
-            {
-                <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">edits</span>.<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">idx</span>]);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">idx</span>) <span class="op">=</span> <span class="ident">roads</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">r</span><span class="op">|</span> <span class="ident">app</span>.<span class="ident">edits</span>().<span class="ident">roads</span>.<span class="ident">contains_key</span>(<span class="ident">r</span>)) {
+                <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">roads</span>.<span class="ident">remove</span>(<span class="kw-2">&amp;</span><span class="ident">roads</span>[<span class="ident">idx</span>]);
                 <span class="kw">if</span> <span class="ident">idx</span> <span class="op">!</span><span class="op">=</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span> {
                     <span class="ident">add_filter_to</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">roads</span>[<span class="ident">idx</span> <span class="op">+</span> <span class="number">1</span>]);
                 }
@@ -745,8 +690,7 @@
                 } <span class="kw">else</span> {
                     <span class="ident">road</span>.<span class="ident">length</span>()
                 };
-                <span class="ident">app</span>.<span class="ident">per_map</span>
-                    .<span class="ident">edits</span>
+                <span class="macro">mut_edits!</span>(<span class="ident">app</span>)
                     .<span class="ident">roads</span>
                     .<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>));
             }
