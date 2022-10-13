@@ -1059,13 +1059,9 @@ impl TutorialState {
                         assert_eq!(r.lanes.len(), 6);
                         r.lanes[2].id
                     };
-                    let lane_near_bldg = {
-                        let r = map.get_r(
-                            map.find_r_by_osm_id(OriginalRoad::new(6484869, (53163501, 53069236)))
-                                .unwrap(),
-                        );
-                        assert_eq!(r.lanes.len(), 6);
-                        r.lanes[3].id
+                    let spawn_by_goal_bldg = {
+                        let pos = map.get_b(goal_bldg).driving_connection(map).unwrap().0;
+                        Position::new(pos.lane(), Distance::ZERO)
                     };
 
                     let mut scenario = Scenario::empty(map, "prank");
@@ -1089,10 +1085,7 @@ impl TutorialState {
                             trips: vec![IndividTrip::new(
                                 Time::START_OF_DAY,
                                 TripPurpose::Shopping,
-                                TripEndpoint::SuddenlyAppear(Position::new(
-                                    lane_near_bldg,
-                                    map.get_l(lane_near_bldg).length() / 2.0,
-                                )),
+                                TripEndpoint::SuddenlyAppear(spawn_by_goal_bldg),
                                 TripEndpoint::Building(goal_bldg),
                                 TripMode::Drive,
                             )],
