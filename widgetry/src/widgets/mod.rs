@@ -569,6 +569,15 @@ impl Widget {
         .into_widget(ctx)
     }
 
+    // TODO Clean up other uses
+    pub fn vertical_separator(ctx: &EventCtx) -> Widget {
+        let thickness = 3.0;
+        GeomBatch::from(vec![(Color::CLEAR, Polygon::rectangle(thickness, 0.1))])
+            .into_widget(ctx)
+            .container()
+            .bg(ctx.style().section_outline.1)
+    }
+
     pub fn placeholder(ctx: &EventCtx, label: &str) -> Widget {
         Text::new().into_widget(ctx).named(label)
     }

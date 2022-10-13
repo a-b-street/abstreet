@@ -406,7 +406,6 @@ fn make_bottom_panel(
     appwide_panel: &AppwidePanel,
     per_tab_contents: Widget,
 ) -> Panel {
-    // TODO Widget::vert_separator, but pick the height automatically?
     let row = Widget::row(vec![
         edit_mode(ctx, app),
         if let EditMode::Shortcuts(ref focus) = app.session.edit_mode {
@@ -415,6 +414,7 @@ fn make_bottom_panel(
             Widget::nothing()
         }
         .named("edit mode contents"),
+        Widget::vertical_separator(ctx),
         Widget::row(vec![
             ctx.style()
                 .btn_plain
@@ -432,9 +432,11 @@ fn make_bottom_panel(
                 format!("{} road directions changed", app.edits().one_ways.len()).text_widget(ctx),
             ]),
         ]),
+        Widget::vertical_separator(ctx),
         per_tab_contents,
         if app.per_map.consultation.is_none() {
             Widget::row(vec![
+                Widget::vertical_separator(ctx),
                 ctx.style()
                     .btn_outline
                     .text("Adjust boundary")
@@ -454,52 +456,47 @@ fn make_bottom_panel(
 
 fn edit_mode(ctx: &mut EventCtx, app: &App) -> Widget {
     let edit_mode = &app.session.edit_mode;
-    let filter = |ft: FilterType, hide_color: Color, name: &str| {
-        let mut btn = ctx
-            .style()
-            .btn_solid_primary
-            .icon(ft.svg_path())
-            .image_color(
-                RewriteColor::Change(hide_color, Color::CLEAR),
-                ControlState::Default,
-            )
-            .image_color(
-                RewriteColor::Change(hide_color, Color::CLEAR),
-                ControlState::Disabled,
-            )
-            .disabled(matches!(edit_mode, EditMode::Filters) && app.session.filter_type == ft)
-            .tooltip_and_disabled({
-                let mut txt = Text::new();
-                if app.session.filter_type == ft {
-                    txt.add_line(Line(Key::F1.describe()).fg(ctx.style().text_hotkey_color));
-                    txt.append(Line(" - "));
-                } else {
-                    txt.add_line("");
-                }
-                txt.append(Line(name));
-                txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
-                txt.append(Line(
-                    " a road or intersection to add or remove a modal filter",
-                ));
-                txt
-            });
-        if app.session.filter_type == ft {
-            btn = btn.hotkey(Key::F1);
-        }
-        btn.build_widget(ctx, name)
+    let hide_color = app.session.filter_type.hide_color();
+    let name = match app.session.filter_type {
+        FilterType::WalkCycleOnly => "Modal filter -- walking/cycling only",
+        FilterType::NoEntry => "Modal filter - no entry",
+        FilterType::BusGate => "Bus gate",
     };
 
     Widget::row(vec![
-        Widget::row(vec![
-            filter(
-                FilterType::WalkCycleOnly,
-                Color::hex("#0b793a"),
-                "Modal filter -- walking/cycling only",
-            ),
-            filter(FilterType::NoEntry, Color::RED, "Modal filter - no entry"),
-            filter(FilterType::BusGate, *colors::BUS_ROUTE, "Bus gate"),
-        ])
-        .section(ctx),
+        Widget::custom_row(vec![
+            ctx.style()
+                .btn_solid_primary
+                .icon(app.session.filter_type.svg_path())
+                .image_color(
+                    RewriteColor::Change(hide_color, Color::CLEAR),
+                    ControlState::Default,
+                )
+                .image_color(
+                    RewriteColor::Change(hide_color, Color::CLEAR),
+                    ControlState::Disabled,
+                )
+                .disabled(matches!(edit_mode, EditMode::Filters))
+                .tooltip_and_disabled({
+                    let mut txt = Text::new();
+                    txt.add_line(Line(Key::F1.describe()).fg(ctx.style().text_hotkey_color));
+                    txt.append(Line(" - "));
+                    txt.append(Line(name));
+                    txt.add_line(Line("Click").fg(ctx.style().text_hotkey_color));
+                    txt.append(Line(
+                        " a road or intersection to add or remove a modal filter",
+                    ));
+                    txt
+                })
+                .hotkey(Key::F1)
+                .build_widget(ctx, name)
+                .centered_vert(),
+            ctx.style()
+                .btn_plain
+                .dropdown()
+                .build_widget(ctx, "Change modal filter")
+                .centered_vert(),
+        ]),
         ctx.style()
             .btn_solid_primary
             .icon("system/assets/tools/select.svg")

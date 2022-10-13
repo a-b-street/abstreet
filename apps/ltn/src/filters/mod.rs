@@ -9,10 +9,10 @@ use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line};
 use map_model::{EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
-use widgetry::{Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
+use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
 pub use self::existing::transform_existing_filters;
-use crate::{mut_edits, App};
+use crate::{colors, mut_edits, App};
 
 /// Stored in App per-map state. Before making any changes, call `before_edit`.
 #[derive(Clone, Default, Serialize, Deserialize)]
@@ -72,6 +72,14 @@ impl FilterType {
             FilterType::NoEntry => "system/assets/tools/no_entry.svg",
             FilterType::WalkCycleOnly => "system/assets/tools/modal_filter.svg",
             FilterType::BusGate => "system/assets/tools/bus_gate.svg",
+        }
+    }
+
+    pub fn hide_color(self) -> Color {
+        match self {
+            FilterType::WalkCycleOnly => Color::hex("#0b793a"),
+            FilterType::NoEntry => Color::RED,
+            FilterType::BusGate => *colors::BUS_ROUTE,
         }
     }
 }

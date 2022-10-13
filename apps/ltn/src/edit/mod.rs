@@ -11,7 +11,10 @@ use map_model::{EditRoad, IntersectionID, Road, RoadID};
 use osm2streets::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
-use widgetry::{DrawBaselayer, EventCtx, GfxCtx, Line, Outcome, Panel, State, Text, Widget};
+use widgetry::{
+    Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, Widget,
+};
 
 use crate::{
     after_edit, is_private, mut_edits, App, FilterType, Neighbourhood, RoadFilter, Transition,
@@ -121,20 +124,12 @@ impl EditNeighbourhood {
                 }
                 EditOutcome::Transition(Transition::Recreate)
             }
-            "Modal filter - no entry" => {
-                app.session.filter_type = FilterType::NoEntry;
+            "Modal filter - no entry" | "Modal filter -- walking/cycling only" | "Bus gate" => {
                 app.session.edit_mode = EditMode::Filters;
                 EditOutcome::UpdatePanelAndWorld
             }
-            "Modal filter -- walking/cycling only" => {
-                app.session.filter_type = FilterType::WalkCycleOnly;
-                app.session.edit_mode = EditMode::Filters;
-                EditOutcome::UpdatePanelAndWorld
-            }
-            "Bus gate" => {
-                app.session.filter_type = FilterType::BusGate;
-                app.session.edit_mode = EditMode::Filters;
-                EditOutcome::UpdatePanelAndWorld
+            "Change modal filter" => {
+                EditOutcome::Transition(Transition::Push(ChangeFilterType::new_state(ctx, app)))
             }
             "Freehand filters" => {
                 app.session.edit_mode = EditMode::FreehandFilters(PolyLineLasso::new());
@@ -343,6 +338,102 @@ impl State<App> for ResolveBusGate {
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }
+        Transition::Keep
+    }
+
+    fn draw_baselayer(&self) -> DrawBaselayer {
+        DrawBaselayer::PreviousState
+    }
+
+    fn draw(&self, g: &mut GfxCtx, app: &App) {
+        grey_out_map(g, app);
+        self.panel.draw(g);
+    }
+}
+
+struct ChangeFilterType {
+    panel: Panel,
+}
+
+impl ChangeFilterType {
+    fn new_state(ctx: &mut EventCtx, app: &App) -> Box<dyn State<App>> {
+        let filter = |ft: FilterType, hotkey: Key, name: &str| {
+            ctx.style()
+                .btn_solid_primary
+                .icon_text(ft.svg_path(), name)
+                .image_color(
+                    RewriteColor::Change(ft.hide_color(), Color::CLEAR),
+                    ControlState::Default,
+                )
+                .image_color(
+                    RewriteColor::Change(ft.hide_color(), Color::CLEAR),
+                    ControlState::Disabled,
+                )
+                .disabled(app.session.filter_type == ft)
+                .hotkey(hotkey)
+                .build_def(ctx)
+        };
+
+        let panel = Panel::new_builder(Widget::col(vec![
+            Widget::row(vec![
+                Line("Choose a modal filter to place on streets")
+                    .small_heading()
+                    .into_widget(ctx),
+                ctx.style().btn_close_widget(ctx),
+            ]),
+            Widget::row(vec![
+                Widget::col(vec![
+                    filter(
+                        FilterType::WalkCycleOnly,
+                        Key::Num1,
+                        "Walking/cycling only",
+                    ),
+                    filter(FilterType::NoEntry, Key::Num2, "No entry"),
+                    filter(FilterType::BusGate, Key::Num3, "Bus gate"),
+                ]),
+                Widget::vertical_separator(ctx),
+                Widget::col(vec![
+                    Image::from_path(app.session.filter_type.svg_path())
+                        .untinted()
+                        .dims(100.0)
+                        .into_widget(ctx)
+                        .centered_horiz(),
+                    // TODO Ambulances, etc
+                    Text::from(Line(match app.session.filter_type {
+                        FilterType::WalkCycleOnly => "A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.",
+                        FilterType::NoEntry => "An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.",
+                        FilterType::BusGate => "A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.",
+                    })).wrap_to_pct(ctx, 20).into_widget(ctx),
+                ]),
+            ]),
+            ctx.style().btn_solid_primary.text("OK").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
+        ]))
+        .build(ctx);
+        Box::new(Self { panel })
+    }
+}
+
+impl State<App> for ChangeFilterType {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
+        if let Outcome::Clicked(x) = self.panel.event(ctx) {
+            return match x.as_ref() {
+                "No entry" => {
+                    app.session.filter_type = FilterType::NoEntry;
+                    Transition::Replace(Self::new_state(ctx, app))
+                }
+                "Walking/cycling only" => {
+                    app.session.filter_type = FilterType::WalkCycleOnly;
+                    Transition::Replace(Self::new_state(ctx, app))
+                }
+                "Bus gate" => {
+                    app.session.filter_type = FilterType::BusGate;
+                    Transition::Replace(Self::new_state(ctx, app))
+                }
+                "close" | "OK" => Transition::Multi(vec![Transition::Pop, Transition::Recreate]),
+                _ => unreachable!(),
+            };
+        }
+
         Transition::Keep
     }
 
