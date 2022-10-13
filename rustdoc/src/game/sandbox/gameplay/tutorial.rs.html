@@ -1417,13 +1417,6 @@
 <span id="1417">1417</span>
 <span id="1418">1418</span>
 <span id="1419">1419</span>
-<span id="1420">1420</span>
-<span id="1421">1421</span>
-<span id="1422">1422</span>
-<span id="1423">1423</span>
-<span id="1424">1424</span>
-<span id="1425">1425</span>
-<span id="1426">1426</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
@@ -2485,13 +2478,9 @@
                         <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">len</span>(), <span class="number">6</span>);
                         <span class="ident">r</span>.<span class="ident">lanes</span>[<span class="number">2</span>].<span class="ident">id</span>
                     };
-                    <span class="kw">let</span> <span class="ident">lane_near_bldg</span> <span class="op">=</span> {
-                        <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(
-                            <span class="ident">map</span>.<span class="ident">find_r_by_osm_id</span>(<span class="ident">OriginalRoad::new</span>(<span class="number">6484869</span>, (<span class="number">53163501</span>, <span class="number">53069236</span>)))
-                                .<span class="ident">unwrap</span>(),
-                        );
-                        <span class="macro">assert_eq!</span>(<span class="ident">r</span>.<span class="ident">lanes</span>.<span class="ident">len</span>(), <span class="number">6</span>);
-                        <span class="ident">r</span>.<span class="ident">lanes</span>[<span class="number">3</span>].<span class="ident">id</span>
+                    <span class="kw">let</span> <span class="ident">spawn_by_goal_bldg</span> <span class="op">=</span> {
+                        <span class="kw">let</span> <span class="ident">pos</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">goal_bldg</span>).<span class="ident">driving_connection</span>(<span class="ident">map</span>).<span class="ident">unwrap</span>().<span class="number">0</span>;
+                        <span class="ident">Position::new</span>(<span class="ident">pos</span>.<span class="ident">lane</span>(), <span class="ident">Distance::ZERO</span>)
                     };
 
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scenario</span> <span class="op">=</span> <span class="ident">Scenario::empty</span>(<span class="ident">map</span>, <span class="string">&quot;prank&quot;</span>);
@@ -2515,10 +2504,7 @@
                             <span class="ident">trips</span>: <span class="macro">vec!</span>[<span class="ident">IndividTrip::new</span>(
                                 <span class="ident">Time::START_OF_DAY</span>,
                                 <span class="ident">TripPurpose::Shopping</span>,
-                                <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">Position::new</span>(
-                                    <span class="ident">lane_near_bldg</span>,
-                                    <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">lane_near_bldg</span>).<span class="ident">length</span>() <span class="op">/</span> <span class="number">2.0</span>,
-                                )),
+                                <span class="ident">TripEndpoint::SuddenlyAppear</span>(<span class="ident">spawn_by_goal_bldg</span>),
                                 <span class="ident">TripEndpoint::Building</span>(<span class="ident">goal_bldg</span>),
                                 <span class="ident">TripMode::Drive</span>,
                             )],
