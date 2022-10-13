@@ -399,6 +399,14 @@
 <span id="399">399</span>
 <span id="400">400</span>
 <span id="401">401</span>
+<span id="402">402</span>
+<span id="403">403</span>
+<span id="404">404</span>
+<span id="405">405</span>
+<span id="406">406</span>
+<span id="407">407</span>
+<span id="408">408</span>
+<span id="409">409</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">auto</span>;
 <span class="kw">mod</span> <span class="ident">existing</span>;
 
@@ -410,10 +418,10 @@
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Angle</span>, <span class="ident">Distance</span>, <span class="ident">Line</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditRoad</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoadID</span>, <span class="ident">RoutingParams</span>, <span class="ident">TurnID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">DrawCustomUnzoomedShapes</span>, <span class="ident">PerZoom</span>};
-<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
+<span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>};
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="self">self</span>::existing::transform_existing_filters</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">mut_edits</span>, <span class="ident">App</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">mut_edits</span>, <span class="ident">App</span>};
 
 <span class="doccomment">/// Stored in App per-map state. Before making any changes, call `before_edit`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Default</span>, <span class="ident">Serialize</span>, <span class="ident">Deserialize</span>)]</span>
@@ -473,6 +481,14 @@
             <span class="ident">FilterType::NoEntry</span> =&gt; <span class="string">&quot;system/assets/tools/no_entry.svg&quot;</span>,
             <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="string">&quot;system/assets/tools/modal_filter.svg&quot;</span>,
             <span class="ident">FilterType::BusGate</span> =&gt; <span class="string">&quot;system/assets/tools/bus_gate.svg&quot;</span>,
+        }
+    }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">hide_color</span>(<span class="self">self</span>) -&gt; <span class="ident">Color</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="ident">Color::hex</span>(<span class="string">&quot;#0b793a&quot;</span>),
+            <span class="ident">FilterType::NoEntry</span> =&gt; <span class="ident">Color::RED</span>,
+            <span class="ident">FilterType::BusGate</span> =&gt; <span class="kw-2">*</span><span class="ident">colors::BUS_ROUTE</span>,
         }
     }
 }
