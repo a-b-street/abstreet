@@ -5,14 +5,14 @@ pub mod shortcuts;
 
 use std::collections::BTreeSet;
 
-use geom::Distance;
+use geom::{Polygon, Distance};
 use map_gui::tools::grey_out_map;
 use map_model::{EditRoad, IntersectionID, Road, RoadID};
 use osm2streets::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel,
+    GeomBatch, Texture, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel,
     RewriteColor, State, Text, Widget,
 };
 
@@ -393,11 +393,13 @@ impl ChangeFilterType {
                 ]),
                 Widget::vertical_separator(ctx),
                 Widget::col(vec![
-                    Image::from_path(app.session.filter_type.svg_path())
-                        .untinted()
-                        .dims(100.0)
-                        .into_widget(ctx)
-                        .centered_horiz(),
+                    GeomBatch::from(vec![
+                        (match app.session.filter_type {
+                            FilterType::WalkCycleOnly => Texture(1),
+                            FilterType::NoEntry => Texture(2),
+                            FilterType::BusGate => Texture(3),
+                        }, Polygon::rectangle(1024.0, 505.0))
+                    ]).into_widget(ctx),
                     // TODO Ambulances, etc
                     Text::from(Line(match app.session.filter_type {
                         FilterType::WalkCycleOnly => "A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.",

@@ -44,9 +44,10 @@ void main() {
     // The proper value depends on the design of the particular sprite sheet.
     // If we want to support multiple sprite sheets, this could become a
     // uniform, or a vertex attribute depending on how we expect it to change.
-    float texture_scale = 16.0;
+    float texture_scale_x = 1024.0;
+    float texture_scale_y = 505.0;
 
-    float t_x = ((position[0] * zoom)) / texture_scale / zoom;
-    float t_y = ((position[1] * zoom)) / texture_scale / zoom;
+    float t_x = ((position[0] * zoom)) / texture_scale_x / zoom;
+    float t_y = ((position[1] * zoom)) / texture_scale_y / zoom;
     fs_texture_coord = vec3(vec2(t_x, t_y), texture_index);
 }

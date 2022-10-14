@@ -62,9 +62,9 @@ pub fn setup(
 
     timer.start("load textures");
     let sprite_texture = SpriteTexture::new(
-        include_bytes!("../textures/spritesheet.png").to_vec(),
-        64,
-        64,
+        include_bytes!("../../spritesheet.png").to_vec(),
+        1024,
+        505,
     )
     .expect("failed to format texture sprite sheet");
     sprite_texture

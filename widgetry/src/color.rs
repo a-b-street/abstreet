@@ -47,7 +47,7 @@ pub enum Fill {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Texture(u32);
+pub struct Texture(pub u32);
 
 #[allow(dead_code)]
 impl Texture {

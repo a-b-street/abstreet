@@ -305,6 +305,9 @@ impl PrerenderInnards {
                     style[3],
                     style[4],
                 ]);
+                if matches!(color, crate::Fill::Texture(_)) {
+                    println!("texture! {}, style is {:?}", pt, style);
+                }
             }
             for idx in raw_indices {
                 indices.push(idx_offset + (idx as u32));
@@ -556,7 +559,7 @@ impl SpriteTexture {
             "sprites must align exactly"
         );
 
-        info!(
+        println!(
             "img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)",
             img_width,
             img_height,
