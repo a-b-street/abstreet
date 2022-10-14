@@ -72,11 +72,18 @@ fn run(mut settings: Settings) {
     let args = Args::from_iter(abstutil::cli_args());
     args.app_args.override_options(&mut opts);
 
+    settings = settings.load_default_textures(false);
     settings = args
         .app_args
         .update_widgetry_settings(settings)
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, move |ctx| {
+        ctx.upload_texture(
+            include_bytes!("../../../spritesheet.png").to_vec(),
+            1024,
+            505,
+        );
+
         App::new(
             ctx,
             opts,

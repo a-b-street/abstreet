@@ -5,15 +5,15 @@ pub mod shortcuts;
 
 use std::collections::BTreeSet;
 
-use geom::{Polygon, Distance};
+use geom::{Distance, Polygon};
 use map_gui::tools::grey_out_map;
 use map_model::{EditRoad, IntersectionID, Road, RoadID};
 use osm2streets::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    GeomBatch, Texture, Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, Widget,
+    Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, Texture, Widget,
 };
 
 use crate::{

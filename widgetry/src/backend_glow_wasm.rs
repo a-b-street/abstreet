@@ -8,7 +8,7 @@ use winit::platform::web::WindowExtWebSys;
 use abstutil::Timer;
 
 use crate::assets::Assets;
-use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
+use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards};
 use crate::{Canvas, Event, EventCtx, GfxCtx, Prerender, ScreenDims, Settings, Style, UserInput};
 
 pub fn setup(
@@ -69,6 +69,7 @@ pub fn setup(
     // First try WebGL 2.0 context.
     // WebGL 2.0 isn't supported by default on macOS Safari, or any iOS browser (which are all just
     // Safari wrappers).
+    let mut is_gl2 = true;
     let (gl, program) = webgl2_glow_context(&canvas)
         .and_then(|gl| webgl2_program(gl, timer))
         .or_else(|err| {
@@ -76,7 +77,10 @@ pub fn setup(
                 "failed to build WebGL 2.0 context with error: \"{}\". Trying WebGL 1.0 instead...",
                 err
             );
-            webgl1_glow_context(&canvas).and_then(|gl| webgl1_program(gl, timer))
+            webgl1_glow_context(&canvas).and_then(|gl| {
+                is_gl2 = false;
+                webgl1_program(gl, timer)
+            })
         })
         .unwrap();
 
@@ -105,7 +109,7 @@ pub fn setup(
     }
 
     (
-        PrerenderInnards::new(gl, program, Some(WindowAdapter(winit_window))),
+        PrerenderInnards::new(gl, is_gl2, program, Some(WindowAdapter(winit_window))),
         event_loop,
     )
 }
@@ -118,19 +122,6 @@ fn webgl2_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context
             include_str!("../shaders/fragment_300.glsl"),
         )?
     };
-
-    timer.start("load textures");
-    let sprite_texture = SpriteTexture::new(
-        include_bytes!("../textures/spritesheet.png").to_vec(),
-        64,
-        64,
-    )
-    .expect("failed to format texture sprite sheet");
-    sprite_texture
-        .upload_gl2(&gl)
-        .expect("failed to upload textures");
-    timer.stop("load textures");
-
     Ok((gl, program))
 }
 
@@ -142,19 +133,6 @@ fn webgl1_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context
             include_str!("../shaders/fragment_webgl1.glsl"),
         )?
     };
-
-    timer.start("load textures");
-    let sprite_texture = SpriteTexture::new(
-        include_bytes!("../textures/spritesheet.png").to_vec(),
-        64,
-        64,
-    )
-    .expect("failed to format texture sprite sheet");
-    sprite_texture
-        .upload_webgl1(&gl)
-        .expect("failed to upload textures");
-    timer.stop("load textures");
-
     Ok((gl, program))
 }
 
@@ -198,7 +176,7 @@ impl RenderOnly {
         // Mapbox always seems to hand us WebGL1
         let (gl, program) =
             webgl1_program(glow::Context::from_webgl1_context(raw_gl), &mut timer).unwrap();
-        let prerender_innards = PrerenderInnards::new(gl, program, None);
+        let prerender_innards = PrerenderInnards::new(gl, false, program, None);
 
         let style = Style::light_bg();
         let prerender = Prerender {

@@ -236,6 +236,13 @@ impl<'a> EventCtx<'a> {
         self.canvas.window_width = new_size.width;
         self.canvas.window_height = new_size.height;
     }
+
+    pub fn upload_texture(&mut self, sprite_bytes: Vec<u8>, sprite_width: u32, sprite_height: u32) {
+        self.prerender.inner.upload_texture(
+            crate::backend_glow::SpriteTexture::new(sprite_bytes, sprite_width, sprite_height)
+                .expect("failed to format texture sprite sheet"),
+        );
+    }
 }
 
 struct LoadingScreen<'a> {
