@@ -4,6 +4,7 @@
 uniform vec3 transform;
 // (window width, window height, z value)
 uniform vec3 window;
+uniform vec2 texture_scale;
 // textures grid
 uniform sampler2DArray textures;
 

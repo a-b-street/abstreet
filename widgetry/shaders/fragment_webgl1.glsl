@@ -7,6 +7,7 @@ precision mediump sampler2D;
 uniform vec3 transform;
 // (window width, window height, z value)
 uniform vec3 window;
+uniform vec2 texture_scale;
 
 // in
 varying vec4 fs_color;

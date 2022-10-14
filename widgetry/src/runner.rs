@@ -316,7 +316,7 @@ pub fn run<
     make_app: F,
 ) -> ! {
     let mut timer = Timer::new("setup widgetry");
-    let (prerender_innards, event_loop) = crate::backend::setup(&settings, &mut timer);
+    let (prerender_innards, event_loop) = crate::backend::setup(&settings);
 
     if let Some(ref path) = settings.window_icon {
         if !cfg!(target_arch = "wasm32") {
@@ -377,10 +377,10 @@ pub fn run<
         };
         if settings.load_default_textures {
             timer.start("load default texture");
-            ctx.upload_texture(
+            ctx.set_texture(
                 include_bytes!("../textures/spritesheet.png").to_vec(),
-                64,
-                64,
+                (64, 64),
+                (16.0, 16.0),
             );
             timer.stop("load default texture");
         }

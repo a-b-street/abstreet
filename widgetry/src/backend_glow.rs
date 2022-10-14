@@ -308,9 +308,6 @@ impl PrerenderInnards {
                     style[3],
                     style[4],
                 ]);
-                if matches!(color, crate::Fill::Texture(_)) {
-                    println!("texture! {}, style is {:?}", pt, style);
-                }
             }
             for idx in raw_indices {
                 indices.push(idx_offset + (idx as u32));
@@ -479,11 +476,20 @@ impl PrerenderInnards {
         }
     }
 
-    pub fn upload_texture(&self, texture: SpriteTexture) {
+    pub fn upload_texture(&self, texture: SpriteTexture, scale: (f32, f32)) {
         if self.is_gl2 {
             texture
                 .upload_gl2(&self.gl)
                 .expect("failed to upload textures");
+
+            unsafe {
+                let location = self
+                    .gl
+                    .get_uniform_location(self.program, "texture_scale")
+                    .unwrap();
+                self.gl
+                    .uniform_2_f32_slice(Some(&location), &[scale.0, scale.1]);
+            }
         } else {
             warn!(
                 "texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
@@ -575,7 +581,7 @@ impl SpriteTexture {
             "sprites must align exactly"
         );
 
-        println!(
+        info!(
             "img_size: {}x{}px ({} px), sprite_size: {}x{}px, sprites: {}x{} ({} sprites)",
             img_width,
             img_height,

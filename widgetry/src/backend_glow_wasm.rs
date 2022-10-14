@@ -5,16 +5,11 @@ use anyhow::Result;
 use wasm_bindgen::JsCast;
 use winit::platform::web::WindowExtWebSys;
 
-use abstutil::Timer;
-
 use crate::assets::Assets;
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards};
 use crate::{Canvas, Event, EventCtx, GfxCtx, Prerender, ScreenDims, Settings, Style, UserInput};
 
-pub fn setup(
-    settings: &Settings,
-    timer: &mut Timer,
-) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
+pub fn setup(settings: &Settings) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     info!("Setting up widgetry");
 
     // This doesn't seem to work for the shader panics here, but later it does work. Huh.
@@ -71,7 +66,7 @@ pub fn setup(
     // Safari wrappers).
     let mut is_gl2 = true;
     let (gl, program) = webgl2_glow_context(&canvas)
-        .and_then(|gl| webgl2_program(gl, timer))
+        .and_then(|gl| webgl2_program(gl))
         .or_else(|err| {
             warn!(
                 "failed to build WebGL 2.0 context with error: \"{}\". Trying WebGL 1.0 instead...",
@@ -79,7 +74,7 @@ pub fn setup(
             );
             webgl1_glow_context(&canvas).and_then(|gl| {
                 is_gl2 = false;
-                webgl1_program(gl, timer)
+                webgl1_program(gl)
             })
         })
         .unwrap();
@@ -114,7 +109,7 @@ pub fn setup(
     )
 }
 
-fn webgl2_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context, glow::Program)> {
+fn webgl2_program(gl: glow::Context) -> Result<(glow::Context, glow::Program)> {
     let program = unsafe {
         build_program(
             &gl,
@@ -125,7 +120,7 @@ fn webgl2_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context
     Ok((gl, program))
 }
 
-fn webgl1_program(gl: glow::Context, timer: &mut Timer) -> Result<(glow::Context, glow::Program)> {
+fn webgl1_program(gl: glow::Context) -> Result<(glow::Context, glow::Program)> {
     let program = unsafe {
         build_program(
             &gl,
@@ -168,14 +163,12 @@ impl RenderOnly {
         }));
 
         info!("Setting up widgetry in render-only mode");
-        let mut timer = Timer::new("setup render-only");
         let initial_size = ScreenDims::new(
             raw_gl.drawing_buffer_width().into(),
             raw_gl.drawing_buffer_height().into(),
         );
         // Mapbox always seems to hand us WebGL1
-        let (gl, program) =
-            webgl1_program(glow::Context::from_webgl1_context(raw_gl), &mut timer).unwrap();
+        let (gl, program) = webgl1_program(glow::Context::from_webgl1_context(raw_gl)).unwrap();
         let prerender_innards = PrerenderInnards::new(gl, false, program, None);
 
         let style = Style::light_bg();

@@ -52,6 +52,7 @@ pub struct Texture(pub u32);
 #[allow(dead_code)]
 impl Texture {
     pub const NOOP: Texture = Texture(0);
+    // Note all of these are based on the default built-in spritesheet
     pub const GRASS: Texture = Texture(1);
     pub const STILL_WATER: Texture = Texture(2);
     pub const RUNNING_WATER: Texture = Texture(3);

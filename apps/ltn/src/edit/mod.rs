@@ -398,7 +398,9 @@ impl ChangeFilterType {
                             FilterType::WalkCycleOnly => Texture(1),
                             FilterType::NoEntry => Texture(2),
                             FilterType::BusGate => Texture(3),
-                        }, Polygon::rectangle(1024.0, 505.0))
+                            // The rectangle size must match the base image, otherwise it'll be
+                            // repeated (tiled) or cropped -- not scaled.
+                        }, Polygon::rectangle(crate::SPRITE_WIDTH as f64, crate::SPRITE_HEIGHT as f64))
                     ]).into_widget(ctx),
                     // TODO Ambulances, etc
                     Text::from(Line(match app.session.filter_type {

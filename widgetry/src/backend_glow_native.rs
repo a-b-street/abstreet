@@ -1,10 +1,7 @@
 use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards};
 use crate::{ScreenDims, Settings};
 
-pub fn setup(
-    settings: &Settings,
-    _: &mut abstutil::Timer,
-) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
+pub fn setup(settings: &Settings) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(&settings.window_title)
