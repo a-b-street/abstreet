@@ -368,6 +368,25 @@
 <span id="368">368</span>
 <span id="369">369</span>
 <span id="370">370</span>
+<span id="371">371</span>
+<span id="372">372</span>
+<span id="373">373</span>
+<span id="374">374</span>
+<span id="375">375</span>
+<span id="376">376</span>
+<span id="377">377</span>
+<span id="378">378</span>
+<span id="379">379</span>
+<span id="380">380</span>
+<span id="381">381</span>
+<span id="382">382</span>
+<span id="383">383</span>
+<span id="384">384</span>
+<span id="385">385</span>
+<span id="386">386</span>
+<span id="387">387</span>
+<span id="388">388</span>
+<span id="389">389</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">osm</span>::{<span class="ident">OsmID</span>, <span class="ident">RelationID</span>, <span class="ident">WayID</span>};
 
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">Tags</span>, <span class="ident">Timer</span>};
@@ -385,11 +404,7 @@
     <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
     <span class="ident">opts</span>: <span class="kw-2">&amp;</span><span class="ident">Options</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; (
-    <span class="ident">OsmExtract</span>,
-    <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Amenity</span>)<span class="op">&gt;</span>,
-    <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">osm::WayID</span>, <span class="ident">String</span><span class="op">&gt;</span>,
-) {
+) -&gt; (<span class="ident">OsmExtract</span>, <span class="ident">MultiMap</span><span class="op">&lt;</span><span class="ident">osm::WayID</span>, <span class="ident">String</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">osm_xml</span> <span class="op">=</span> <span class="ident">fs_err::read_to_string</span>(<span class="ident">osm_input_path</span>).<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">doc</span> <span class="op">=</span>
         <span class="ident">streets_reader::osm_reader::read</span>(<span class="kw-2">&amp;</span><span class="ident">osm_xml</span>, <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>, <span class="ident">timer</span>).<span class="ident">unwrap</span>();
@@ -564,7 +579,11 @@
                     <span class="kw">continue</span>;
                 }
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">OsmID::Way</span>(<span class="ident">w</span>) <span class="op">=</span> <span class="ident">member</span> {
-                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">doc</span>.<span class="ident">ways</span>[<span class="ident">w</span>].<span class="ident">pts</span>.<span class="ident">clone</span>()) {
+                    <span class="comment">// Sometimes the way is just the building, so we can directly update it</span>
+                    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">get_mut</span>(<span class="ident">member</span>) {
+                        <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
+                    } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">ring</span>) <span class="op">=</span> <span class="ident">Ring::new</span>(<span class="ident">doc</span>.<span class="ident">ways</span>[<span class="ident">w</span>].<span class="ident">pts</span>.<span class="ident">clone</span>()) {
+                        <span class="comment">// Otherwise, match geometrically later on</span>
                         <span class="ident">amenity_areas</span>.<span class="ident">push</span>((<span class="ident">ring</span>.<span class="ident">into_polygon</span>(), <span class="ident">amenity</span>.<span class="ident">clone</span>()));
                     }
                 }
@@ -607,13 +626,32 @@
             .<span class="ident">retain</span>(<span class="op">|</span><span class="kw">_</span>, <span class="ident">b</span><span class="op">|</span> <span class="op">!</span><span class="ident">area</span>.<span class="ident">contains_pt</span>(<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()));
     }
 
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest_bldg</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span>
+        <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
+    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">buildings</span> {
+        <span class="ident">closest_bldg</span>.<span class="ident">add_polygon</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
+    }
+
+    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match building amenities&quot;</span>, <span class="ident">amenity_points</span>.<span class="ident">len</span>());
+    <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenity_points</span> {
+        <span class="ident">timer</span>.<span class="ident">next</span>();
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">closest_bldg</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">50.0</span>)) {
+            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
+            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
+                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">amenity</span>);
+            }
+        }
+    }
+
     <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match buildings to amenity areas&quot;</span>, <span class="ident">amenity_areas</span>.<span class="ident">len</span>());
     <span class="kw">for</span> (<span class="ident">poly</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenity_areas</span> {
         <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">values_mut</span>() {
-            <span class="kw">if</span> <span class="ident">poly</span>.<span class="ident">contains_pt</span>(<span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">center</span>()) {
-                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
-            }
+        <span class="kw">for</span> <span class="ident">b</span> <span class="kw">in</span> <span class="ident">closest_bldg</span>.<span class="ident">all_points_inside</span>(<span class="kw-2">&amp;</span><span class="ident">poly</span>) {
+            <span class="ident">map</span>.<span class="ident">buildings</span>
+                .<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>)
+                .<span class="ident">unwrap</span>()
+                .<span class="ident">amenities</span>
+                .<span class="ident">push</span>(<span class="ident">amenity</span>.<span class="ident">clone</span>());
         }
     }
 
@@ -629,7 +667,7 @@
     <span class="ident">find_parking_aisles</span>(<span class="ident">map</span>, <span class="kw-2">&amp;mut</span> <span class="ident">out</span>.<span class="ident">roads</span>);
     <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;find service roads crossing parking lots&quot;</span>);
 
-    (<span class="ident">out</span>, <span class="ident">amenity_points</span>, <span class="ident">bus_routes_on_roads</span>)
+    (<span class="ident">out</span>, <span class="ident">bus_routes_on_roads</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">is_bldg</span>(<span class="ident">tags</span>: <span class="kw-2">&amp;</span><span class="ident">Tags</span>) -&gt; <span class="ident">bool</span> {

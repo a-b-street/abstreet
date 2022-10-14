@@ -182,24 +182,6 @@
 <span id="182">182</span>
 <span id="183">183</span>
 <span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
 </pre><pre class="rust"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
 <span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">anyhow</span>;
 <span class="attribute">#[<span class="ident">macro_use</span>]</span>
@@ -209,9 +191,9 @@
 
 <span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">Tags</span>, <span class="ident">Timer</span>};
-<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">FindClosest</span>, <span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>, <span class="ident">Ring</span>};
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">GPSBounds</span>, <span class="ident">LonLat</span>, <span class="ident">Polygon</span>, <span class="ident">Ring</span>};
 <span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">osm</span>, <span class="ident">OriginalRoad</span>, <span class="ident">Road</span>};
-<span class="kw">use</span> <span class="ident">raw_map</span>::{<span class="ident">Amenity</span>, <span class="ident">RawMap</span>};
+<span class="kw">use</span> <span class="ident">raw_map::RawMap</span>;
 
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">streets_reader</span>::{
     <span class="ident">OnstreetParking</span>, <span class="ident">Options</span>, <span class="ident">PrivateOffstreetParking</span>, <span class="ident">PublicOffstreetParking</span>,
@@ -230,6 +212,8 @@
     <span class="ident">opts</span>: <span class="ident">Options</span>,
     <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
 ) -&gt; <span class="ident">RawMap</span> {
+    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;create RawMap from input data&quot;</span>);
+
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">map</span> <span class="op">=</span> <span class="ident">RawMap::blank</span>(<span class="ident">name</span>);
     <span class="comment">// Do this early. Calculating Roads uses DrivingSide, for example!</span>
     <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">config</span> <span class="op">=</span> <span class="ident">opts</span>.<span class="ident">map_config</span>.<span class="ident">clone</span>();
@@ -241,7 +225,7 @@
         <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span> <span class="op">=</span> <span class="ident">gps_bounds</span>;
     }
 
-    <span class="kw">let</span> (<span class="ident">extract</span>, <span class="ident">amenity_points</span>, <span class="ident">bus_routes_on_roads</span>) <span class="op">=</span>
+    <span class="kw">let</span> (<span class="ident">extract</span>, <span class="ident">bus_routes_on_roads</span>) <span class="op">=</span>
         <span class="ident">extract::extract_osm</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">osm_input_path</span>, <span class="ident">clip_path</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
     <span class="ident">map</span>.<span class="ident">bus_routes_on_roads</span> <span class="op">=</span> <span class="ident">bus_routes_on_roads</span>;
     <span class="kw">let</span> <span class="ident">split_output</span> <span class="op">=</span> <span class="ident">streets_reader::split_ways::split_up_roads</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>.<span class="ident">streets</span>, <span class="ident">extract</span>, <span class="ident">timer</span>);
@@ -250,8 +234,6 @@
     <span class="comment">// Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when</span>
     <span class="comment">// doing the parking hint matching.</span>
     <span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">roads</span>.<span class="ident">retain</span>(<span class="op">|</span><span class="ident">r</span>, <span class="kw">_</span><span class="op">|</span> <span class="ident">r</span>.<span class="ident">i1</span> <span class="op">!</span><span class="op">=</span> <span class="ident">r</span>.<span class="ident">i2</span>);
-
-    <span class="ident">use_amenities</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="ident">amenity_points</span>, <span class="ident">timer</span>);
 
     <span class="ident">parking::apply_parking</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>, <span class="kw-2">&amp;</span><span class="ident">opts</span>, <span class="ident">timer</span>);
 
@@ -288,26 +270,8 @@
     <span class="kw">if</span> <span class="ident">map</span>.<span class="ident">name</span> <span class="op">==</span> <span class="ident">MapName::new</span>(<span class="string">&quot;gb&quot;</span>, <span class="string">&quot;bristol&quot;</span>, <span class="string">&quot;east&quot;</span>) {
         <span class="ident">bristol_hack</span>(<span class="kw-2">&amp;mut</span> <span class="ident">map</span>);
     }
+    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;create RawMap from input data&quot;</span>);
     <span class="ident">map</span>
-}
-
-<span class="kw">fn</span> <span class="ident">use_amenities</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">amenities</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Pt2D</span>, <span class="ident">Amenity</span>)<span class="op">&gt;</span>, <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>) {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">closest</span>: <span class="ident">FindClosest</span><span class="op">&lt;</span><span class="ident">osm::OsmID</span><span class="op">&gt;</span> <span class="op">=</span>
-        <span class="ident">FindClosest::new</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">streets</span>.<span class="ident">gps_bounds</span>.<span class="ident">to_bounds</span>());
-    <span class="kw">for</span> (<span class="ident">id</span>, <span class="ident">b</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">buildings</span> {
-        <span class="ident">closest</span>.<span class="ident">add_polygon</span>(<span class="kw-2">*</span><span class="ident">id</span>, <span class="kw-2">&amp;</span><span class="ident">b</span>.<span class="ident">polygon</span>);
-    }
-
-    <span class="ident">timer</span>.<span class="ident">start_iter</span>(<span class="string">&quot;match building amenities&quot;</span>, <span class="ident">amenities</span>.<span class="ident">len</span>());
-    <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">amenity</span>) <span class="kw">in</span> <span class="ident">amenities</span> {
-        <span class="ident">timer</span>.<span class="ident">next</span>();
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">id</span>, <span class="kw">_</span>)) <span class="op">=</span> <span class="ident">closest</span>.<span class="ident">closest_pt</span>(<span class="ident">pt</span>, <span class="ident">Distance::meters</span>(<span class="number">50.0</span>)) {
-            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">buildings</span>.<span class="ident">get_mut</span>(<span class="kw-2">&amp;</span><span class="ident">id</span>).<span class="ident">unwrap</span>();
-            <span class="kw">if</span> <span class="ident">b</span>.<span class="ident">polygon</span>.<span class="ident">contains_pt</span>(<span class="ident">pt</span>) {
-                <span class="ident">b</span>.<span class="ident">amenities</span>.<span class="ident">push</span>(<span class="ident">amenity</span>);
-            }
-        }
-    }
 }
 
 <span class="kw">fn</span> <span class="ident">add_extra_buildings</span>(<span class="ident">map</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RawMap</span>, <span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {

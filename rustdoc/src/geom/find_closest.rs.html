@@ -92,11 +92,28 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 
 <span class="kw">use</span> <span class="ident">aabb_quadtree::geom</span>::{<span class="ident">Point</span>, <span class="ident">Rect</span>};
 <span class="kw">use</span> <span class="ident">aabb_quadtree::QuadTree</span>;
-<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">ClosestPoint</span>, <span class="ident">Contains</span>, <span class="ident">EuclideanDistance</span>};
+<span class="kw">use</span> <span class="ident">geo</span>::{<span class="ident">ClosestPoint</span>, <span class="ident">Contains</span>, <span class="ident">EuclideanDistance</span>, <span class="ident">Intersects</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::conversions::pts_to_line_string</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Bounds</span>, <span class="ident">Distance</span>, <span class="ident">Polygon</span>, <span class="ident">Pt2D</span>};
@@ -184,6 +201,23 @@
             .<span class="ident">into_iter</span>()
             .<span class="ident">min_by_key</span>(<span class="op">|</span>(<span class="kw">_</span>, <span class="kw">_</span>, <span class="ident">dist</span>)<span class="op">|</span> <span class="kw-2">*</span><span class="ident">dist</span>)
             .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">k</span>, <span class="ident">pt</span>, <span class="kw">_</span>)<span class="op">|</span> (<span class="ident">k</span>, <span class="ident">pt</span>))
+    }
+
+    <span class="doccomment">/// Find all objects with a point inside the query polygon</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">all_points_inside</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">query</span>: <span class="kw-2">&amp;</span><span class="ident">Polygon</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">K</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">query_geo</span>: <span class="ident">geo::Polygon</span> <span class="op">=</span> <span class="ident">query</span>.<span class="ident">clone</span>().<span class="ident">into</span>();
+
+        <span class="self">self</span>.<span class="ident">quadtree</span>
+            .<span class="ident">query</span>(<span class="ident">query</span>.<span class="ident">get_bounds</span>().<span class="ident">as_bbox</span>())
+            .<span class="ident">into_iter</span>()
+            .<span class="ident">filter_map</span>(<span class="op">|</span>(<span class="ident">key</span>, <span class="kw">_</span>, <span class="kw">_</span>)<span class="op">|</span> {
+                <span class="kw">if</span> <span class="self">self</span>.<span class="ident">geometries</span>[<span class="ident">key</span>].<span class="ident">intersects</span>(<span class="kw-2">&amp;</span><span class="ident">query_geo</span>) {
+                    <span class="prelude-val">Some</span>(<span class="ident">key</span>.<span class="ident">clone</span>())
+                } <span class="kw">else</span> {
+                    <span class="prelude-val">None</span>
+                }
+            })
+            .<span class="ident">collect</span>()
     }
 }
 </code></pre></div>
