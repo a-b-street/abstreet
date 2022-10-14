@@ -55,8 +55,8 @@ struct Args {
     app_args: map_gui::SimpleAppArgs,
 }
 
-const SPRITE_WIDTH: u32 = 1024;
-const SPRITE_HEIGHT: u32 = 505;
+const SPRITE_WIDTH: u32 = 512;
+const SPRITE_HEIGHT: u32 = 252;
 
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
@@ -81,9 +81,9 @@ fn run(mut settings: Settings) {
         .update_widgetry_settings(settings)
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, move |ctx| {
-        // TODO Since this is 3MB, probably need to separately load with FutureLoader from S3...
+        // This file is small enough to bundle in the build
         ctx.set_texture(
-            include_bytes!("../../../spritesheet.png").to_vec(),
+            include_bytes!("../spritesheet.gif").to_vec(),
             (SPRITE_WIDTH, SPRITE_HEIGHT),
             (SPRITE_WIDTH as f32, SPRITE_HEIGHT as f32),
         );

@@ -407,7 +407,7 @@ impl ChangeFilterType {
                         FilterType::WalkCycleOnly => "A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.",
                         FilterType::NoEntry => "An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.",
                         FilterType::BusGate => "A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.",
-                    })).wrap_to_pct(ctx, 20).into_widget(ctx),
+                    })).wrap_to_pixels(ctx, crate::SPRITE_WIDTH as f64).into_widget(ctx),
                 ]),
             ]),
             ctx.style().btn_solid_primary.text("OK").hotkey(Key::Enter).build_def(ctx).centered_horiz(),
