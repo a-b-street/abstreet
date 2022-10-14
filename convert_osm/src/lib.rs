@@ -7,9 +7,9 @@ use anyhow::Result;
 
 use abstio::MapName;
 use abstutil::{Tags, Timer};
-use geom::{Distance, FindClosest, GPSBounds, LonLat, Polygon, Pt2D, Ring};
+use geom::{GPSBounds, LonLat, Polygon, Ring};
 use osm2streets::{osm, OriginalRoad, Road};
-use raw_map::{Amenity, RawMap};
+use raw_map::RawMap;
 
 pub use streets_reader::{
     OnstreetParking, Options, PrivateOffstreetParking, PublicOffstreetParking,
@@ -28,6 +28,8 @@ pub fn convert(
     opts: Options,
     timer: &mut Timer,
 ) -> RawMap {
+    timer.start("create RawMap from input data");
+
     let mut map = RawMap::blank(name);
     // Do this early. Calculating Roads uses DrivingSide, for example!
     map.streets.config = opts.map_config.clone();
@@ -39,7 +41,7 @@ pub fn convert(
         map.streets.gps_bounds = gps_bounds;
     }
 
-    let (extract, amenity_points, bus_routes_on_roads) =
+    let (extract, bus_routes_on_roads) =
         extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
     map.bus_routes_on_roads = bus_routes_on_roads;
     let split_output = streets_reader::split_ways::split_up_roads(&mut map.streets, extract, timer);
@@ -48,8 +50,6 @@ pub fn convert(
     // Need to do a first pass of removing cul-de-sacs here, or we wind up with loop PolyLines when
     // doing the parking hint matching.
     map.streets.roads.retain(|r, _| r.i1 != r.i2);
-
-    use_amenities(&mut map, amenity_points, timer);
 
     parking::apply_parking(&mut map, &opts, timer);
 
@@ -86,26 +86,8 @@ pub fn convert(
     if map.name == MapName::new("gb", "bristol", "east") {
         bristol_hack(&mut map);
     }
+    timer.stop("create RawMap from input data");
     map
-}
-
-fn use_amenities(map: &mut RawMap, amenities: Vec<(Pt2D, Amenity)>, timer: &mut Timer) {
-    let mut closest: FindClosest<osm::OsmID> =
-        FindClosest::new(&map.streets.gps_bounds.to_bounds());
-    for (id, b) in &map.buildings {
-        closest.add_polygon(*id, &b.polygon);
-    }
-
-    timer.start_iter("match building amenities", amenities.len());
-    for (pt, amenity) in amenities {
-        timer.next();
-        if let Some((id, _)) = closest.closest_pt(pt, Distance::meters(50.0)) {
-            let b = map.buildings.get_mut(&id).unwrap();
-            if b.polygon.contains_pt(pt) {
-                b.amenities.push(amenity);
-            }
-        }
-    }
 }
 
 fn add_extra_buildings(map: &mut RawMap, path: &str) -> Result<()> {

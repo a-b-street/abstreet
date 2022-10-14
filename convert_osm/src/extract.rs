@@ -15,11 +15,7 @@ pub fn extract_osm(
     clip_path: Option<String>,
     opts: &Options,
     timer: &mut Timer,
-) -> (
-    OsmExtract,
-    Vec<(Pt2D, Amenity)>,
-    MultiMap<osm::WayID, String>,
-) {
+) -> (OsmExtract, MultiMap<osm::WayID, String>) {
     let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
         streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
@@ -194,7 +190,11 @@ pub fn extract_osm(
                     continue;
                 }
                 if let OsmID::Way(w) = member {
-                    if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
+                    // Sometimes the way is just the building, so we can directly update it
+                    if let Some(b) = map.buildings.get_mut(member) {
+                        b.amenities.push(amenity.clone());
+                    } else if let Ok(ring) = Ring::new(doc.ways[w].pts.clone()) {
+                        // Otherwise, match geometrically later on
                         amenity_areas.push((ring.into_polygon(), amenity.clone()));
                     }
                 }
@@ -237,13 +237,32 @@ pub fn extract_osm(
             .retain(|_, b| !area.contains_pt(b.polygon.center()));
     }
 
+    let mut closest_bldg: FindClosest<osm::OsmID> =
+        FindClosest::new(&map.streets.gps_bounds.to_bounds());
+    for (id, b) in &map.buildings {
+        closest_bldg.add_polygon(*id, &b.polygon);
+    }
+
+    timer.start_iter("match building amenities", amenity_points.len());
+    for (pt, amenity) in amenity_points {
+        timer.next();
+        if let Some((id, _)) = closest_bldg.closest_pt(pt, Distance::meters(50.0)) {
+            let b = map.buildings.get_mut(&id).unwrap();
+            if b.polygon.contains_pt(pt) {
+                b.amenities.push(amenity);
+            }
+        }
+    }
+
     timer.start_iter("match buildings to amenity areas", amenity_areas.len());
     for (poly, amenity) in amenity_areas {
         timer.next();
-        for b in map.buildings.values_mut() {
-            if poly.contains_pt(b.polygon.center()) {
-                b.amenities.push(amenity.clone());
-            }
+        for b in closest_bldg.all_points_inside(&poly) {
+            map.buildings
+                .get_mut(&b)
+                .unwrap()
+                .amenities
+                .push(amenity.clone());
         }
     }
 
@@ -259,7 +278,7 @@ pub fn extract_osm(
     find_parking_aisles(map, &mut out.roads);
     timer.stop("find service roads crossing parking lots");
 
-    (out, amenity_points, bus_routes_on_roads)
+    (out, bus_routes_on_roads)
 }
 
 fn is_bldg(tags: &Tags) -> bool {

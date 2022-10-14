@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use aabb_quadtree::geom::{Point, Rect};
 use aabb_quadtree::QuadTree;
-use geo::{ClosestPoint, Contains, EuclideanDistance};
+use geo::{ClosestPoint, Contains, EuclideanDistance, Intersects};
 
 use crate::conversions::pts_to_line_string;
 use crate::{Bounds, Distance, Polygon, Pt2D};
@@ -90,5 +90,22 @@ where
             .into_iter()
             .min_by_key(|(_, _, dist)| *dist)
             .map(|(k, pt, _)| (k, pt))
+    }
+
+    /// Find all objects with a point inside the query polygon
+    pub fn all_points_inside(&self, query: &Polygon) -> Vec<K> {
+        let query_geo: geo::Polygon = query.clone().into();
+
+        self.quadtree
+            .query(query.get_bounds().as_bbox())
+            .into_iter()
+            .filter_map(|(key, _, _)| {
+                if self.geometries[key].intersects(&query_geo) {
+                    Some(key.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
