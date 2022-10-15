@@ -317,6 +317,20 @@
 <span id="317">317</span>
 <span id="318">318</span>
 <span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::VecDeque</span>;
 
 <span class="kw">use</span> <span class="ident">instant::Instant</span>;
@@ -554,6 +568,20 @@
         <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">window_resized</span>(<span class="ident">new_size</span>);
         <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_width</span> <span class="op">=</span> <span class="ident">new_size</span>.<span class="ident">width</span>;
         <span class="self">self</span>.<span class="ident">canvas</span>.<span class="ident">window_height</span> <span class="op">=</span> <span class="ident">new_size</span>.<span class="ident">height</span>;
+    }
+
+    <span class="doccomment">/// Only one texture can be loaded at a time; this overwrites anything previously set</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_texture</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">sprite_bytes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span>,
+        <span class="ident">sprite_dims</span>: (<span class="ident">u32</span>, <span class="ident">u32</span>),
+        <span class="ident">texture_scale</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>),
+    ) {
+        <span class="self">self</span>.<span class="ident">prerender</span>.<span class="ident">inner</span>.<span class="ident">upload_texture</span>(
+            <span class="ident"><span class="kw">crate</span>::backend_glow::SpriteTexture::new</span>(<span class="ident">sprite_bytes</span>, <span class="ident">sprite_dims</span>.<span class="number">0</span>, <span class="ident">sprite_dims</span>.<span class="number">1</span>)
+                .<span class="ident">expect</span>(<span class="string">&quot;failed to format texture sprite sheet&quot;</span>),
+            <span class="ident">texture_scale</span>,
+        );
     }
 }
 

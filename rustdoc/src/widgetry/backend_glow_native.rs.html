@@ -77,32 +77,10 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
-<span id="80">80</span>
-<span id="81">81</span>
-<span id="82">82</span>
-<span id="83">83</span>
-<span id="84">84</span>
-<span id="85">85</span>
-<span id="86">86</span>
-<span id="87">87</span>
-<span id="88">88</span>
-<span id="89">89</span>
-<span id="90">90</span>
-<span id="91">91</span>
-<span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
-
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow</span>::{<span class="ident">build_program</span>, <span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>, <span class="ident">SpriteTexture</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backend_glow</span>::{<span class="ident">build_program</span>, <span class="ident">GfxCtxInnards</span>, <span class="ident">PrerenderInnards</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">ScreenDims</span>, <span class="ident">Settings</span>};
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>(
-    <span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>,
-    <span class="ident">timer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Timer</span>,
-) -&gt; (<span class="ident">PrerenderInnards</span>, <span class="ident">winit::event_loop::EventLoop</span><span class="op">&lt;</span>()<span class="op">&gt;</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">setup</span>(<span class="ident">settings</span>: <span class="kw-2">&amp;</span><span class="ident">Settings</span>) -&gt; (<span class="ident">PrerenderInnards</span>, <span class="ident">winit::event_loop::EventLoop</span><span class="op">&lt;</span>()<span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">event_loop</span> <span class="op">=</span> <span class="ident">winit::event_loop::EventLoop::new</span>();
     <span class="kw">let</span> <span class="ident">window</span> <span class="op">=</span> <span class="ident">winit::window::WindowBuilder::new</span>()
         .<span class="ident">with_title</span>(<span class="kw-2">&amp;</span><span class="ident">settings</span>.<span class="ident">window_title</span>)
@@ -156,20 +134,8 @@
         })
     };
 
-    <span class="ident">timer</span>.<span class="ident">start</span>(<span class="string">&quot;load textures&quot;</span>);
-    <span class="kw">let</span> <span class="ident">sprite_texture</span> <span class="op">=</span> <span class="ident">SpriteTexture::new</span>(
-        <span class="macro">include_bytes!</span>(<span class="string">&quot;../textures/spritesheet.png&quot;</span>).<span class="ident">to_vec</span>(),
-        <span class="number">64</span>,
-        <span class="number">64</span>,
-    )
-    .<span class="ident">expect</span>(<span class="string">&quot;failed to format texture sprite sheet&quot;</span>);
-    <span class="ident">sprite_texture</span>
-        .<span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="ident">gl</span>)
-        .<span class="ident">expect</span>(<span class="string">&quot;failed to upload textures&quot;</span>);
-    <span class="ident">timer</span>.<span class="ident">stop</span>(<span class="string">&quot;load textures&quot;</span>);
-
     (
-        <span class="ident">PrerenderInnards::new</span>(<span class="ident">gl</span>, <span class="ident">program</span>, <span class="prelude-val">Some</span>(<span class="ident">WindowAdapter</span>(<span class="ident">windowed_context</span>))),
+        <span class="ident">PrerenderInnards::new</span>(<span class="ident">gl</span>, <span class="bool-val">true</span>, <span class="ident">program</span>, <span class="prelude-val">Some</span>(<span class="ident">WindowAdapter</span>(<span class="ident">windowed_context</span>))),
         <span class="ident">event_loop</span>,
     )
 }

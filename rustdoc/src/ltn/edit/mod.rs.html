@@ -446,6 +446,10 @@
 <span id="446">446</span>
 <span id="447">447</span>
 <span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">one_ways</span>;
@@ -453,15 +457,15 @@
 
 <span class="kw">use</span> <span class="ident">std::collections::BTreeSet</span>;
 
-<span class="kw">use</span> <span class="ident">geom::Distance</span>;
+<span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::grey_out_map</span>;
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">EditRoad</span>, <span class="ident">IntersectionID</span>, <span class="ident">Road</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">osm2streets</span>::{<span class="ident">Direction</span>, <span class="ident">LaneSpec</span>};
 <span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">ObjectID</span>, <span class="ident">World</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">PolyLineLasso</span>, <span class="ident">PopupMsg</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
-    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Image</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
-    <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Widget</span>,
+    <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">DrawBaselayer</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>,
+    <span class="ident">RewriteColor</span>, <span class="ident">State</span>, <span class="ident">Text</span>, <span class="ident">Texture</span>, <span class="ident">Widget</span>,
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
@@ -841,17 +845,21 @@
                 ]),
                 <span class="ident">Widget::vertical_separator</span>(<span class="ident">ctx</span>),
                 <span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Image::from_path</span>(<span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>.<span class="ident">svg_path</span>())
-                        .<span class="ident">untinted</span>()
-                        .<span class="ident">dims</span>(<span class="number">100.0</span>)
-                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>)
-                        .<span class="ident">centered_horiz</span>(),
+                    <span class="ident">GeomBatch::from</span>(<span class="macro">vec!</span>[
+                        (<span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> {
+                            <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="ident">Texture</span>(<span class="number">1</span>),
+                            <span class="ident">FilterType::NoEntry</span> =&gt; <span class="ident">Texture</span>(<span class="number">2</span>),
+                            <span class="ident">FilterType::BusGate</span> =&gt; <span class="ident">Texture</span>(<span class="number">3</span>),
+                            <span class="comment">// The rectangle size must match the base image, otherwise it&#39;ll be</span>
+                            <span class="comment">// repeated (tiled) or cropped -- not scaled.</span>
+                        }, <span class="ident">Polygon::rectangle</span>(<span class="ident"><span class="kw">crate</span>::SPRITE_WIDTH</span> <span class="kw">as</span> <span class="ident">f64</span>, <span class="ident"><span class="kw">crate</span>::SPRITE_HEIGHT</span> <span class="kw">as</span> <span class="ident">f64</span>))
+                    ]).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                     <span class="comment">// TODO Ambulances, etc</span>
                     <span class="ident">Text::from</span>(<span class="ident">Line</span>(<span class="kw">match</span> <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span> {
                         <span class="ident">FilterType::WalkCycleOnly</span> =&gt; <span class="string">&quot;A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.&quot;</span>,
                         <span class="ident">FilterType::NoEntry</span> =&gt; <span class="string">&quot;An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.&quot;</span>,
                         <span class="ident">FilterType::BusGate</span> =&gt; <span class="string">&quot;A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.&quot;</span>,
-                    })).<span class="ident">wrap_to_pct</span>(<span class="ident">ctx</span>, <span class="number">20</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    })).<span class="ident">wrap_to_pixels</span>(<span class="ident">ctx</span>, <span class="ident"><span class="kw">crate</span>::SPRITE_WIDTH</span> <span class="kw">as</span> <span class="ident">f64</span>).<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
                 ]),
             ]),
             <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid_primary</span>.<span class="ident">text</span>(<span class="string">&quot;OK&quot;</span>).<span class="ident">hotkey</span>(<span class="ident">Key::Enter</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>).<span class="ident">centered_horiz</span>(),

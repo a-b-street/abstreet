@@ -261,6 +261,17 @@
 <span id="261">261</span>
 <span id="262">262</span>
 <span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::type_complexity</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">structopt::StructOpt</span>;
@@ -318,6 +329,9 @@
     <span class="ident">app_args</span>: <span class="ident">map_gui::SimpleAppArgs</span>,
 }
 
+<span class="kw">const</span> <span class="ident">SPRITE_WIDTH</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">750</span>;
+<span class="kw">const</span> <span class="ident">SPRITE_HEIGHT</span>: <span class="ident">u32</span> <span class="op">=</span> <span class="number">458</span>;
+
 <span class="kw">fn</span> <span class="ident">run</span>(<span class="kw-2">mut</span> <span class="ident">settings</span>: <span class="ident">Settings</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">opts</span> <span class="op">=</span> <span class="ident">map_gui::options::Options::load_or_default</span>();
     <span class="ident">opts</span>.<span class="ident">color_scheme</span> <span class="op">=</span> <span class="ident">map_gui::colors::ColorSchemeChoice::LTN</span>;
@@ -335,11 +349,19 @@
     <span class="kw">let</span> <span class="ident">args</span> <span class="op">=</span> <span class="ident">Args::from_iter</span>(<span class="ident">abstutil::cli_args</span>());
     <span class="ident">args</span>.<span class="ident">app_args</span>.<span class="ident">override_options</span>(<span class="kw-2">&amp;mut</span> <span class="ident">opts</span>);
 
+    <span class="ident">settings</span> <span class="op">=</span> <span class="ident">settings</span>.<span class="ident">load_default_textures</span>(<span class="bool-val">false</span>);
     <span class="ident">settings</span> <span class="op">=</span> <span class="ident">args</span>
         .<span class="ident">app_args</span>
         .<span class="ident">update_widgetry_settings</span>(<span class="ident">settings</span>)
         .<span class="ident">canvas_settings</span>(<span class="ident">opts</span>.<span class="ident">canvas_settings</span>.<span class="ident">clone</span>());
     <span class="ident">widgetry::run</span>(<span class="ident">settings</span>, <span class="kw">move</span> <span class="op">|</span><span class="ident">ctx</span><span class="op">|</span> {
+        <span class="comment">// This file is small enough to bundle in the build</span>
+        <span class="ident">ctx</span>.<span class="ident">set_texture</span>(
+            <span class="macro">include_bytes!</span>(<span class="string">&quot;../spritesheet.gif&quot;</span>).<span class="ident">to_vec</span>(),
+            (<span class="ident">SPRITE_WIDTH</span>, <span class="ident">SPRITE_HEIGHT</span>),
+            (<span class="ident">SPRITE_WIDTH</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">SPRITE_HEIGHT</span> <span class="kw">as</span> <span class="ident">f32</span>),
+        );
+
         <span class="ident">App::new</span>(
             <span class="ident">ctx</span>,
             <span class="ident">opts</span>,

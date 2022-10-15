@@ -664,6 +664,21 @@
 <span id="664">664</span>
 <span id="665">665</span>
 <span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
 <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
 
@@ -930,6 +945,7 @@
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrerenderInnards</span> {
     <span class="ident">gl</span>: <span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">glow::Context</span><span class="op">&gt;</span>,
+    <span class="ident">is_gl2</span>: <span class="ident">bool</span>,
     <span class="ident">window_adapter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WindowAdapter</span><span class="op">&gt;</span>,
     <span class="ident">program</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
 
@@ -941,11 +957,13 @@
 <span class="kw">impl</span> <span class="ident">PrerenderInnards</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">gl</span>: <span class="ident">glow::Context</span>,
+        <span class="ident">is_gl2</span>: <span class="ident">bool</span>,
         <span class="ident">program</span>: <span class="op">&lt;</span><span class="ident">glow::Context</span> <span class="kw">as</span> <span class="ident">glow::HasContext</span><span class="op">&gt;</span><span class="ident">::Program</span>,
         <span class="ident">window_adapter</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">WindowAdapter</span><span class="op">&gt;</span>,
     ) -&gt; <span class="ident">PrerenderInnards</span> {
         <span class="ident">PrerenderInnards</span> {
             <span class="ident">gl</span>: <span class="ident">Rc::new</span>(<span class="ident">gl</span>),
+            <span class="ident">is_gl2</span>,
             <span class="ident">program</span>,
             <span class="ident">window_adapter</span>,
             <span class="ident">total_bytes_uploaded</span>: <span class="ident">Cell::new</span>(<span class="number">0</span>),
@@ -1138,6 +1156,28 @@
             <span class="self">self</span>.<span class="ident">gl</span>.<span class="ident">use_program</span>(<span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">program</span>));
         }
     }
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_texture</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">texture</span>: <span class="ident">SpriteTexture</span>, <span class="ident">scale</span>: (<span class="ident">f32</span>, <span class="ident">f32</span>)) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_gl2</span> {
+            <span class="ident">texture</span>
+                .<span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">gl</span>)
+                .<span class="ident">expect</span>(<span class="string">&quot;failed to upload textures&quot;</span>);
+
+            <span class="kw">unsafe</span> {
+                <span class="kw">let</span> <span class="ident">location</span> <span class="op">=</span> <span class="self">self</span>
+                    .<span class="ident">gl</span>
+                    .<span class="ident">get_uniform_location</span>(<span class="self">self</span>.<span class="ident">program</span>, <span class="string">&quot;texture_scale&quot;</span>)
+                    .<span class="ident">unwrap</span>();
+                <span class="self">self</span>.<span class="ident">gl</span>
+                    .<span class="ident">uniform_2_f32_slice</span>(<span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span><span class="ident">location</span>), <span class="kw-2">&amp;</span>[<span class="ident">scale</span>.<span class="number">0</span>, <span class="ident">scale</span>.<span class="number">1</span>]);
+            }
+        } <span class="kw">else</span> {
+            <span class="macro">warn!</span>(
+                <span class="string">&quot;texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
+                 browser.&quot;</span>
+            );
+        }
+    }
 }
 
 <span class="doccomment">/// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and</span>
@@ -1268,18 +1308,8 @@
         })
     }
 
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_webgl1</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="macro">warn!</span>(
-            <span class="string">&quot;texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
-             browser.&quot;</span>
-        );
-        <span class="prelude-val">Ok</span>(())
-    }
-
     <span class="comment">// Utilizes `tex_storage_3d` which isn&#39;t supported by WebGL 1.0.</span>
-    <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">upload_gl2</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">gl</span>: <span class="kw-2">&amp;</span><span class="ident">glow::Context</span>) -&gt; <span class="ident">anyhow::Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">texture_id</span> <span class="op">=</span> <span class="kw">unsafe</span> {
             <span class="ident">gl</span>.<span class="ident">create_texture</span>()
                 .<span class="ident">map_err</span>(<span class="op">|</span><span class="ident">err</span><span class="op">|</span> <span class="macro">anyhow!</span>(<span class="string">&quot;error creating texture: {}&quot;</span>, <span class="ident">err</span>))<span class="question-mark">?</span>
