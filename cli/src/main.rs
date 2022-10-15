@@ -341,20 +341,32 @@ async fn main() -> Result<()> {
 
 fn dump_json(path: String) {
     // Just try to deserialize as different formats
-    if let Ok(map) =
-        abstio::maybe_read_binary::<map_model::Map>(path.clone(), &mut Timer::throwaway())
-    {
-        println!("{}", abstutil::to_json(&map));
-        return;
+    if path.contains("/maps/") {
+        if let Ok(map) =
+            abstio::maybe_read_binary::<map_model::Map>(path.clone(), &mut Timer::throwaway())
+        {
+            println!("{}", abstutil::to_json(&map));
+            return;
+        }
     }
-    if let Ok(scenario) =
-        abstio::maybe_read_binary::<synthpop::Scenario>(path.clone(), &mut Timer::throwaway())
-    {
-        println!("{}", abstutil::to_json(&scenario));
-        return;
+    if path.contains("/raw_maps/") {
+        if let Ok(map) =
+            abstio::maybe_read_binary::<raw_map::RawMap>(path.clone(), &mut Timer::throwaway())
+        {
+            println!("{}", abstutil::to_json(&map));
+            return;
+        }
+    }
+    if path.contains("/scenarios/") {
+        if let Ok(scenario) =
+            abstio::maybe_read_binary::<synthpop::Scenario>(path.clone(), &mut Timer::throwaway())
+        {
+            println!("{}", abstutil::to_json(&scenario));
+            return;
+        }
     }
     panic!(
-        "Don't know how to dump JSON for {}. Only maps and scenarios are supported.",
+        "Don't know how to dump JSON for {}. Only maps, raw maps, and scenarios are supported.",
         path
     );
 }

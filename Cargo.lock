@@ -496,6 +496,7 @@ dependencies = [
  "osmio",
  "rand",
  "rand_xorshift",
+ "raw_map",
  "serde",
  "sim",
  "structopt",
