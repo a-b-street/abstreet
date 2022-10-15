@@ -58,6 +58,20 @@ pub fn convert(
         split_output.barrier_nodes,
         &split_output.pt_to_road,
     );
+    streets_reader::use_crossing_nodes(
+        &mut map.streets,
+        &split_output.crossing_nodes,
+        &split_output.pt_to_road,
+    );
+
+    if opts.filter_crosswalks {
+        streets_reader::filter_crosswalks(
+            &mut map.streets,
+            split_output.crossing_nodes,
+            split_output.pt_to_road,
+            timer,
+        );
+    }
 
     if opts.elevation {
         timer.start("add elevation data");
@@ -68,15 +82,6 @@ pub fn convert(
     }
     if let Some(ref path) = opts.extra_buildings {
         add_extra_buildings(&mut map, path).unwrap();
-    }
-
-    if opts.filter_crosswalks {
-        streets_reader::filter_crosswalks(
-            &mut map.streets,
-            split_output.crossing_nodes,
-            split_output.pt_to_road,
-            timer,
-        );
     }
 
     if opts.gtfs_url.is_some() {

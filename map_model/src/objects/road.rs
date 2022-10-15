@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 
 use abstutil::{deserialize_usize, serialize_usize, Tags};
 use geom::{Distance, PolyLine, Polygon, Speed};
+use osm2streets::CrossingType;
 
 use crate::{
     osm, AccessRestrictions, CommonEndpoint, Direction, DrivingSide, IntersectionID, Lane, LaneID,
@@ -190,6 +191,8 @@ pub struct Road {
 
     /// Some kind of modal filter or barrier this distance along center_pts.
     pub barrier_nodes: Vec<Distance>,
+    /// Some kind of crossing this distance along center_pts.
+    pub crossing_nodes: Vec<(Distance, CrossingType)>,
 }
 
 impl Road {

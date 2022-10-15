@@ -117,6 +117,8 @@ impl Map {
 
             let raw_road = &raw.streets.roads[&r.id];
             let barrier_nodes = snap_nodes_to_line(&raw_road.barrier_nodes, &r.trimmed_center_pts);
+            let crossing_nodes =
+                snap_nodes_with_data_to_line(&raw_road.crossing_nodes, &r.trimmed_center_pts);
             let mut road = Road {
                 id: road_id,
                 osm_tags: raw_road.osm_tags.clone(),
@@ -159,6 +161,7 @@ impl Map {
                 crosswalk_backward: raw_road.crosswalk_backward,
                 transit_stops: BTreeSet::new(),
                 barrier_nodes,
+                crossing_nodes,
             };
             road.speed_limit = road.speed_limit_from_osm();
             road.access_restrictions = road.access_restrictions_from_osm();
@@ -381,6 +384,8 @@ pub fn trim_path(poly: &Polygon, path: Line) -> Line {
     path
 }
 
+// TODO Duplicate code with below. One caller needs data, the other doesn't and adding fake data is
+// annoying
 fn snap_nodes_to_line(pts: &[Pt2D], pl: &PolyLine) -> Vec<Distance> {
     let mut results = Vec::new();
     for pt in pts {
@@ -388,6 +393,21 @@ fn snap_nodes_to_line(pts: &[Pt2D], pl: &PolyLine) -> Vec<Distance> {
         // TODO Check distance isn't too crazy? Not sure why it would be
         if let Some((dist, _)) = pl.dist_along_of_point(projected) {
             results.push(dist);
+        }
+    }
+    results
+}
+
+fn snap_nodes_with_data_to_line<T: Clone>(
+    input: &[(Pt2D, T)],
+    pl: &PolyLine,
+) -> Vec<(Distance, T)> {
+    let mut results = Vec::new();
+    for (pt, data) in input {
+        let projected = pl.project_pt(*pt);
+        // TODO Check distance isn't too crazy? Not sure why it would be
+        if let Some((dist, _)) = pl.dist_along_of_point(projected) {
+            results.push((dist, data.clone()));
         }
     }
     results
