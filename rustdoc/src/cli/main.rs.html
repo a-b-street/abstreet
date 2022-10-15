@@ -437,6 +437,18 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -780,20 +792,32 @@
 
 <span class="kw">fn</span> <span class="ident">dump_json</span>(<span class="ident">path</span>: <span class="ident">String</span>) {
     <span class="comment">// Just try to deserialize as different formats</span>
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span>
-        <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">map_model::Map</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
-    {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
-        <span class="kw">return</span>;
+    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/maps/&quot;</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span>
+            <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">map_model::Map</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+        {
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
+            <span class="kw">return</span>;
+        }
     }
-    <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">scenario</span>) <span class="op">=</span>
-        <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">synthpop::Scenario</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
-    {
-        <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>));
-        <span class="kw">return</span>;
+    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/raw_maps/&quot;</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">map</span>) <span class="op">=</span>
+            <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">raw_map::RawMap</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+        {
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">map</span>));
+            <span class="kw">return</span>;
+        }
+    }
+    <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;/scenarios/&quot;</span>) {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Ok</span>(<span class="ident">scenario</span>) <span class="op">=</span>
+            <span class="ident">abstio::maybe_read_binary</span>::<span class="op">&lt;</span><span class="ident">synthpop::Scenario</span><span class="op">&gt;</span>(<span class="ident">path</span>.<span class="ident">clone</span>(), <span class="kw-2">&amp;mut</span> <span class="ident">Timer::throwaway</span>())
+        {
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">abstutil::to_json</span>(<span class="kw-2">&amp;</span><span class="ident">scenario</span>));
+            <span class="kw">return</span>;
+        }
     }
     <span class="macro">panic!</span>(
-        <span class="string">&quot;Don&#39;t know how to dump JSON for {}. Only maps and scenarios are supported.&quot;</span>,
+        <span class="string">&quot;Don&#39;t know how to dump JSON for {}. Only maps, raw maps, and scenarios are supported.&quot;</span>,
         <span class="ident">path</span>
     );
 }
