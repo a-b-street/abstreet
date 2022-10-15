@@ -2953,7 +2953,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#a55aef7bee047886cfdddb3ad53a67773c188207"
+source = "git+https://github.com/a-b-street/osm2streets#ffb900f17308a4c8ea54c6d2bae391c0d53b3d77"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
@@ -3977,7 +3977,7 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#a55aef7bee047886cfdddb3ad53a67773c188207"
+source = "git+https://github.com/a-b-street/osm2streets#ffb900f17308a4c8ea54c6d2bae391c0d53b3d77"
 dependencies = [
  "abstutil",
  "anyhow",

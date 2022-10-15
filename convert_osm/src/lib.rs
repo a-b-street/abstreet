@@ -73,7 +73,7 @@ pub fn convert(
     if opts.filter_crosswalks {
         streets_reader::filter_crosswalks(
             &mut map.streets,
-            split_output.crosswalks,
+            split_output.crossing_nodes,
             split_output.pt_to_road,
             timer,
         );
