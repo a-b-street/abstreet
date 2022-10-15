@@ -399,13 +399,14 @@ impl Text {
     }
 
     pub fn wrap_to_pct(self, ctx: &EventCtx, pct: usize) -> Text {
-        self.inner_wrap_to_pct(
-            (pct as f64) / 100.0 * ctx.canvas.window_width,
-            &ctx.prerender.assets,
-        )
+        self.wrap_to_pixels(ctx, (pct as f64) / 100.0 * ctx.canvas.window_width)
     }
 
-    pub(crate) fn inner_wrap_to_pct(mut self, limit: f64, assets: &Assets) -> Text {
+    pub fn wrap_to_pixels(self, ctx: &EventCtx, limit: f64) -> Text {
+        self.inner_wrap_to_pixels(limit, &ctx.prerender.assets)
+    }
+
+    pub(crate) fn inner_wrap_to_pixels(mut self, limit: f64, assets: &Assets) -> Text {
         let mut lines = Vec::new();
         for (bg, spans) in self.lines.drain(..) {
             // First optimistically assume everything just fits.

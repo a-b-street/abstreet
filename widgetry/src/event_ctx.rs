@@ -236,6 +236,20 @@ impl<'a> EventCtx<'a> {
         self.canvas.window_width = new_size.width;
         self.canvas.window_height = new_size.height;
     }
+
+    /// Only one texture can be loaded at a time; this overwrites anything previously set
+    pub fn set_texture(
+        &mut self,
+        sprite_bytes: Vec<u8>,
+        sprite_dims: (u32, u32),
+        texture_scale: (f32, f32),
+    ) {
+        self.prerender.inner.upload_texture(
+            crate::backend_glow::SpriteTexture::new(sprite_bytes, sprite_dims.0, sprite_dims.1)
+                .expect("failed to format texture sprite sheet"),
+            texture_scale,
+        );
+    }
 }
 
 struct LoadingScreen<'a> {

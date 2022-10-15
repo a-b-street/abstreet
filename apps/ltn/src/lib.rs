@@ -55,6 +55,9 @@ struct Args {
     app_args: map_gui::SimpleAppArgs,
 }
 
+const SPRITE_WIDTH: u32 = 750;
+const SPRITE_HEIGHT: u32 = 458;
+
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
     opts.color_scheme = map_gui::colors::ColorSchemeChoice::LTN;
@@ -72,11 +75,19 @@ fn run(mut settings: Settings) {
     let args = Args::from_iter(abstutil::cli_args());
     args.app_args.override_options(&mut opts);
 
+    settings = settings.load_default_textures(false);
     settings = args
         .app_args
         .update_widgetry_settings(settings)
         .canvas_settings(opts.canvas_settings.clone());
     widgetry::run(settings, move |ctx| {
+        // This file is small enough to bundle in the build
+        ctx.set_texture(
+            include_bytes!("../spritesheet.gif").to_vec(),
+            (SPRITE_WIDTH, SPRITE_HEIGHT),
+            (SPRITE_WIDTH as f32, SPRITE_HEIGHT as f32),
+        );
+
         App::new(
             ctx,
             opts,

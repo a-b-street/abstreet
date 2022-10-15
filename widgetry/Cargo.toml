@@ -26,7 +26,7 @@ geom = { path = "../geom" }
 glow = "0.11.2"
 glutin = { git = "https://github.com/rust-windowing/glutin", optional = true }
 htmlescape = "0.3.1"
-image = { version = "0.24.3", default-features = false, features=["png"] }
+image = { version = "0.24.3", default-features = false, features=["gif", "png"] }
 instant = "0.1.7"
 js-sys = { version = "0.3.47", optional = true }
 log = { workspace = true }

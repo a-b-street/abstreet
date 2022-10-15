@@ -1,12 +1,7 @@
-use abstutil::Timer;
-
-use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards, SpriteTexture};
+use crate::backend_glow::{build_program, GfxCtxInnards, PrerenderInnards};
 use crate::{ScreenDims, Settings};
 
-pub fn setup(
-    settings: &Settings,
-    timer: &mut Timer,
-) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
+pub fn setup(settings: &Settings) -> (PrerenderInnards, winit::event_loop::EventLoop<()>) {
     let event_loop = winit::event_loop::EventLoop::new();
     let window = winit::window::WindowBuilder::new()
         .with_title(&settings.window_title)
@@ -60,20 +55,8 @@ pub fn setup(
         })
     };
 
-    timer.start("load textures");
-    let sprite_texture = SpriteTexture::new(
-        include_bytes!("../textures/spritesheet.png").to_vec(),
-        64,
-        64,
-    )
-    .expect("failed to format texture sprite sheet");
-    sprite_texture
-        .upload_gl2(&gl)
-        .expect("failed to upload textures");
-    timer.stop("load textures");
-
     (
-        PrerenderInnards::new(gl, program, Some(WindowAdapter(windowed_context))),
+        PrerenderInnards::new(gl, true, program, Some(WindowAdapter(windowed_context))),
         event_loop,
     )
 }

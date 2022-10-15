@@ -264,6 +264,7 @@ type WindowAdapter = crate::backend_glow_native::WindowAdapter;
 
 pub struct PrerenderInnards {
     gl: Rc<glow::Context>,
+    is_gl2: bool,
     window_adapter: Option<WindowAdapter>,
     program: <glow::Context as glow::HasContext>::Program,
 
@@ -275,11 +276,13 @@ pub struct PrerenderInnards {
 impl PrerenderInnards {
     pub fn new(
         gl: glow::Context,
+        is_gl2: bool,
         program: <glow::Context as glow::HasContext>::Program,
         window_adapter: Option<WindowAdapter>,
     ) -> PrerenderInnards {
         PrerenderInnards {
             gl: Rc::new(gl),
+            is_gl2,
             program,
             window_adapter,
             total_bytes_uploaded: Cell::new(0),
@@ -472,6 +475,28 @@ impl PrerenderInnards {
             self.gl.use_program(Some(self.program));
         }
     }
+
+    pub fn upload_texture(&self, texture: SpriteTexture, scale: (f32, f32)) {
+        if self.is_gl2 {
+            texture
+                .upload_gl2(&self.gl)
+                .expect("failed to upload textures");
+
+            unsafe {
+                let location = self
+                    .gl
+                    .get_uniform_location(self.program, "texture_scale")
+                    .unwrap();
+                self.gl
+                    .uniform_2_f32_slice(Some(&location), &[scale.0, scale.1]);
+            }
+        } else {
+            warn!(
+                "texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
+                 browser."
+            );
+        }
+    }
 }
 
 /// Uploads a sprite sheet of textures to the GPU so they can be used by Fill::Texture and
@@ -602,18 +627,8 @@ impl SpriteTexture {
         })
     }
 
-    #[allow(unused)]
-    pub fn upload_webgl1(&self, _gl: &glow::Context) -> anyhow::Result<()> {
-        warn!(
-            "texture uploading for WebGL 1.0 is not yet supported. Enable WebGL 2.0 on your \
-             browser."
-        );
-        Ok(())
-    }
-
     // Utilizes `tex_storage_3d` which isn't supported by WebGL 1.0.
-    #[allow(unused)]
-    pub fn upload_gl2(&self, gl: &glow::Context) -> anyhow::Result<()> {
+    fn upload_gl2(&self, gl: &glow::Context) -> anyhow::Result<()> {
         let texture_id = unsafe {
             gl.create_texture()
                 .map_err(|err| anyhow!("error creating texture: {}", err))?

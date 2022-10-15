@@ -200,6 +200,7 @@ pub struct Settings {
     require_minimum_width: Option<f64>,
     window_icon: Option<String>,
     loading_tips: Option<Text>,
+    load_default_textures: bool,
     pub(crate) read_svg: Box<dyn Fn(&str) -> Vec<u8>>,
     pub(crate) canvas_settings: CanvasSettings,
 }
@@ -218,6 +219,7 @@ impl Settings {
             require_minimum_width: None,
             window_icon: None,
             loading_tips: None,
+            load_default_textures: true,
             read_svg: Box::new(|path| {
                 use std::io::Read;
 
@@ -299,6 +301,11 @@ impl Settings {
         self.canvas_settings = settings;
         self
     }
+
+    pub fn load_default_textures(mut self, load_default_textures: bool) -> Self {
+        self.load_default_textures = load_default_textures;
+        self
+    }
 }
 
 pub fn run<
@@ -309,7 +316,7 @@ pub fn run<
     make_app: F,
 ) -> ! {
     let mut timer = Timer::new("setup widgetry");
-    let (prerender_innards, event_loop) = crate::backend::setup(&settings, &mut timer);
+    let (prerender_innards, event_loop) = crate::backend::setup(&settings);
 
     if let Some(ref path) = settings.window_icon {
         if !cfg!(target_arch = "wasm32") {
@@ -356,17 +363,29 @@ pub fn run<
     prerender.window_resized(initial_size);
 
     timer.start("setup app");
-    let (shared_app_state, states) = make_app(&mut EventCtx {
-        fake_mouseover: true,
-        input: UserInput::new(Event::NoOp, &canvas),
-        canvas: &mut canvas,
-        prerender: &prerender,
-        style: &mut style,
-        updates_requested: vec![],
-        canvas_movement_called: false,
-        focus_owned_by: None,
-        next_focus_owned_by: None,
-    });
+    let (shared_app_state, states) = {
+        let mut ctx = EventCtx {
+            fake_mouseover: true,
+            input: UserInput::new(Event::NoOp, &canvas),
+            canvas: &mut canvas,
+            prerender: &prerender,
+            style: &mut style,
+            updates_requested: vec![],
+            canvas_movement_called: false,
+            focus_owned_by: None,
+            next_focus_owned_by: None,
+        };
+        if settings.load_default_textures {
+            timer.start("load default texture");
+            ctx.set_texture(
+                include_bytes!("../textures/spritesheet.png").to_vec(),
+                (64, 64),
+                (16.0, 16.0),
+            );
+            timer.stop("load default texture");
+        }
+        make_app(&mut ctx)
+    };
     timer.stop("setup app");
     let app = App {
         states,

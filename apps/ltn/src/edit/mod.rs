@@ -5,15 +5,15 @@ pub mod shortcuts;
 
 use std::collections::BTreeSet;
 
-use geom::Distance;
+use geom::{Distance, Polygon};
 use map_gui::tools::grey_out_map;
 use map_model::{EditRoad, IntersectionID, Road, RoadID};
 use osm2streets::{Direction, LaneSpec};
 use widgetry::mapspace::{ObjectID, World};
 use widgetry::tools::{PolyLineLasso, PopupMsg};
 use widgetry::{
-    Color, ControlState, DrawBaselayer, EventCtx, GfxCtx, Image, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, Widget,
+    Color, ControlState, DrawBaselayer, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, Texture, Widget,
 };
 
 use crate::{
@@ -393,17 +393,21 @@ impl ChangeFilterType {
                 ]),
                 Widget::vertical_separator(ctx),
                 Widget::col(vec![
-                    Image::from_path(app.session.filter_type.svg_path())
-                        .untinted()
-                        .dims(100.0)
-                        .into_widget(ctx)
-                        .centered_horiz(),
+                    GeomBatch::from(vec![
+                        (match app.session.filter_type {
+                            FilterType::WalkCycleOnly => Texture(1),
+                            FilterType::NoEntry => Texture(2),
+                            FilterType::BusGate => Texture(3),
+                            // The rectangle size must match the base image, otherwise it'll be
+                            // repeated (tiled) or cropped -- not scaled.
+                        }, Polygon::rectangle(crate::SPRITE_WIDTH as f64, crate::SPRITE_HEIGHT as f64))
+                    ]).into_widget(ctx),
                     // TODO Ambulances, etc
                     Text::from(Line(match app.session.filter_type {
                         FilterType::WalkCycleOnly => "A physical barrier that only allows people walking, cycling, and rolling to pass. Often planters or bollards. Larger vehicles cannot enter.",
                         FilterType::NoEntry => "An alternative sign to indicate vehicles are not allowed to enter the street. Only people walking, cycling, and rolling may pass through.",
                         FilterType::BusGate => "A bus gate sign and traffic cameras are installed to allow buses, pedestrians, and cyclists to pass. There is no physical barrier.",
-                    })).wrap_to_pct(ctx, 20).into_widget(ctx),
+                    })).wrap_to_pixels(ctx, crate::SPRITE_WIDTH as f64).into_widget(ctx),
                 ]),
             ]),
             ctx.style().btn_solid_primary.text("OK").hotkey(Key::Enter).build_def(ctx).centered_horiz(),

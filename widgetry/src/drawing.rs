@@ -21,9 +21,9 @@ pub(crate) const TOOLTIP_Z: f32 = -2.0;
 
 #[derive(Debug)]
 pub struct Uniforms {
-    // (cam_x, cam_y, cam_zoom)
+    /// (cam_x, cam_y, cam_zoom)
     pub transform: [f32; 3],
-    // (window_width, window_height, Z values)
+    /// (window_width, window_height, Z values)
     pub window: [f32; 3],
 }
 
