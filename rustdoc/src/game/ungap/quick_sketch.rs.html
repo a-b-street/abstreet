@@ -306,9 +306,11 @@
 <span id="306">306</span>
 <span id="307">307</span>
 <span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Distance</span>;
 <span class="kw">use</span> <span class="ident">map_gui::ID</span>;
-<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">EditCmd</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
+<span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">BufferType</span>, <span class="ident">EditCmd</span>, <span class="ident">LaneID</span>, <span class="ident">LaneSpec</span>, <span class="ident">LaneType</span>, <span class="ident">RoadID</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools</span>::{<span class="ident">PopupMsg</span>, <span class="ident">URLManager</span>};
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">lctrl</span>, <span class="ident">Choice</span>, <span class="ident">EventCtx</span>, <span class="ident">GfxCtx</span>, <span class="ident">Key</span>, <span class="ident">Line</span>, <span class="ident">Outcome</span>, <span class="ident">Panel</span>, <span class="ident">State</span>, <span class="ident">TextExt</span>, <span class="ident">Widget</span>,
@@ -316,7 +318,7 @@
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::app</span>::{<span class="ident">App</span>, <span class="ident">Transition</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::common</span>::{<span class="ident">share</span>, <span class="ident">RouteSketcher</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::edit</span>::{<span class="ident">apply_map_edits</span>, <span class="ident">can_edit_lane</span>, <span class="ident">LoadEdits</span>, <span class="ident">RoadEditor</span>, <span class="ident">SaveEdits</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sandbox::gameplay::GameplayMode</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ungap</span>::{<span class="ident">Layers</span>, <span class="ident">Tab</span>, <span class="ident">TakeLayers</span>};
 
@@ -435,7 +437,9 @@
                     });
             }
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">ID::Road</span>(<span class="ident">r</span>)) <span class="op">=</span> <span class="ident">app</span>.<span class="ident">primary</span>.<span class="ident">current_selection</span> {
-                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() {
+                <span class="comment">// If it&#39;s light rail, a footway, etc, then the first lane should trigger</span>
+                <span class="comment">// can_edit_lane</span>
+                <span class="kw">if</span> <span class="ident">ctx</span>.<span class="ident">normal_left_click</span>() <span class="op">&amp;&amp;</span> <span class="ident">can_edit_lane</span>(<span class="ident">app</span>, <span class="ident">LaneID</span> { <span class="ident">road</span>: <span class="ident">r</span>, <span class="ident">offset</span>: <span class="number">0</span> }) {
                     <span class="kw">return</span> <span class="ident">Transition::Push</span>(<span class="ident">RoadEditor::new_state_without_lane</span>(<span class="ident">ctx</span>, <span class="ident">app</span>, <span class="ident">r</span>));
                 }
             }
