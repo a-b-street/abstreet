@@ -1,6 +1,6 @@
 use geom::Distance;
 use map_gui::ID;
-use map_model::{BufferType, EditCmd, LaneSpec, LaneType, RoadID};
+use map_model::{BufferType, EditCmd, LaneID, LaneSpec, LaneType, RoadID};
 use widgetry::tools::{PopupMsg, URLManager};
 use widgetry::{
     lctrl, Choice, EventCtx, GfxCtx, Key, Line, Outcome, Panel, State, TextExt, Widget,
@@ -8,7 +8,7 @@ use widgetry::{
 
 use crate::app::{App, Transition};
 use crate::common::{share, RouteSketcher};
-use crate::edit::{apply_map_edits, LoadEdits, RoadEditor, SaveEdits};
+use crate::edit::{apply_map_edits, can_edit_lane, LoadEdits, RoadEditor, SaveEdits};
 use crate::sandbox::gameplay::GameplayMode;
 use crate::ungap::{Layers, Tab, TakeLayers};
 
@@ -127,7 +127,9 @@ impl State<App> for QuickSketch {
                     });
             }
             if let Some(ID::Road(r)) = app.primary.current_selection {
-                if ctx.normal_left_click() {
+                // If it's light rail, a footway, etc, then the first lane should trigger
+                // can_edit_lane
+                if ctx.normal_left_click() && can_edit_lane(app, LaneID { road: r, offset: 0 }) {
                     return Transition::Push(RoadEditor::new_state_without_lane(ctx, app, r));
                 }
             }
