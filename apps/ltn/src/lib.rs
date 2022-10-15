@@ -55,8 +55,8 @@ struct Args {
     app_args: map_gui::SimpleAppArgs,
 }
 
-const SPRITE_WIDTH: u32 = 512;
-const SPRITE_HEIGHT: u32 = 252;
+const SPRITE_WIDTH: u32 = 750;
+const SPRITE_HEIGHT: u32 = 458;
 
 fn run(mut settings: Settings) {
     let mut opts = map_gui::options::Options::load_or_default();
