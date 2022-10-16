@@ -45,6 +45,7 @@ pub struct PerMap {
     pub consultation_id: Option<String>,
 
     pub draw_all_filters: Toggle3Zoomed,
+    pub draw_major_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_all_road_labels: Option<DrawSimpleRoadLabels>,
     pub draw_poi_icons: Drawable,
     pub draw_bus_routes: Drawable,
@@ -80,6 +81,7 @@ impl PerMap {
             consultation_id: None,
 
             draw_all_filters: Toggle3Zoomed::empty(ctx),
+            draw_major_road_labels: None,
             draw_all_road_labels: None,
             draw_poi_icons,
             draw_bus_routes,

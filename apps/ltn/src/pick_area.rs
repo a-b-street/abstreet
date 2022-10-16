@@ -17,7 +17,6 @@ pub struct PickArea {
     bottom_panel: Panel,
     world: World<NeighbourhoodID>,
     draw_over_roads: Drawable,
-    labels: DrawSimpleRoadLabels,
     draw_boundary_roads: Drawable,
 }
 
@@ -51,12 +50,19 @@ impl PickArea {
             .layers
             .event(ctx, &app.cs, Mode::PickArea, Some(&bottom_panel));
 
+        if app.per_map.draw_major_road_labels.is_none() {
+            app.per_map.draw_major_road_labels = Some(DrawSimpleRoadLabels::only_major_roads(
+                ctx,
+                app,
+                colors::ROAD_LABEL,
+            ));
+        }
+
         Box::new(PickArea {
             appwide_panel,
             bottom_panel,
             world,
             draw_over_roads,
-            labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
             draw_boundary_roads: draw_boundary_roads(ctx, app),
         })
     }
@@ -104,7 +110,7 @@ impl State<App> for PickArea {
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         self.draw_boundary_roads.draw(g);
-        self.labels.draw(g);
+        app.per_map.draw_major_road_labels.as_ref().unwrap().draw(g);
         app.per_map.draw_all_filters.draw(g);
         app.per_map.draw_poi_icons.draw(g);
     }
