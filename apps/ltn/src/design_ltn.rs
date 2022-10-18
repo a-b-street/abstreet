@@ -297,11 +297,16 @@ fn setup_editing(
     {
         let road = map.get_r(*r);
         if let Some(dir) = road.oneway_for_driving() {
-            let arrow_len = Distance::meters(10.0);
-            let thickness = Distance::meters(1.0);
+            // Manually tuned to make arrows fit within roads of any width. We could be more
+            // specific and calculate based on the road's outline, a buffer, etc, but we'd still
+            // have to do some math to account for the triangular arrow cap. This value looks
+            // reasonable.
+            let thickness = 0.2 * road.get_width();
+            let arrow_len = 5.0 * thickness;
+
             for (pt, angle) in road
                 .center_pts
-                .step_along(Distance::meters(30.0), Distance::meters(5.0))
+                .step_along(3.0 * arrow_len, Distance::meters(5.0))
             {
                 // If the user has made the one-way point opposite to how the road is originally
                 // oriented, reverse the arrows
@@ -313,8 +318,8 @@ fn setup_editing(
 
                 draw_top_layer.push(
                     colors::ROAD_LABEL,
-                    pl.make_arrow(thickness * 2.0, ArrowCap::Triangle)
-                        .to_outline(thickness / 2.0),
+                    pl.make_arrow(thickness, ArrowCap::Triangle)
+                        .to_outline(thickness / 4.0),
                 );
             }
         }
