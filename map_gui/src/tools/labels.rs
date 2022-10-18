@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 use aabb_quadtree::QuadTree;
 use lazy_static::lazy_static;
@@ -6,7 +7,7 @@ use regex::Regex;
 
 use abstutil::Timer;
 use geom::{Angle, Bounds, Distance, Polygon, Pt2D};
-use map_model::{osm, Road};
+use map_model::{osm, Road, RoadID};
 use widgetry::mapspace::PerZoom;
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, Line, Text};
 
@@ -212,6 +213,8 @@ pub struct DrawSimpleRoadLabels {
     draw: Drawable,
     include_roads: Box<dyn Fn(&Road) -> bool>,
     fg_color: Color,
+
+    pub label_covers_road: HashMap<RoadID, (Distance, Distance)>,
 }
 
 impl DrawSimpleRoadLabels {
@@ -226,9 +229,10 @@ impl DrawSimpleRoadLabels {
             draw: Drawable::empty(ctx),
             include_roads,
             fg_color,
+            label_covers_road: HashMap::new(),
         };
         ctx.loading_screen("label roads", |ctx, timer| {
-            labels.draw = labels.render(ctx, app, timer);
+            labels.render(ctx, app, timer);
         });
         labels
     }
@@ -238,6 +242,7 @@ impl DrawSimpleRoadLabels {
             draw: Drawable::empty(ctx),
             include_roads: Box::new(|_| false),
             fg_color: Color::CLEAR,
+            label_covers_road: HashMap::new(),
         }
     }
 
@@ -259,7 +264,7 @@ impl DrawSimpleRoadLabels {
         g.redraw(&self.draw);
     }
 
-    fn render(&self, ctx: &mut EventCtx, app: &dyn AppLike, timer: &mut Timer) -> Drawable {
+    fn render(&mut self, ctx: &mut EventCtx, app: &dyn AppLike, timer: &mut Timer) {
         let mut batch = GeomBatch::new();
         let map = app.map();
 
@@ -309,6 +314,13 @@ impl DrawSimpleRoadLabels {
                 // TODO In this case, the vertical centering in the road polygon is wrong
             }
 
+            // Record where the label would cover at this scale, if it was perfectly spaced out
+            // without curves
+            let center = r.length() / 2.0;
+            let half_width = Distance::meters(scale * txt_bounds.width() / 2.0);
+            self.label_covers_road
+                .insert(r.id, (center - half_width, center + half_width));
+
             // The approach, part 2:
             //
             // But many roads are curved. We can use the SVG renderer to make text follow a curve.
@@ -345,6 +357,6 @@ impl DrawSimpleRoadLabels {
             );
         }
 
-        ctx.upload(batch)
+        self.draw = ctx.upload(batch);
     }
 }

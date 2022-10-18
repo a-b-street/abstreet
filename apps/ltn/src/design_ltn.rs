@@ -1,4 +1,4 @@
-use geom::{ArrowCap, Distance, PolyLine, Polygon};
+use geom::{Angle, ArrowCap, Distance, PolyLine, Polygon, Pt2D};
 use map_gui::tools::DrawSimpleRoadLabels;
 use osm2streets::Direction;
 use widgetry::mapspace::{DummyID, World};
@@ -84,7 +84,7 @@ impl DesignLTN {
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
         let (edit, draw_top_layer, draw_under_roads_layer, render_cells, highlight_cell) =
-            setup_editing(ctx, app, &self.neighbourhood);
+            setup_editing(ctx, app, &self.neighbourhood, &self.labels);
         self.edit = edit;
         self.draw_top_layer = draw_top_layer;
         self.draw_under_roads_layer = draw_under_roads_layer;
@@ -230,6 +230,7 @@ fn setup_editing(
     ctx: &mut EventCtx,
     app: &App,
     neighbourhood: &Neighbourhood,
+    labels: &DrawSimpleRoadLabels,
 ) -> (
     EditNeighbourhood,
     Drawable,
@@ -304,10 +305,16 @@ fn setup_editing(
             let thickness = 0.2 * road.get_width();
             let arrow_len = 5.0 * thickness;
 
-            for (pt, angle) in road
-                .center_pts
-                .step_along(3.0 * arrow_len, Distance::meters(5.0))
-            {
+            let slices = if let Some((start, end)) = labels.label_covers_road.get(r) {
+                vec![
+                    road.center_pts.exact_slice(Distance::ZERO, *start),
+                    road.center_pts.exact_slice(*end, road.length()),
+                ]
+            } else {
+                vec![road.center_pts.clone()]
+            };
+
+            let mut draw_arrow = |pt: Pt2D, angle: Angle| {
                 // If the user has made the one-way point opposite to how the road is originally
                 // oriented, reverse the arrows
                 let pl = PolyLine::must_new(vec![
@@ -321,6 +328,23 @@ fn setup_editing(
                     pl.make_arrow(thickness, ArrowCap::Triangle)
                         .to_outline(thickness / 4.0),
                 );
+            };
+
+            let mut any = false;
+            for slice in slices {
+                for (pt, angle) in slice.step_along(3.0 * arrow_len, arrow_len) {
+                    any = true;
+                    draw_arrow(pt, angle);
+                }
+            }
+
+            if !any {
+                // If the label won and we haven't drawn anything, draw arrows right at the start
+                // and end. Otherwise the user has no idea what's happening
+                for dist in [Distance::ZERO, road.length()] {
+                    let (pt, angle) = road.center_pts.must_dist_along(dist);
+                    draw_arrow(pt, angle);
+                }
             }
         }
 
