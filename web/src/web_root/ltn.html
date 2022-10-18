@@ -10,6 +10,21 @@
   document.addEventListener("DOMContentLoaded", function(event) {
     app.loadAndStart();
   });
+
+  window.importMapDynamically = async function (input) {
+  	console.log(`got input ${input}`);
+	// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#importing_defaults
+	const {
+		default: weirdInit,
+		one_step_import,
+	} = await import("/js-importer/js_importer.js");
+	console.log("imported stuff, await init?");
+	window.weirdInit = weirdInit;
+	await weirdInit();
+	console.log("now call fxn");
+	window.one_step_import = one_step_import;
+        return one_step_import(x);
+  };
 </script>
 
 <div class="widgetry-app full-screen-widgetry-app" id="app">
