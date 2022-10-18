@@ -22,7 +22,7 @@ futures-channel = { version = "0.3.12"}
 geo = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../../geom" }
-getrandom = { version = "0.2.3", optional = true }
+getrandom = { workspace = true, optional = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
 maplit = "1.0.2"
@@ -37,6 +37,6 @@ serde_json = { workspace = true }
 sim = { path = "../../sim" }
 osm2streets = { git = "https://github.com/a-b-street/osm2streets" }
 synthpop = { path = "../../synthpop" }
-wasm-bindgen = { version = "0.2.70", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../../widgetry" }
 structopt = { workspace = true }

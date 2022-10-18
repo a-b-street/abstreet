@@ -17,11 +17,11 @@ abstutil = { path = "../../abstutil" }
 contour = { workspace = true }
 geojson = { workspace = true }
 geom = { path = "../../geom" }
-getrandom = { version = "0.2.3", optional = true }
+getrandom = { workspace = true, optional = true }
 log = { workspace = true }
 map_gui = { path = "../../map_gui" }
 map_model = { path = "../../map_model" }
 structopt = { workspace = true }
 synthpop = { path = "../../synthpop" }  # TODO Remove
-wasm-bindgen = { version = "0.2.70", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../../widgetry" }

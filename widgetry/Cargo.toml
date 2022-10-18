@@ -27,7 +27,7 @@ glow = "0.11.2"
 glutin = { git = "https://github.com/rust-windowing/glutin", optional = true }
 htmlescape = "0.3.1"
 image = { version = "0.24.3", default-features = false, features=["gif", "png"] }
-instant = "0.1.7"
+instant = { workspace = true }
 js-sys = { version = "0.3.47", optional = true }
 log = { workspace = true }
 lru = "0.7.1"
@@ -38,14 +38,14 @@ taffy = "0.1.0"
 tokio = { version ="1.19.2", features=["full"], optional = true }
 ttf-parser = "0.15.0"
 usvg = { version = "0.22.0", default-features=false, features=["text"] }
-wasm-bindgen = { version = "0.2.70", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
 wasm-bindgen-futures = { version = "0.4.20", optional = true }
 wasm-streams = { version = "0.2.0", optional = true }
 webbrowser = "0.5.5"
 winit = "0.27.0"
 
 [dependencies.web-sys]
-version = "0.3.47"
+workspace = true
 optional = true
 # TODO Some of these may only be needed in map_gui. It's hard to detangle.
 features = [

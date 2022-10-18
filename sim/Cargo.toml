@@ -12,7 +12,7 @@ ctrlc = { version = "3.2.3", optional = true }
 downcast-rs = "1.2.0"
 enum_dispatch = "0.3.5"
 geom = { path = "../geom" }
-instant = "0.1.7"
+instant = { workspace = true }
 libm = "0.2.1"
 log = { workspace = true }
 map_model = { path = "../map_model" }

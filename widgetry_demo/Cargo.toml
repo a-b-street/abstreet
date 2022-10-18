@@ -15,10 +15,10 @@ wasm = ["getrandom/js", "wasm-bindgen", "widgetry/wasm-backend"]
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-getrandom = { version = "0.2.3", optional = true }
+getrandom = { workspace = true, optional = true }
 log = { workspace = true }
 rand = { workspace = true }
 rand_xorshift = { workspace = true }
 svg_face = "0.1.3"
-wasm-bindgen = { version = "0.2.70", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../widgetry" }

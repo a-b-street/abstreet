@@ -13,7 +13,7 @@ fs-err = { workspace = true }
 geo = { workspace = true }
 geojson = { workspace = true }
 histogram = "0.6.9"
-instant = "0.1.7"
+instant = { workspace = true }
 ordered-float = { version = "2.4.0", features=["serde"] }
 polylabel = "2.4.0"
 serde = { workspace = true }

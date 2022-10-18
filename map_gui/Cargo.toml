@@ -23,7 +23,7 @@ flate2 = "1.0.20"
 futures-channel = { version = "0.3.12"}
 geojson = { workspace = true }
 geom = { path = "../geom" }
-instant = "0.1.7"
+instant = { workspace = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
 lyon = "1.0.0"
@@ -35,8 +35,8 @@ sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }
-wasm-bindgen = { version = "0.2.70", optional = true }
-web-sys = { version = "0.3.47", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+web-sys = { workspace = true, optional = true }
 widgetry = { path = "../widgetry" }
 fs-err = { workspace = true }
 

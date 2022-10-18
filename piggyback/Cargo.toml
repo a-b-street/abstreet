@@ -14,12 +14,12 @@ wasm = ["getrandom/js", "js-sys", "map_gui/wasm", "wasm-bindgen", "web-sys", "wi
 abstio = { path = "../abstio" }
 abstutil = { path = "../abstutil" }
 geom = { path = "../geom" }
-getrandom = { version = "0.2.3", optional = true }
+getrandom = { workspace = true, optional = true }
 js-sys = { version = "0.3.51", optional = true }
 log = { workspace = true }
 map_gui= { path = "../map_gui" }
 map_model = { path = "../map_model" }
 sim = { path = "../sim" }
-wasm-bindgen = { version = "0.2.70", optional = true }
-web-sys = { version = "0.3.47", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+web-sys = { workspace = true, optional = true }
 widgetry = { path = "../widgetry" }

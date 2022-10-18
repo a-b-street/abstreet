@@ -16,7 +16,7 @@ abstio = { path = "../../abstio" }
 abstutil = { path = "../../abstutil" }
 anyhow = { workspace = true }
 geom = { path = "../../geom" }
-getrandom = { version = "0.2.3", optional = true }
+getrandom = { workspace = true, optional = true }
 kml = { path = "../../kml" }
 log = { workspace = true }
 map_gui = { path = "../../map_gui" }
@@ -25,5 +25,5 @@ rand = { workspace = true }
 rand_xorshift = { workspace = true }
 rodio = { version = "0.16.0", default-features = false, features = ["vorbis"] }
 serde = { workspace = true }
-wasm-bindgen = { version = "0.2.70", optional = true }
+wasm-bindgen = { workspace = true, optional = true }
 widgetry = { path = "../../widgetry" }
