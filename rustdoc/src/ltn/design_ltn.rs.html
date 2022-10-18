@@ -544,6 +544,11 @@
 <span id="544">544</span>
 <span id="545">545</span>
 <span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">ArrowCap</span>, <span class="ident">Distance</span>, <span class="ident">PolyLine</span>, <span class="ident">Polygon</span>};
 <span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">osm2streets::Direction</span>;
@@ -843,11 +848,16 @@
     {
         <span class="kw">let</span> <span class="ident">road</span> <span class="op">=</span> <span class="ident">map</span>.<span class="ident">get_r</span>(<span class="kw-2">*</span><span class="ident">r</span>);
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">dir</span>) <span class="op">=</span> <span class="ident">road</span>.<span class="ident">oneway_for_driving</span>() {
-            <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">10.0</span>);
-            <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="ident">Distance::meters</span>(<span class="number">1.0</span>);
+            <span class="comment">// Manually tuned to make arrows fit within roads of any width. We could be more</span>
+            <span class="comment">// specific and calculate based on the road&#39;s outline, a buffer, etc, but we&#39;d still</span>
+            <span class="comment">// have to do some math to account for the triangular arrow cap. This value looks</span>
+            <span class="comment">// reasonable.</span>
+            <span class="kw">let</span> <span class="ident">thickness</span> <span class="op">=</span> <span class="number">0.2</span> <span class="op">*</span> <span class="ident">road</span>.<span class="ident">get_width</span>();
+            <span class="kw">let</span> <span class="ident">arrow_len</span> <span class="op">=</span> <span class="number">5.0</span> <span class="op">*</span> <span class="ident">thickness</span>;
+
             <span class="kw">for</span> (<span class="ident">pt</span>, <span class="ident">angle</span>) <span class="kw">in</span> <span class="ident">road</span>
                 .<span class="ident">center_pts</span>
-                .<span class="ident">step_along</span>(<span class="ident">Distance::meters</span>(<span class="number">30.0</span>), <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
+                .<span class="ident">step_along</span>(<span class="number">3.0</span> <span class="op">*</span> <span class="ident">arrow_len</span>, <span class="ident">Distance::meters</span>(<span class="number">5.0</span>))
             {
                 <span class="comment">// If the user has made the one-way point opposite to how the road is originally</span>
                 <span class="comment">// oriented, reverse the arrows</span>
@@ -859,8 +869,8 @@
 
                 <span class="ident">draw_top_layer</span>.<span class="ident">push</span>(
                     <span class="ident">colors::ROAD_LABEL</span>,
-                    <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">thickness</span> <span class="op">*</span> <span class="number">2.0</span>, <span class="ident">ArrowCap::Triangle</span>)
-                        .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">2.0</span>),
+                    <span class="ident">pl</span>.<span class="ident">make_arrow</span>(<span class="ident">thickness</span>, <span class="ident">ArrowCap::Triangle</span>)
+                        .<span class="ident">to_outline</span>(<span class="ident">thickness</span> <span class="op">/</span> <span class="number">4.0</span>),
                 );
             }
         }
