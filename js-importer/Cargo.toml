@@ -1,0 +1,23 @@
+[package]
+name = "js-importer"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["getrandom/js"]
+
+[dependencies]
+abstio = { path = "../abstio" }
+anyhow = { workspace = true }
+console_error_panic_hook = "0.1.6"
+geom = { path = "../geom" }
+getrandom = "0.2.3"
+log = { workspace = true }
+map_model = { path = "../map_model" }
+serde = { version = "1", features = ["derive"] }
+wasm-bindgen = "0.2.70"
+wasm-bindgen-futures = "0.4.20"
+web-sys = { version = "0.3.47", features=["Document"] }
