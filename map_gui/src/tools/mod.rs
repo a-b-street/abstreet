@@ -41,7 +41,6 @@ pub mod compare_counts;
 mod draw_overlapping_paths;
 mod heatmap;
 mod icons;
-#[cfg(not(target_arch = "wasm32"))]
 mod importer;
 mod labels;
 mod minimap;

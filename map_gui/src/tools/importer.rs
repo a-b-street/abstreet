@@ -8,8 +8,6 @@ use widgetry::{
     EventCtx, GfxCtx, Line, Outcome, Panel, State, TextBox, TextExt, Toggle, Transition, Widget,
 };
 
-use crate::load::MapLoader;
-use crate::tools::find_exe;
 use crate::AppLike;
 
 pub struct ImportCity<A: AppLike> {
@@ -87,7 +85,8 @@ impl<A: AppLike + 'static> ImportCity<A> {
                     Toggle::switch(ctx, "Filter crosswalks", None, false),
                     Toggle::switch(ctx, "Generate travel demand model (UK only)", None, false),
                 ])
-                .section(ctx),
+                .section(ctx)
+                .hide(cfg!(target_arch = "wasm32")),
             ])
             .section(ctx),
         ]))
@@ -100,7 +99,7 @@ impl<A: AppLike + 'static> ImportCity<A> {
 }
 
 impl<A: AppLike + 'static> State<A> for ImportCity<A> {
-    fn event(&mut self, ctx: &mut EventCtx, _: &mut A) -> Transition<A> {
+    fn event(&mut self, ctx: &mut EventCtx, app: &mut A) -> Transition<A> {
         match self.panel.event(ctx) {
             Outcome::Clicked(x) => match x.as_ref() {
                 "close" => Transition::Pop,
@@ -114,59 +113,7 @@ impl<A: AppLike + 'static> State<A> for ImportCity<A> {
                 }
                 "Import the area from your clipboard" => {
                     let name = sanitize_name(self.panel.text_box("new_map_name"));
-
-                    let mut args = vec![
-                        find_exe("cli"),
-                        "one-step-import".to_string(),
-                        "--geojson-path=boundary.geojson".to_string(),
-                        format!("--map-name={}", name),
-                    ];
-                    if self.panel.is_checked("left handed driving") {
-                        args.push("--drive-on-left".to_string());
-                    }
-                    if self.panel.is_checked("source") {
-                        args.push("--use-geofabrik".to_string());
-                    }
-                    if self.panel.is_checked("Filter crosswalks") {
-                        args.push("--filter-crosswalks".to_string());
-                    }
-                    if self
-                        .panel
-                        .is_checked("Generate travel demand model (UK only)")
-                    {
-                        args.push("--create-uk-travel-demand-model".to_string());
-                    }
-                    match grab_geojson_from_clipboard() {
-                        Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(
-                            ctx,
-                            true,
-                            args,
-                            Box::new(|_, _, success, _| {
-                                if success {
-                                    abstio::delete_file("boundary.geojson");
-
-                                    Transition::ConsumeState(Box::new(move |state, ctx, app| {
-                                        let mut state =
-                                            state.downcast::<ImportCity<A>>().ok().unwrap();
-                                        let on_load = state.on_load.take().unwrap();
-                                        let map_name = MapName::new("zz", "oneshot", &name);
-                                        vec![MapLoader::new_state(ctx, app, map_name, on_load)]
-                                    }))
-                                } else {
-                                    // The popup already explained the failure
-                                    Transition::Keep
-                                }
-                            }),
-                        )),
-                        Err(err) => Transition::Push(PopupMsg::new_state(
-                            ctx,
-                            "Error",
-                            vec![
-                                "Couldn't get GeoJSON from your clipboard".to_string(),
-                                err.to_string(),
-                            ],
-                        )),
-                    }
+                    return start_import(ctx, app, &self.panel, name);
                 }
                 _ => unreachable!(),
             },
@@ -205,4 +152,86 @@ fn generate_new_map_name() -> String {
         }
         i += 1;
     }
+}
+
+#[cfg(not(target_arch = "wasm32"))]
+fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, name: String) -> Transition<A> {
+    let mut args = vec![
+        crate::tools::find_exe("cli"),
+        "one-step-import".to_string(),
+        "--geojson-path=boundary.geojson".to_string(),
+        format!("--map-name={}", name),
+    ];
+    if panel.is_checked("left handed driving") {
+        args.push("--drive-on-left".to_string());
+    }
+    if panel.is_checked("source") {
+        args.push("--use-geofabrik".to_string());
+    }
+    if panel.is_checked("Filter crosswalks") {
+        args.push("--filter-crosswalks".to_string());
+    }
+    if panel.is_checked("Generate travel demand model (UK only)") {
+        args.push("--create-uk-travel-demand-model".to_string());
+    }
+    match grab_geojson_from_clipboard() {
+        Ok(()) => Transition::Push(crate::tools::RunCommand::new_state(
+            ctx,
+            true,
+            args,
+            Box::new(|_, _, success, _| {
+                if success {
+                    abstio::delete_file("boundary.geojson");
+
+                    Transition::ConsumeState(Box::new(move |state, ctx, app| {
+                        let mut state = state.downcast::<ImportCity<A>>().ok().unwrap();
+                        let on_load = state.on_load.take().unwrap();
+                        let map_name = MapName::new("zz", "oneshot", &name);
+                        vec![crate::load::MapLoader::new_state(ctx, app, map_name, on_load)]
+                    }))
+                } else {
+                    // The popup already explained the failure
+                    Transition::Keep
+                }
+            }),
+        )),
+        Err(err) => Transition::Push(PopupMsg::new_state(
+            ctx,
+            "Error",
+            vec![
+                "Couldn't get GeoJSON from your clipboard".to_string(),
+                err.to_string(),
+            ],
+        )),
+    }
+}
+
+#[cfg(target_arch = "wasm32")]
+fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, map_name: String) -> Transition<A> {
+    use serde::Serialize;
+    use geom::LonLat;
+    use map_model::DrivingSide;
+
+    #[derive(Serialize)]
+    struct OneStepImport {
+        boundary_polygon: Vec<LonLat>,
+        map_name: String,
+        driving_side: DrivingSide,
+    }
+
+    let input = OneStepImport {
+        // TODO Clipboard?
+        boundary_polygon: Vec::new(),
+        map_name,
+        driving_side: if panel.is_checked("left handed driving") {
+            DrivingSide::Left
+        } else {
+            DrivingSide::Right
+        },
+    };
+
+    // TODO do the wasm bindgen thing and call it. probably just block, get bytes? or since it's
+    // async... futureloader?
+
+    Transition::Keep
 }

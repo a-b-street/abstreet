@@ -145,28 +145,18 @@ impl<A: AppLike + 'static> CityPicker<A> {
                             Line("Select a district").small_heading().into_widget(ctx),
                             ctx.style().btn_close_widget(ctx),
                         ]),
-                        if cfg!(target_arch = "wasm32") {
-                            // On web, this is a link, so it's styled appropriately.
+                        Widget::row(vec![
                             ctx.style()
-                                .btn_plain
-                                .btn()
-                                .label_underlined_text("Import a new city into A/B Street")
-                                .build_widget(ctx, "import new city")
-                        } else {
-                            // On native this shows the "import" instructions modal within
-                            // the app
-                            Widget::row(vec![
-                                ctx.style()
-                                    .btn_outline
-                                    .text("Import a new city into A/B Street")
-                                    .build_widget(ctx, "import new city"),
-                                ctx.style()
-                                    .btn_outline
-                                    .text("Re-import this map with latest OpenStreetMap data")
-                                    .tooltip("OSM edits take a few minutes to appear in Overpass. Note this will create a new copy of the map, not overwrite the original.")
-                                    .build_widget(ctx, "re-import this city"),
-                            ])
-                        },
+                                .btn_outline
+                                .text("Import a new city into A/B Street")
+                                .build_widget(ctx, "import new city"),
+                            ctx.style()
+                                .btn_outline
+                                .text("Re-import this map with latest OpenStreetMap data")
+                                .tooltip("OSM edits take a few minutes to appear in Overpass. Note this will create a new copy of the map, not overwrite the original.")
+                                .build_widget(ctx, "re-import this city")
+                                .hide(cfg!(target_arch = "wasm32")),
+                        ]),
                         ctx.style()
                             .btn_outline
                             .icon_text("system/assets/tools/search.svg", "Search all maps")
@@ -205,19 +195,10 @@ impl<A: AppLike + 'static> State<A> for CityPicker<A> {
                     ));
                 }
                 "import new city" => {
-                    #[cfg(target_arch = "wasm32")]
-                    {
-                        widgetry::tools::open_browser(
-                            "https://a-b-street.github.io/docs/user/new_city.html",
-                        );
-                    }
-                    #[cfg(not(target_arch = "wasm32"))]
-                    {
-                        return Transition::Replace(crate::tools::importer::ImportCity::new_state(
-                            ctx,
-                            self.on_load.take().unwrap(),
-                        ));
-                    }
+                    return Transition::Replace(crate::tools::importer::ImportCity::new_state(
+                        ctx,
+                        self.on_load.take().unwrap(),
+                    ));
                 }
                 "re-import this city" => {
                     #[cfg(target_arch = "wasm32")]

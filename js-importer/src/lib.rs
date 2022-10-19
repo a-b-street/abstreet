@@ -1,12 +1,12 @@
 use log::info;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use wasm_bindgen::prelude::*;
 
 use geom::LonLat;
 use map_model::DrivingSide;
 
 // This is a subset of the variation in the cli crate, and geojson_path becomes geojson_boundary
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 pub struct OneStepImport {
     boundary_polygon: Vec<LonLat>,
     map_name: String,
