@@ -12,7 +12,7 @@
   });
 
   window.importMapDynamically = async function (input) {
-  	console.log(`got input ${input}`);
+  	console.log(`got input ${JSON.stringify(input)}`);
 	// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/import#importing_defaults
 	const {
 		default: weirdInit,
@@ -23,7 +23,7 @@
 	await weirdInit();
 	console.log("now call fxn");
 	window.one_step_import = one_step_import;
-        return one_step_import(x);
+        return one_step_import(input);
   };
 </script>
 

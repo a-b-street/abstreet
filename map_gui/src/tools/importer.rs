@@ -155,7 +155,12 @@ fn generate_new_map_name() -> String {
 }
 
 #[cfg(not(target_arch = "wasm32"))]
-fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, name: String) -> Transition<A> {
+fn start_import<A: AppLike + 'static>(
+    ctx: &EventCtx,
+    _: &A,
+    panel: &Panel,
+    name: String,
+) -> Transition<A> {
     let mut args = vec![
         crate::tools::find_exe("cli"),
         "one-step-import".to_string(),
@@ -187,7 +192,9 @@ fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, name
                         let mut state = state.downcast::<ImportCity<A>>().ok().unwrap();
                         let on_load = state.on_load.take().unwrap();
                         let map_name = MapName::new("zz", "oneshot", &name);
-                        vec![crate::load::MapLoader::new_state(ctx, app, map_name, on_load)]
+                        vec![crate::load::MapLoader::new_state(
+                            ctx, app, map_name, on_load,
+                        )]
                     }))
                 } else {
                     // The popup already explained the failure
@@ -207,10 +214,17 @@ fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, name
 }
 
 #[cfg(target_arch = "wasm32")]
-fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, map_name: String) -> Transition<A> {
-    use serde::Serialize;
+fn start_import<A: AppLike + 'static>(
+    ctx: &mut EventCtx,
+    _: &A,
+    panel: &Panel,
+    map_name: String,
+) -> Transition<A> {
     use geom::LonLat;
     use map_model::DrivingSide;
+    use serde::Serialize;
+    use wasm_bindgen::prelude::*;
+    use widgetry::tools::FutureLoader;
 
     #[derive(Serialize)]
     struct OneStepImport {
@@ -219,9 +233,21 @@ fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, map_
         driving_side: DrivingSide,
     }
 
+    #[wasm_bindgen]
+    extern "C" {
+        #[wasm_bindgen(js_namespace = window)]
+        async fn importMapDynamically(input: JsValue) -> JsValue;
+    }
+
     let input = OneStepImport {
         // TODO Clipboard?
-        boundary_polygon: Vec::new(),
+        boundary_polygon: vec![
+            LonLat::new(-91.15400783988764, 30.451015330997436),
+            LonLat::new(-91.15400783988764, 30.44364600989995),
+            LonLat::new(-91.1432748581711, 30.44364600989995),
+            LonLat::new(-91.1432748581711, 30.451015330997436),
+            LonLat::new(-91.15400783988764, 30.451015330997436),
+        ],
         map_name,
         driving_side: if panel.is_checked("left handed driving") {
             DrivingSide::Left
@@ -230,8 +256,30 @@ fn start_import<A: AppLike + 'static>(ctx: &EventCtx, _: &A, panel: &Panel, map_
         },
     };
 
-    // TODO do the wasm bindgen thing and call it. probably just block, get bytes? or since it's
-    // async... futureloader?
+    let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
+    let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
+    Transition::Push(FutureLoader::<A, String>::new_state(
+        ctx,
+        Box::pin(async move {
+            let result = importMapDynamically(JsValue::from_serde(&input).unwrap()).await;
+            let osm_xml: String = result.into_serde().unwrap();
 
-    Transition::Keep
+            let wrap: Box<dyn Send + FnOnce(&A) -> String> = Box::new(move |_: &A| osm_xml);
+            Ok(wrap)
+        }),
+        outer_progress_rx,
+        inner_progress_rx,
+        "Importing area",
+        Box::new(|ctx, app, maybe_result| match maybe_result {
+            Ok(osm_xml) => {
+                info!("got result {}", osm_xml);
+                Transition::Pop
+            }
+            Err(err) => Transition::Replace(PopupMsg::new_state(
+                ctx,
+                "Import failed",
+                vec![err.to_string()],
+            )),
+        }),
+    ))
 }

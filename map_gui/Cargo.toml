@@ -6,7 +6,7 @@ edition = "2021"
 
 [features]
 native = ["built", "subprocess", "widgetry/native-backend"]
-wasm = ["wasm-bindgen", "web-sys", "widgetry/wasm-backend"]
+wasm = ["js-sys", "wasm-bindgen", "wasm-bindgen-futures", "web-sys", "widgetry/wasm-backend"]
 # A marker to use a named release from S3 instead of dev for updating files
 release_s3 = []
 
@@ -24,6 +24,7 @@ futures-channel = { version = "0.3.12"}
 geojson = { workspace = true }
 geom = { path = "../geom" }
 instant = { workspace = true }
+js-sys = { version = "0.3.51", optional = true }
 lazy_static = "1.4.0"
 log = { workspace = true }
 lyon = "1.0.0"
@@ -36,6 +37,7 @@ synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
 subprocess = { git = "https://github.com/hniksic/rust-subprocess", optional = true }
 wasm-bindgen = { workspace = true, optional = true }
+wasm-bindgen-futures = { version = "0.4.20", optional = true }
 web-sys = { workspace = true, optional = true }
 widgetry = { path = "../widgetry" }
 fs-err = { workspace = true }

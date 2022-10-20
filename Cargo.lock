@@ -2475,6 +2475,7 @@ dependencies = [
  "geojson",
  "geom",
  "instant",
+ "js-sys",
  "lazy_static",
  "log",
  "lyon",
@@ -2487,6 +2488,7 @@ dependencies = [
  "subprocess",
  "synthpop",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
  "widgetry",
 ]
