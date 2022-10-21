@@ -42,8 +42,10 @@ async fn inner(input: JsValue) -> anyhow::Result<JsValue> {
     );
     let map =
         map_model::Map::create_from_raw(raw, map_model::RawToMapOptions::default(), &mut timer);
+    info!("finished creating map! back to jsvalue");
 
     let result = JsValue::from_serde(&map)?;
+    info!("ok great done from rust");
     Ok(result)
 }
 

@@ -256,12 +256,13 @@ fn start_import<A: AppLike + 'static>(
         },
     };
 
-    let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
-    let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
+    let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
+    let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
     Transition::Push(FutureLoader::<A, Map>::new_state(
         ctx,
         Box::pin(async move {
             let result = importMapDynamically(JsValue::from_serde(&input).unwrap()).await;
+            info!("got result in mapgui. now serde jsvalue read");
             let map: Map = result.into_serde().unwrap();
 
             let wrap: Box<dyn Send + FnOnce(&A) -> Map> = Box::new(move |_: &A| map);
@@ -270,7 +271,7 @@ fn start_import<A: AppLike + 'static>(
         outer_progress_rx,
         inner_progress_rx,
         "Importing area",
-        Box::new(|ctx, app, maybe_result| match maybe_result {
+        Box::new(|ctx, _, maybe_result| match maybe_result {
             Ok(mut map) => {
                 info!("omg got the map?! {}", map.get_name().describe());
 
