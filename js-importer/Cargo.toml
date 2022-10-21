@@ -15,6 +15,7 @@ convert_osm = { path = "../convert_osm" }
 geom = { path = "../geom" }
 getrandom = { workspace = true, features = ["js"] }
 instant = { workspace = true, features = ["wasm-bindgen"] }
+js-sys = "0.3.47"
 log = { workspace = true }
 map_model = { path = "../map_model" }
 serde = { version = "1", features = ["derive"] }

@@ -263,7 +263,9 @@ fn start_import<A: AppLike + 'static>(
         Box::pin(async move {
             let result = importMapDynamically(JsValue::from_serde(&input).unwrap()).await;
             info!("got result in mapgui. now serde jsvalue read");
-            let map: Map = result.into_serde().unwrap();
+            let array = js_sys::Uint8Array::new(&result);
+            let bytes = array.to_vec();
+            let map: Map = abstutil::from_binary(&bytes).unwrap();
 
             let wrap: Box<dyn Send + FnOnce(&A) -> Map> = Box::new(move |_: &A| map);
             Ok(wrap)

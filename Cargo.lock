@@ -2193,6 +2193,7 @@ dependencies = [
  "geom",
  "getrandom",
  "instant",
+ "js-sys",
  "log",
  "map_model",
  "serde",

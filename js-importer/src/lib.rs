@@ -40,11 +40,15 @@ async fn inner(input: JsValue) -> anyhow::Result<JsValue> {
         convert_osm::Options::default_for_side(input.driving_side),
         &mut timer,
     );
-    let map =
-        map_model::Map::create_from_raw(raw, map_model::RawToMapOptions::default(), &mut timer);
-    info!("finished creating map! back to jsvalue");
-
-    let result = JsValue::from_serde(&map)?;
+    /*let map =
+        map_model::Map::create_from_raw(raw, map_model::RawToMapOptions::default(), &mut timer);*/
+    info!("finished creating map! back to jsvalue pt1. is serializing really so slow?");
+    // TODO seemingly, yes?! whats breaking here?
+    //let bytes = abstutil::to_binary(&map);
+    let bytes = abstutil::to_binary(&raw);
+    info!("finished creating map! back to jsvalue pt2. is {}", bytes.len());
+    let array = unsafe { js_sys::Uint8Array::view(&bytes) };
+    let result = JsValue::from(array);
     info!("ok great done from rust");
     Ok(result)
 }
