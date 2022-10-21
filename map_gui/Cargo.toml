@@ -29,6 +29,7 @@ lazy_static = "1.4.0"
 log = { workspace = true }
 lyon = "1.0.0"
 map_model = { path = "../map_model" }
+raw_map = { path = "../raw_map" }
 regex = "1.5.5"
 rfd = "0.8.0"
 serde = { workspace = true }

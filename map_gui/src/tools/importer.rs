@@ -224,6 +224,7 @@ fn start_import<A: AppLike + 'static>(
     use map_model::{DrivingSide, Map};
     use serde::Serialize;
     use wasm_bindgen::prelude::*;
+    use raw_map::RawMap;
     use widgetry::tools::FutureLoader;
 
     #[derive(Serialize)]
@@ -258,30 +259,32 @@ fn start_import<A: AppLike + 'static>(
 
     let (_, outer_progress_rx) = futures_channel::mpsc::channel(1);
     let (_, inner_progress_rx) = futures_channel::mpsc::channel(1);
-    Transition::Push(FutureLoader::<A, Map>::new_state(
+    Transition::Push(FutureLoader::<A, RawMap>::new_state(
         ctx,
         Box::pin(async move {
             let result = importMapDynamically(JsValue::from_serde(&input).unwrap()).await;
             info!("got result in mapgui. now serde jsvalue read");
             let array = js_sys::Uint8Array::new(&result);
             let bytes = array.to_vec();
-            let map: Map = abstutil::from_binary(&bytes).unwrap();
+            info!("raw byte array is {}", bytes.len());
+            let raw_map: RawMap = abstutil::from_binary(&bytes).unwrap();
 
-            let wrap: Box<dyn Send + FnOnce(&A) -> Map> = Box::new(move |_: &A| map);
+            let wrap: Box<dyn Send + FnOnce(&A) -> RawMap> = Box::new(move |_: &A| raw_map);
             Ok(wrap)
         }),
         outer_progress_rx,
         inner_progress_rx,
         "Importing area",
         Box::new(|ctx, _, maybe_result| match maybe_result {
-            Ok(mut map) => {
-                info!("omg got the map?! {}", map.get_name().describe());
+            Ok(raw) => {
+                info!("omg got the map?! {}", raw.name.describe());
 
                 Transition::ConsumeState(Box::new(move |state, ctx, app| {
                     let mut state = state.downcast::<ImportCity<A>>().ok().unwrap();
                     let on_load = state.on_load.take().unwrap();
 
                     ctx.loading_screen("load imported map", |ctx, timer| {
+                        let mut map = Map::create_from_raw(raw, map_model::RawToMapOptions::default(), timer);
                         map.map_loaded_directly(timer);
                         app.map_switched(ctx, map, timer);
                     });

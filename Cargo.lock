@@ -2484,6 +2484,7 @@ dependencies = [
  "log",
  "lyon",
  "map_model",
+ "raw_map",
  "regex",
  "rfd",
  "serde",
