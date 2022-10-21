@@ -11,8 +11,10 @@ default = ["getrandom/js"]
 
 [dependencies]
 abstio = { path = "../abstio" }
+abstutil = { path = "../abstutil" }
 anyhow = { workspace = true }
 console_error_panic_hook = "0.1.6"
+convert_osm = { path = "../convert_osm" }
 geom = { path = "../geom" }
 getrandom = { workspace = true }
 log = { workspace = true }

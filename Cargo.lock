@@ -2186,8 +2186,10 @@ name = "js-importer"
 version = "0.1.0"
 dependencies = [
  "abstio",
+ "abstutil",
  "anyhow",
  "console_error_panic_hook",
+ "convert_osm",
  "geom",
  "getrandom",
  "log",

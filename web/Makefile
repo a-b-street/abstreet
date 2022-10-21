@@ -30,7 +30,9 @@ dev: export WASM_PACK_FLAGS=--dev
 dev: build build/dist/data
 
 server: build/dist/data
-	cp -Rv ../js-importer/pkg/ build/dist/js-importer
+	rm -rf build/dist/js-importer
+	mkdir build/dist/js-importer
+	cp -Rv ../js-importer/pkg/* build/dist/js-importer/
 	cd build/dist && python3 -m http.server $(SERVER_PORT)
 
 ##

@@ -11,12 +11,11 @@ use streets_reader::OsmExtract;
 
 pub fn extract_osm(
     map: &mut RawMap,
-    osm_input_path: &str,
-    clip_path: Option<String>,
+    osm_xml: String,
+    is_clipped: bool,
     opts: &Options,
     timer: &mut Timer,
 ) -> (OsmExtract, MultiMap<osm::WayID, String>) {
-    let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
     let mut doc =
         streets_reader::osm_reader::read(&osm_xml, &map.streets.gps_bounds, timer).unwrap();
 
@@ -39,7 +38,7 @@ pub fn extract_osm(
         way.tags.insert("sidewalk", "right");
     }
 
-    if clip_path.is_none() {
+    if !is_clipped {
         // Use the boundary from .osm.
         map.streets.gps_bounds = doc.gps_bounds.clone();
         map.streets.boundary_polygon = map.streets.gps_bounds.to_bounds().get_rectangle();

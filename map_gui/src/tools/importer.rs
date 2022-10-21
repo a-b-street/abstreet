@@ -156,7 +156,7 @@ fn generate_new_map_name() -> String {
 
 #[cfg(not(target_arch = "wasm32"))]
 fn start_import<A: AppLike + 'static>(
-    ctx: &EventCtx,
+    ctx: &mut EventCtx,
     _: &A,
     panel: &Panel,
     name: String,
@@ -221,7 +221,7 @@ fn start_import<A: AppLike + 'static>(
     map_name: String,
 ) -> Transition<A> {
     use geom::LonLat;
-    use map_model::DrivingSide;
+    use map_model::{DrivingSide, Map};
     use serde::Serialize;
     use wasm_bindgen::prelude::*;
     use widgetry::tools::FutureLoader;
@@ -258,21 +258,21 @@ fn start_import<A: AppLike + 'static>(
 
     let (outer_progress_tx, outer_progress_rx) = futures_channel::mpsc::channel(1000);
     let (inner_progress_tx, inner_progress_rx) = futures_channel::mpsc::channel(1000);
-    Transition::Push(FutureLoader::<A, String>::new_state(
+    Transition::Push(FutureLoader::<A, Map>::new_state(
         ctx,
         Box::pin(async move {
             let result = importMapDynamically(JsValue::from_serde(&input).unwrap()).await;
-            let osm_xml: String = result.into_serde().unwrap();
+            let map: Map = result.into_serde().unwrap();
 
-            let wrap: Box<dyn Send + FnOnce(&A) -> String> = Box::new(move |_: &A| osm_xml);
+            let wrap: Box<dyn Send + FnOnce(&A) -> Map> = Box::new(move |_: &A| map);
             Ok(wrap)
         }),
         outer_progress_rx,
         inner_progress_rx,
         "Importing area",
         Box::new(|ctx, app, maybe_result| match maybe_result {
-            Ok(osm_xml) => {
-                info!("got result {}", osm_xml);
+            Ok(map) => {
+                info!("omg got the map?! {}", map.get_name().describe());
                 Transition::Pop
             }
             Err(err) => Transition::Replace(PopupMsg::new_state(

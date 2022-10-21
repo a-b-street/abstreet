@@ -28,21 +28,34 @@ pub fn convert(
     opts: Options,
     timer: &mut Timer,
 ) -> RawMap {
+    let osm_xml = fs_err::read_to_string(osm_input_path).unwrap();
+    let clip_pts = clip_path.map(|path| LonLat::read_osmosis_polygon(&path).unwrap());
+    convert_bytes(osm_xml, name, clip_pts, opts, timer)
+}
+
+/// Create a RawMap from OSM and other input data. This variation has file IO already done. If any
+/// paths are specified in Options, they'll only work on native, not web.
+pub fn convert_bytes(
+    osm_xml: String,
+    name: MapName,
+    clip_pts: Option<Vec<LonLat>>,
+    opts: Options,
+    timer: &mut Timer,
+) -> RawMap {
     timer.start("create RawMap from input data");
 
     let mut map = RawMap::blank(name);
     // Do this early. Calculating Roads uses DrivingSide, for example!
     map.streets.config = opts.map_config.clone();
 
-    if let Some(ref path) = clip_path {
-        let pts = LonLat::read_osmosis_polygon(path).unwrap();
+    if let Some(ref pts) = clip_pts {
         let gps_bounds = GPSBounds::from(pts.clone());
         map.streets.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
         map.streets.gps_bounds = gps_bounds;
     }
 
     let (extract, bus_routes_on_roads) =
-        extract::extract_osm(&mut map, &osm_input_path, clip_path, &opts, timer);
+        extract::extract_osm(&mut map, osm_xml, clip_pts.is_some(), &opts, timer);
     map.bus_routes_on_roads = bus_routes_on_roads;
     let split_output = streets_reader::split_ways::split_up_roads(&mut map.streets, extract, timer);
     clip_map(&mut map, timer);
