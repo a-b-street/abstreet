@@ -267,6 +267,8 @@ fn start_import<A: AppLike + 'static>(
             let array = js_sys::Uint8Array::new(&result);
             let bytes = array.to_vec();
             info!("raw byte array is {}", bytes.len());
+            info!("in mapgui, first bytes... {}, {}", bytes[0], bytes[1]);
+            info!("last byte... {}", bytes[bytes.len()-1]);
             let raw_map: RawMap = abstutil::from_binary(&bytes).unwrap();
 
             let wrap: Box<dyn Send + FnOnce(&A) -> RawMap> = Box::new(move |_: &A| raw_map);

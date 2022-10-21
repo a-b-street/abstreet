@@ -47,6 +47,8 @@ async fn inner(input: JsValue) -> anyhow::Result<JsValue> {
     //let bytes = abstutil::to_binary(&map);
     let bytes = abstutil::to_binary(&raw);
     info!("finished creating map! back to jsvalue pt2. is {}", bytes.len());
+    info!("first bytes... {}, {}", bytes[0], bytes[1]);
+    info!("last byte... {}", bytes[bytes.len()-1]);
     let array = unsafe { js_sys::Uint8Array::view(&bytes) };
     let result = JsValue::from(array);
     info!("ok great done from rust");
