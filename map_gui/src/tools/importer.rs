@@ -271,9 +271,21 @@ fn start_import<A: AppLike + 'static>(
         inner_progress_rx,
         "Importing area",
         Box::new(|ctx, app, maybe_result| match maybe_result {
-            Ok(map) => {
+            Ok(mut map) => {
                 info!("omg got the map?! {}", map.get_name().describe());
-                Transition::Pop
+
+                Transition::ConsumeState(Box::new(move |state, ctx, app| {
+                    let mut state = state.downcast::<ImportCity<A>>().ok().unwrap();
+                    let on_load = state.on_load.take().unwrap();
+
+                    ctx.loading_screen("load imported map", |ctx, timer| {
+                        map.map_loaded_directly(timer);
+                        app.map_switched(ctx, map, timer);
+                    });
+                    // TODO A state that just calls this
+                    //(on_load)(ctx, app)
+                    vec![ImportCity::new_state(ctx, on_load)]
+                }))
             }
             Err(err) => Transition::Replace(PopupMsg::new_state(
                 ctx,

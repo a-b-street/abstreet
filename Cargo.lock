@@ -2192,6 +2192,7 @@ dependencies = [
  "convert_osm",
  "geom",
  "getrandom",
+ "instant",
  "log",
  "map_model",
  "serde",
