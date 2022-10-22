@@ -343,6 +343,9 @@
 <span id="343">343</span>
 <span id="344">344</span>
 <span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">abstio::MapName</span>;
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Distance</span>, <span class="ident">Duration</span>, <span class="ident">Pt2D</span>, <span class="ident">Time</span>};
@@ -354,6 +357,7 @@
 <span class="kw">use</span> <span class="ident">map_gui::tools::DrawSimpleRoadLabels</span>;
 <span class="kw">use</span> <span class="ident">map_gui</span>::{<span class="ident">AppLike</span>, <span class="ident">ID</span>};
 <span class="kw">use</span> <span class="ident">map_model</span>::{<span class="ident">AmenityType</span>, <span class="ident">IntersectionID</span>, <span class="ident">Map</span>, <span class="ident">RoutingParams</span>};
+<span class="kw">use</span> <span class="ident">osm2streets::CrossingType</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::URLManager</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">Canvas</span>, <span class="ident">Color</span>, <span class="ident">Drawable</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>, <span class="ident">RewriteColor</span>, <span class="ident">SharedAppState</span>, <span class="ident">State</span>,
@@ -448,6 +452,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Session</span> {
     <span class="kw">pub</span> <span class="ident">edit_mode</span>: <span class="ident"><span class="kw">crate</span>::edit::EditMode</span>,
     <span class="kw">pub</span> <span class="ident">filter_type</span>: <span class="ident">FilterType</span>,
+    <span class="kw">pub</span> <span class="ident">crossing_type</span>: <span class="ident">CrossingType</span>,
 
     <span class="comment">// Remember form settings in different tabs.</span>
     <span class="comment">// Pick areas:</span>
@@ -566,6 +571,7 @@
         <span class="kw">let</span> <span class="ident">session</span> <span class="op">=</span> <span class="ident">Session</span> {
             <span class="ident">edit_mode</span>: <span class="ident"><span class="kw">crate</span>::edit::EditMode::Filters</span>,
             <span class="ident">filter_type</span>: <span class="ident">FilterType::WalkCycleOnly</span>,
+            <span class="ident">crossing_type</span>: <span class="ident">CrossingType::Unsignalized</span>,
 
             <span class="ident">draw_neighbourhood_style</span>: <span class="ident"><span class="kw">crate</span>::pick_area::Style::Simple</span>,
             <span class="ident">main_road_penalty</span>: <span class="number">1.0</span>,

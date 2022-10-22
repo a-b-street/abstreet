@@ -33,6 +33,11 @@
 <span id="33">33</span>
 <span id="34">34</span>
 <span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::Color</span>;
 
 <span class="macro">lazy_static::lazy_static!</span> {
@@ -57,6 +62,11 @@
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">PLAN_ROUTE_WALK</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::BLUE</span>;
 
     <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">BUS_ROUTE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#0672B9&quot;</span>);
+
+    <span class="comment">// From https://content.tfl.gov.uk/lcds-chapter2-toolsandtechniques.pdf page 18</span>
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">POROUS</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#99BA98&quot;</span>);
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">SEMI_PERMEABLE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#EFC796&quot;</span>);
+    <span class="kw">pub</span> <span class="kw">static</span> <span class="kw-2">ref</span> <span class="ident">IMPERMEABLE</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::hex</span>(<span class="string">&quot;#E99875&quot;</span>);
 }
 
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">DISCONNECTED_CELL</span>: <span class="ident">Color</span> <span class="op">=</span> <span class="ident">Color::RED</span>.<span class="ident">alpha</span>(<span class="number">0.5</span>);

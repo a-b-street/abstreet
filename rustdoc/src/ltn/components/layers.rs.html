@@ -325,8 +325,29 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">geom::Polygon</span>;
 <span class="kw">use</span> <span class="ident">map_gui::colors::ColorScheme</span>;
+<span class="kw">use</span> <span class="ident">osm2streets::CrossingType</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::ColorLegend</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
     <span class="ident">ButtonBuilder</span>, <span class="ident">Color</span>, <span class="ident">ControlState</span>, <span class="ident">EdgeInsets</span>, <span class="ident">EventCtx</span>, <span class="ident">GeomBatch</span>, <span class="ident">GfxCtx</span>,
@@ -335,7 +356,7 @@
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::components::Mode</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Transition</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">colors</span>, <span class="ident">crossings</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Transition</span>};
 
 <span class="comment">// Partly copied from ungap/layers.s</span>
 
@@ -612,6 +633,25 @@
                 <span class="comment">// TODO Should we invert text color? This gets hard to read</span>
                 <span class="ident">entry</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">colors::PLAN_ROUTE_WALK</span>, <span class="string">&quot;walking route&quot;</span>),
                 <span class="comment">// TODO Highlighted roads are boundaries (or main?) roads</span>
+            ],
+            <span class="ident">Mode::Crossings</span> =&gt; <span class="macro">vec!</span>[
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Image::from_path</span>(<span class="ident">crossings::svg_path</span>(<span class="ident">CrossingType::Unsignalized</span>))
+                        .<span class="ident">untinted</span>()
+                        .<span class="ident">dims</span>(<span class="number">30.0</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Unsignalized crossing&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                ]),
+                <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
+                    <span class="ident">Image::from_path</span>(<span class="ident">crossings::svg_path</span>(<span class="ident">CrossingType::Signalized</span>))
+                        .<span class="ident">untinted</span>()
+                        .<span class="ident">dims</span>(<span class="number">30.0</span>)
+                        .<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
+                    <span class="string">&quot;Signalized crossing&quot;</span>.<span class="ident">text_widget</span>(<span class="ident">ctx</span>),
+                ]),
+                <span class="ident">entry</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">colors::IMPERMEABLE</span>, <span class="string">&quot;impermeable (no crossings)&quot;</span>),
+                <span class="ident">entry</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">colors::SEMI_PERMEABLE</span>, <span class="string">&quot;semi-permeable (1 crossing)&quot;</span>),
+                <span class="ident">entry</span>(<span class="ident">ctx</span>, <span class="kw-2">*</span><span class="ident">colors::POROUS</span>, <span class="string">&quot;porous (≥2 crossings)&quot;</span>),
             ],
             <span class="ident">Mode::Impact</span> =&gt; <span class="macro">vec!</span>[
                 <span class="ident">map_gui::tools::compare_counts::CompareCounts::relative_scale</span>()

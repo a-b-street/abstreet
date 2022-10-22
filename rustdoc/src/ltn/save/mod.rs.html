@@ -634,6 +634,10 @@
 <span id="634">634</span>
 <span id="635">635</span>
 <span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
 </pre><pre class="rust"><code><span class="kw">mod</span> <span class="ident">perma</span>;
 <span class="kw">mod</span> <span class="ident">share</span>;
 
@@ -1233,6 +1237,7 @@
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">PreserveState</span> {
     <span class="ident">PickArea</span>,
     <span class="ident">Route</span>,
+    <span class="ident">Crossings</span>,
     <span class="comment">// TODO app.session.edit_mode now has state for Shortcuts...</span>
     <span class="ident">DesignLTN</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BlockID</span><span class="op">&gt;</span>),
 }
@@ -1243,6 +1248,9 @@
             <span class="ident">PreserveState::PickArea</span> =&gt; <span class="ident">Transition::Replace</span>(<span class="ident">PickArea::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>)),
             <span class="ident">PreserveState::Route</span> =&gt; {
                 <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::route_planner::RoutePlanner::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
+            }
+            <span class="ident">PreserveState::Crossings</span> =&gt; {
+                <span class="ident">Transition::Replace</span>(<span class="ident"><span class="kw">crate</span>::crossings::Crossings::new_state</span>(<span class="ident">ctx</span>, <span class="ident">app</span>))
             }
             <span class="ident">PreserveState::DesignLTN</span>(<span class="ident">blocks</span>) =&gt; {
                 <span class="comment">// Count which new neighbourhoods have the blocks from the original. Pick the one</span>

@@ -799,7 +799,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Toggle3Zoomed</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">draw_zoomed</span>: <span class="ident">Drawable</span>, <span class="ident">unzoomed</span>: <span class="ident">DrawCustomUnzoomedShapes</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">draw_zoomed</span>: <span class="ident">Drawable</span>, <span class="ident">unzoomed</span>: <span class="ident">DrawCustomUnzoomedShapes</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">draw_zoomed</span>,
             <span class="ident">unzoomed</span>,
