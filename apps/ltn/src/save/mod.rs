@@ -597,6 +597,7 @@ impl Proposals {
 pub enum PreserveState {
     PickArea,
     Route,
+    Crossings,
     // TODO app.session.edit_mode now has state for Shortcuts...
     DesignLTN(Vec<BlockID>),
 }
@@ -607,6 +608,9 @@ impl PreserveState {
             PreserveState::PickArea => Transition::Replace(PickArea::new_state(ctx, app)),
             PreserveState::Route => {
                 Transition::Replace(crate::route_planner::RoutePlanner::new_state(ctx, app))
+            }
+            PreserveState::Crossings => {
+                Transition::Replace(crate::crossings::Crossings::new_state(ctx, app))
             }
             PreserveState::DesignLTN(blocks) => {
                 // Count which new neighbourhoods have the blocks from the original. Pick the one

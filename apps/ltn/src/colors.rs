@@ -22,6 +22,11 @@ lazy_static::lazy_static! {
     pub static ref PLAN_ROUTE_WALK: Color = Color::BLUE;
 
     pub static ref BUS_ROUTE: Color = Color::hex("#0672B9");
+
+    // From https://content.tfl.gov.uk/lcds-chapter2-toolsandtechniques.pdf page 18
+    pub static ref POROUS: Color = Color::hex("#99BA98");
+    pub static ref SEMI_PERMEABLE: Color = Color::hex("#EFC796");
+    pub static ref IMPERMEABLE: Color = Color::hex("#E99875");
 }
 
 pub const DISCONNECTED_CELL: Color = Color::RED.alpha(0.5);

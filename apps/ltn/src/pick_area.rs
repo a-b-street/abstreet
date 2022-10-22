@@ -58,7 +58,7 @@ impl PickArea {
             ));
         }
 
-        Box::new(PickArea {
+        Box::new(Self {
             appwide_panel,
             bottom_panel,
             world,

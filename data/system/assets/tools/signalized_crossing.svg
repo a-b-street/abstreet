@@ -1,0 +1,39 @@
+<svg width="43" height="43" viewBox="0 0 43 43" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="filter0_i_5351_4800" x="16.5" y="6" width="11" height="11" filterUnits="userSpaceOnUse">
+            <feFlood color-interpolation-filters="sRGB" flood-color="#000000" flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend color-interpolation-filters="sRGB" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape"/>
+            <feColorMatrix color-interpolation-filters="sRGB" in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+            <feOffset color-interpolation-filters="sRGB" in="hardAlpha" dx="0" dy="1" result="result4"/>
+            <feComposite color-interpolation-filters="sRGB" in="result4" in2="hardAlpha" operator="arithmetic" k1="0" k2="-1" k3="1" k4="0" result="result5"/>
+            <feColorMatrix color-interpolation-filters="sRGB" in="result5" result="result6" type="matrix" values="0 0 0 0 0.366667 0 0 0 0 0.366667 0 0 0 0 0.366667 0 0 0 0.7 0"/>
+            <feBlend color-interpolation-filters="sRGB" in="result6" in2="shape" mode="normal" result="effect1_innerShadow_5351_4800"/>
+        </filter>
+        <filter id="filter1_i_5351_4800" x="16.5" y="18" width="11" height="11" filterUnits="userSpaceOnUse">
+            <feFlood color-interpolation-filters="sRGB" flood-color="#000000" flood-opacity="0" result="BackgroundImageFix"/>
+            <feBlend color-interpolation-filters="sRGB" in="SourceGraphic" in2="BackgroundImageFix" mode="normal" result="shape"/>
+            <feColorMatrix color-interpolation-filters="sRGB" in="SourceAlpha" result="hardAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+            <feOffset color-interpolation-filters="sRGB" in="hardAlpha" dx="0" dy="1" result="result4"/>
+            <feComposite color-interpolation-filters="sRGB" in="result4" in2="hardAlpha" operator="arithmetic" k1="0" k2="-1" k3="1" k4="0" result="result5"/>
+            <feColorMatrix color-interpolation-filters="sRGB" in="result5" result="result6" type="matrix" values="0 0 0 0 0.366667 0 0 0 0 0.366667 0 0 0 0 0.366667 0 0 0 0.7 0"/>
+            <feBlend color-interpolation-filters="sRGB" in="result6" in2="shape" mode="normal" result="effect1_innerShadow_5351_4800"/>
+        </filter>
+    </defs>
+    <path fill="#FDDA06" stroke="none" d="M 21.5 1 L 21.5 1 C 32.82183737153 1 42 10.17816262847 42 21.5 L 42 21.5 C 42 32.82183737153 32.82183737153 42 21.5 42 L 21.5 42 C 10.17816262847 42 1 32.82183737153 1 21.5 L 1 21.5 C 1 10.17816262847 10.17816262847 1 21.5 1 Z"/>
+    <path fill="#367741" stroke="none" d="M 14.5 23 L 11.5 23 L 9 35 L 13 35 L 14.5 23 Z"/>
+    <path fill="#367741" stroke="none" d="M 17 23 L 19.5 23 L 20 35 L 16 35 L 17 23 Z"/>
+    <path fill="#367741" stroke="none" d="M 23.5 23 L 26 23 L 27 35 L 23 35 L 23.5 23 Z"/>
+    <path fill="#367741" stroke="none" d="M 28.5 23 L 31.5 23 L 34 35 L 30 35 L 28.5 23 Z"/>
+    <path fill="#000000" stroke="none" d="M 17 4.75 L 27 4.75 C 27.69035593729 4.75 28.25 5.30964406271 28.25 6 L 28.25 29 C 28.25 29.69035593729 27.69035593729 30.25 27 30.25 L 17 30.25 C 16.30964406271 30.25 15.75 29.69035593729 15.75 29 L 15.75 6 C 15.75 5.30964406271 16.30964406271 4.75 17 4.75 Z"/>
+    <g filter="url(#filter0_i_5351_4800)">
+        <path fill="#000000" stroke="none" d="M 27.5 11.5 C 27.5 14.53756612407 25.03756612407 17 22 17 C 18.96243387593 17 16.5 14.53756612407 16.5 11.5 C 16.5 8.46243387593 18.96243387593 6 22 6 C 25.03756612407 6 27.5 8.46243387593 27.5 11.5 Z"/>
+    </g>
+    <g filter="url(#filter1_i_5351_4800)">
+        <path fill="#000000" stroke="none" d="M 27.5 23.5 C 27.5 26.53756612407 25.03756612407 29 22 29 C 18.96243387593 29 16.5 26.53756612407 16.5 23.5 C 16.5 20.46243387593 18.96243387593 18 22 18 C 25.03756612407 18 27.5 20.46243387593 27.5 23.5 Z"/>
+    </g>
+    <path fill="#42a672" stroke="none" d="M 22.4167 21.1877 C 22.875 21.1877 23.25 20.8127 23.25 20.3543 C 23.25 19.896 22.875 19.521 22.4167 19.521 C 21.9584 19.521 21.5834 19.896 21.5834 20.3543 C 21.5834 20.8127 21.9584 21.1877 22.4167 21.1877 Z M 20.875 22.6043 L 19.7084 28.4793 L 20.5834 28.4793 L 21.3334 25.146 L 22.2084 25.9793 L 22.2084 28.4793 L 23.0417 28.4793 L 23.0417 25.3543 L 22.1667 24.521 L 22.4167 23.271 C 22.9584 23.896 23.7917 24.3127 24.7084 24.3127 L 24.7084 23.4793 C 23.9167 23.4793 23.25 23.0627 22.9167 22.4793 L 22.5 21.8127 C 22.2667 21.4418 21.8 21.2918 21.3959 21.4627 L 19.2917 22.3543 L 19.2917 24.3127 L 20.125 24.3127 L 20.125 22.896 L 20.875 22.6043 Z"/>
+    <path fill="#d34046" stroke="none" d="M 21.925 9.50016 C 22.3853 9.50016 22.7584 9.12707 22.7584 8.66683 C 22.7584 8.20659 22.3853 7.8335 21.925 7.8335 C 21.4648 7.8335 21.0917 8.20659 21.0917 8.66683 C 21.0917 9.12707 21.4648 9.50016 21.925 9.50016 Z"/>
+    <path fill="#d34046" stroke="none" d="M 23.5458 10.6446 C 23.3833 10.4821 23.1042 10.1821 22.5625 10.1821 C 22.475 10.1821 21.9708 10.1821 21.5042 10.1821 C 20.3549 10.1821 18.7 12.5113 18.7 12.5113 L 19.2728 13.0988 L 20.675 11.453 L 20.675 16.4321 L 21.5083 16.4321 L 21.5083 13.0988 L 22.3417 13.0988 L 22.3417 16.4321 L 23.175 16.4321 L 23.175 11.453 L 24.8208 13.0988 L 25.4083 12.5113 L 23.5458 10.6446 Z"/>
+    <path fill="none" stroke="#FDDA06" stroke-width="0.5" d="M 17 4.75 L 27 4.75 C 27.69035593729 4.75 28.25 5.30964406271 28.25 6 L 28.25 29 C 28.25 29.69035593729 27.69035593729 30.25 27 30.25 L 17 30.25 C 16.30964406271 30.25 15.75 29.69035593729 15.75 29 L 15.75 6 C 15.75 5.30964406271 16.30964406271 4.75 17 4.75 Z"/>
+    <path fill="none" stroke="#367741" stroke-width="2" d="M 21.5 1 L 21.5 1 C 32.82183737153 1 42 10.17816262847 42 21.5 L 42 21.5 C 42 32.82183737153 32.82183737153 42 21.5 42 L 21.5 42 C 10.17816262847 42 1 32.82183737153 1 21.5 L 1 21.5 C 1 10.17816262847 10.17816262847 1 21.5 1 Z"/>
+</svg>

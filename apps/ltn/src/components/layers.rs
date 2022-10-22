@@ -1,5 +1,6 @@
 use geom::Polygon;
 use map_gui::colors::ColorScheme;
+use osm2streets::CrossingType;
 use widgetry::tools::ColorLegend;
 use widgetry::{
     ButtonBuilder, Color, ControlState, EdgeInsets, EventCtx, GeomBatch, GfxCtx,
@@ -8,7 +9,7 @@ use widgetry::{
 };
 
 use crate::components::Mode;
-use crate::{colors, App, FilterType, Transition};
+use crate::{colors, crossings, App, FilterType, Transition};
 
 // Partly copied from ungap/layers.s
 
@@ -285,6 +286,25 @@ impl Mode {
                 // TODO Should we invert text color? This gets hard to read
                 entry(ctx, *colors::PLAN_ROUTE_WALK, "walking route"),
                 // TODO Highlighted roads are boundaries (or main?) roads
+            ],
+            Mode::Crossings => vec![
+                Widget::row(vec![
+                    Image::from_path(crossings::svg_path(CrossingType::Unsignalized))
+                        .untinted()
+                        .dims(30.0)
+                        .into_widget(ctx),
+                    "Unsignalized crossing".text_widget(ctx),
+                ]),
+                Widget::row(vec![
+                    Image::from_path(crossings::svg_path(CrossingType::Signalized))
+                        .untinted()
+                        .dims(30.0)
+                        .into_widget(ctx),
+                    "Signalized crossing".text_widget(ctx),
+                ]),
+                entry(ctx, *colors::IMPERMEABLE, "impermeable (no crossings)"),
+                entry(ctx, *colors::SEMI_PERMEABLE, "semi-permeable (1 crossing)"),
+                entry(ctx, *colors::POROUS, "porous (≥2 crossings)"),
             ],
             Mode::Impact => vec![
                 map_gui::tools::compare_counts::CompareCounts::relative_scale()
