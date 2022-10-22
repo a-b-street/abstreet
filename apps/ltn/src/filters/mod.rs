@@ -390,7 +390,7 @@ pub struct Toggle3Zoomed {
 }
 
 impl Toggle3Zoomed {
-    fn new(draw_zoomed: Drawable, unzoomed: DrawCustomUnzoomedShapes) -> Self {
+    pub fn new(draw_zoomed: Drawable, unzoomed: DrawCustomUnzoomedShapes) -> Self {
         Self {
             draw_zoomed,
             unzoomed,

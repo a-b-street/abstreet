@@ -9,6 +9,7 @@ use map_gui::tools::CameraState;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_gui::{AppLike, ID};
 use map_model::{AmenityType, IntersectionID, Map, RoutingParams};
+use osm2streets::CrossingType;
 use widgetry::tools::URLManager;
 use widgetry::{
     Canvas, Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor, SharedAppState, State,
@@ -103,6 +104,7 @@ impl PerMap {
 pub struct Session {
     pub edit_mode: crate::edit::EditMode,
     pub filter_type: FilterType,
+    pub crossing_type: CrossingType,
 
     // Remember form settings in different tabs.
     // Pick areas:
@@ -221,6 +223,7 @@ impl App {
         let session = Session {
             edit_mode: crate::edit::EditMode::Filters,
             filter_type: FilterType::WalkCycleOnly,
+            crossing_type: CrossingType::Unsignalized,
 
             draw_neighbourhood_style: crate::pick_area::Style::Simple,
             main_road_penalty: 1.0,

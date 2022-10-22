@@ -68,6 +68,9 @@ impl AppwidePanel {
                 "Plan route" => Some(Transition::Replace(
                     crate::route_planner::RoutePlanner::new_state(ctx, app),
                 )),
+                "Crossings" => Some(Transition::Replace(crate::crossings::Crossings::new_state(
+                    ctx, app,
+                ))),
                 "Predict impact" => Some(launch_impact(ctx, app)),
                 _ => unreachable!(),
             };
@@ -158,6 +161,16 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
                     .btn_outline
                     .text("Plan route")
                     .hotkey(Key::R)
+                    .build_def(ctx)
+            },
+            if mode == Mode::Crossings {
+                current_mode(ctx, "Crossings")
+            } else {
+                ctx.style()
+                    .btn_outline
+                    .text("Crossings")
+                    .disabled(app.per_map.consultation.is_some())
+                    .disabled_tooltip("Not supported here yet")
                     .build_def(ctx)
             },
             if mode == Mode::Impact {

@@ -13,5 +13,6 @@ pub enum Mode {
     ModifyNeighbourhood,
     SelectBoundary,
     RoutePlanner,
+    Crossings,
     Impact,
 }

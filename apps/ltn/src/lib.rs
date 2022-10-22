@@ -22,6 +22,7 @@ extern crate log;
 mod app;
 mod colors;
 mod components;
+mod crossings;
 mod customize_boundary;
 mod design_ltn;
 mod draw_cells;
