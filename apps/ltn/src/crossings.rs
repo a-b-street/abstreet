@@ -1,16 +1,17 @@
-use std::collections::{BTreeMap, HashSet};
+use std::collections::{BTreeMap, BTreeSet};
 
+use geom::Circle;
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::RoadID;
 use osm2streets::CrossingType;
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, ObjectID, PerZoom, World, WorldOutcome};
 use widgetry::{
-    Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
-    RewriteColor, State, Text, Widget,
+    lctrl, Color, ControlState, Drawable, EventCtx, GeomBatch, GfxCtx, Key, Line, Outcome, Panel,
+    RewriteColor, State, Text, TextExt, Widget,
 };
 
 use crate::components::{AppwidePanel, BottomPanel, Mode};
-use crate::{colors, App, Toggle3Zoomed, Transition};
+use crate::{colors, mut_edits, App, Crossing, Toggle3Zoomed, Transition};
 
 pub fn svg_path(ct: CrossingType) -> &'static str {
     match ct {
@@ -22,7 +23,7 @@ pub fn svg_path(ct: CrossingType) -> &'static str {
 pub struct Crossings {
     appwide_panel: AppwidePanel,
     bottom_panel: Panel,
-    world: World<ID>,
+    world: World<Obj>,
     labels: DrawSimpleRoadLabels,
     draw_porosity: Drawable,
     draw_crossings: Toggle3Zoomed,
@@ -39,14 +40,24 @@ impl Crossings {
             .layers
             .event(ctx, &app.cs, Mode::Crossings, Some(&bottom_panel));
 
-        Box::new(Self {
+        let mut state = Self {
             appwide_panel,
             bottom_panel,
-            world: make_world(ctx, app),
+            world: World::unbounded(),
             labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
-            draw_porosity: draw_porosity(ctx, app),
-            draw_crossings: draw_crossings(ctx, app),
-        })
+            draw_porosity: Drawable::empty(ctx),
+            draw_crossings: Toggle3Zoomed::empty(ctx),
+        };
+        state.update(ctx, app);
+        Box::new(state)
+    }
+
+    fn update(&mut self, ctx: &mut EventCtx, app: &App) {
+        self.world = make_world(ctx, app);
+        self.draw_porosity = draw_porosity(ctx, app);
+        self.draw_crossings = draw_crossings(ctx, app);
+        let contents = make_bottom_panel(ctx, app);
+        self.bottom_panel = BottomPanel::new(ctx, &self.appwide_panel, contents);
     }
 }
 
@@ -77,12 +88,43 @@ impl State<App> for Crossings {
                     let contents = make_bottom_panel(ctx, app);
                     self.bottom_panel = BottomPanel::new(ctx, &self.appwide_panel, contents);
                 }
+                "undo" => {
+                    crate::edit::one_ways::undo_proposal(ctx, app);
+                    self.update(ctx, app);
+                }
                 _ => unreachable!(),
             }
         }
 
-        if let WorldOutcome::ClickedObject(_) = self.world.event(ctx) {
-            // TODO Add or remove a crossing
+        match self.world.event(ctx) {
+            WorldOutcome::ClickedObject(Obj::Road(r)) => {
+                let cursor_pt = ctx.canvas.get_cursor_in_map_space().unwrap();
+                let road = app.per_map.map.get_r(r);
+                let pt_on_line = road.center_pts.project_pt(cursor_pt);
+                let (dist, _) = road.center_pts.dist_along_of_point(pt_on_line).unwrap();
+
+                app.per_map.proposals.before_edit();
+                let list = mut_edits!(app).crossings.entry(r).or_insert_with(Vec::new);
+                list.push(Crossing {
+                    kind: app.session.crossing_type,
+                    dist,
+                    user_modified: true,
+                });
+                list.sort_by_key(|c| c.dist);
+                self.update(ctx, app);
+            }
+            WorldOutcome::ClickedObject(Obj::Crossing(r, idx)) => {
+                // Delete it
+                app.per_map.proposals.before_edit();
+                let list = mut_edits!(app).crossings.get_mut(&r).unwrap();
+                list.remove(idx);
+                if list.is_empty() {
+                    mut_edits!(app).crossings.remove(&r);
+                }
+                // We don't need to re-sort
+                self.update(ctx, app);
+            }
+            _ => {}
         }
 
         Transition::Keep
@@ -93,10 +135,11 @@ impl State<App> for Crossings {
         self.bottom_panel.draw(g);
         app.session.layers.draw(g, app);
         g.redraw(&self.draw_porosity);
-        self.world.draw(g);
         self.labels.draw(g);
         app.per_map.draw_poi_icons.draw(g);
         self.draw_crossings.draw(g);
+        // Draw on top of crossings, so hover state is visible
+        self.world.draw(g);
     }
 
     fn recreate(&mut self, ctx: &mut EventCtx, app: &mut App) -> Box<dyn State<App>> {
@@ -111,8 +154,8 @@ fn help() -> Vec<&'static str> {
     ]
 }
 
-fn boundary_roads(app: &App) -> HashSet<RoadID> {
-    let mut result = HashSet::new();
+fn boundary_roads(app: &App) -> BTreeSet<RoadID> {
+    let mut result = BTreeSet::new();
     for info in app.partitioning().all_neighbourhoods().values() {
         for id in &info.block.perimeter.roads {
             result.insert(id.road);
@@ -131,31 +174,39 @@ fn draw_crossings(ctx: &EventCtx, app: &App) -> Toggle3Zoomed {
     }
 
     for r in boundary_roads(app) {
-        let road = app.per_map.map.get_r(r);
-        for (dist, kind) in &road.crossing_nodes {
-            // TODO Change style for user modified
+        if let Some(list) = app.edits().crossings.get(&r) {
+            let road = app.per_map.map.get_r(r);
+            for crossing in list {
+                let rewrite_color = if crossing.user_modified {
+                    RewriteColor::NoOp
+                } else {
+                    RewriteColor::ChangeAlpha(0.8)
+                };
 
-            let icon = &icons[&kind];
-            if let Ok((pt, angle)) = road.center_pts.dist_along(*dist) {
-                let angle = angle.rotate_degs(90.0);
-                batch.append(
-                    icon.clone()
-                        .scale_to_fit_width(road.get_width().inner_meters())
-                        .centered_on(pt)
-                        .rotate_around_batch_center(angle),
-                );
-
-                // TODO Memory intensive
-                let icon = icon.clone();
-                // TODO They can shrink a bit past their map size
-                low_zoom.add_custom(Box::new(move |batch, thickness| {
+                let icon = &icons[&crossing.kind];
+                if let Ok((pt, angle)) = road.center_pts.dist_along(crossing.dist) {
+                    let angle = angle.rotate_degs(90.0);
                     batch.append(
                         icon.clone()
-                            .scale_to_fit_width(30.0 * thickness)
+                            .scale_to_fit_width(road.get_width().inner_meters())
                             .centered_on(pt)
-                            .rotate_around_batch_center(angle),
+                            .rotate_around_batch_center(angle)
+                            .color(rewrite_color),
                     );
-                }));
+
+                    // TODO Memory intensive
+                    let icon = icon.clone();
+                    // TODO They can shrink a bit past their map size
+                    low_zoom.add_custom(Box::new(move |batch, thickness| {
+                        batch.append(
+                            icon.clone()
+                                .scale_to_fit_width(30.0 * thickness)
+                                .centered_on(pt)
+                                .rotate_around_batch_center(angle)
+                                .color(rewrite_color),
+                        );
+                    }));
+                }
             }
         }
     }
@@ -171,20 +222,49 @@ fn draw_crossings(ctx: &EventCtx, app: &App) -> Toggle3Zoomed {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-struct ID(RoadID);
-impl ObjectID for ID {}
+enum Obj {
+    Road(RoadID),
+    // Identify crossings per road by the sorted index. When we make any mutation to a road, we
+    // rebuild the world fully, so this works
+    Crossing(RoadID, usize),
+}
 
-fn make_world(ctx: &mut EventCtx, app: &App) -> World<ID> {
+impl ObjectID for Obj {}
+
+fn make_world(ctx: &EventCtx, app: &App) -> World<Obj> {
     let map = &app.per_map.map;
     let mut world = World::bounded(map.get_bounds());
 
     for r in boundary_roads(app) {
         let road = app.per_map.map.get_r(r);
+
+        if let Some(list) = app.edits().crossings.get(&r) {
+            for (idx, crossing) in list.into_iter().enumerate() {
+                world
+                    .add(Obj::Crossing(r, idx))
+                    // The circles change size based on zoom, but for interaction, just use a fixed
+                    // multiple of the road's width. It'll be a little weird.
+                    .hitbox(
+                        Circle::new(
+                            road.center_pts.must_dist_along(crossing.dist).0,
+                            3.0 * road.get_width() / 2.0,
+                        )
+                        .to_polygon(),
+                    )
+                    .drawn_in_master_batch()
+                    .hover_color(colors::HOVER)
+                    .zorder(1)
+                    .clickable()
+                    .build(ctx);
+            }
+        }
+
         world
-            .add(ID(r))
+            .add(Obj::Road(r))
             .hitbox(road.get_thick_polygon())
             .drawn_in_master_batch()
             .hover_color(colors::HOVER)
+            .zorder(0)
             .clickable()
             .build(ctx);
     }
@@ -203,7 +283,7 @@ fn draw_porosity(ctx: &EventCtx, app: &App) -> Drawable {
             .perimeter
             .roads
             .iter()
-            .filter(|id| !app.per_map.map.get_r(id.road).crossing_nodes.is_empty())
+            .filter(|id| app.edits().crossings.contains_key(&id.road))
             .count();
         let color = if num_crossings == 0 {
             *colors::IMPERMEABLE
@@ -245,8 +325,48 @@ fn make_bottom_panel(ctx: &mut EventCtx, app: &App) -> Widget {
             .build_widget(ctx, name)
     };
 
+    let boundary_roads = boundary_roads(app);
+    let mut total_crossings = 0;
+    for (r, list) in &app.edits().crossings {
+        if boundary_roads.contains(r) {
+            total_crossings += list.len();
+        }
+    }
+
     Widget::row(vec![
         icon(CrossingType::Unsignalized, Key::F1, "unsignalized crossing"),
         icon(CrossingType::Signalized, Key::F2, "signalized crossing"),
+        Widget::vertical_separator(ctx),
+        Widget::row(vec![
+            ctx.style()
+                .btn_plain
+                .icon("system/assets/tools/undo.svg")
+                .disabled(app.edits().previous_version.is_none())
+                .hotkey(lctrl(Key::Z))
+                .build_widget(ctx, "undo"),
+            // TODO Only count new crossings
+            format!("{total_crossings} crossings",)
+                .text_widget(ctx)
+                .centered_vert(),
+        ]),
     ])
+}
+
+pub fn populate_existing_crossings(app: &mut App) {
+    // (Don't call before_edit; this transformation happens before the user starts editing
+    // anything)
+    for road in app.per_map.map.all_roads() {
+        for (dist, kind) in &road.crossing_nodes {
+            let list = mut_edits!(app)
+                .crossings
+                .entry(road.id)
+                .or_insert_with(Vec::new);
+            list.push(Crossing {
+                kind: *kind,
+                dist: *dist,
+                user_modified: false,
+            });
+            list.sort_by_key(|c| c.dist);
+        }
+    }
 }

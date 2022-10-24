@@ -9,7 +9,7 @@ use widgetry::{EventCtx, Settings, State};
 
 pub use app::{App, PerMap, Session, Transition};
 use filters::Toggle3Zoomed;
-pub use filters::{DiagonalFilter, Edits, FilterType, RoadFilter};
+pub use filters::{Crossing, DiagonalFilter, Edits, FilterType, RoadFilter};
 pub use neighbourhood::{Cell, DistanceInterval, Neighbourhood};
 pub use partition::{NeighbourhoodID, Partitioning};
 pub use pick_area::PickArea;
@@ -244,6 +244,7 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
     run(settings);
 }
 
+// TODO Rename
 pub fn after_edit(ctx: &EventCtx, app: &mut App) {
     app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 }

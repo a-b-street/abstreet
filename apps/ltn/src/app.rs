@@ -165,6 +165,8 @@ impl AppLike for App {
             .current_proposal
             .edits
             .draw(ctx, &self.per_map.map);
+
+        crate::crossings::populate_existing_crossings(self);
     }
 
     fn draw_with_opts(&self, g: &mut GfxCtx, _l: DrawOptions) {

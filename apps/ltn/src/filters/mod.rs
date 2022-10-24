@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 use abstutil::{deserialize_btreemap, serialize_btreemap};
 use geom::{Angle, Distance, Line};
 use map_model::{EditRoad, IntersectionID, Map, RoadID, RoutingParams, TurnID};
+use osm2streets::CrossingType;
 use widgetry::mapspace::{DrawCustomUnzoomedShapes, PerZoom};
 use widgetry::{Color, Drawable, EventCtx, GeomBatch, GfxCtx, RewriteColor};
 
@@ -34,6 +35,12 @@ pub struct Edits {
         deserialize_with = "deserialize_btreemap"
     )]
     pub one_ways: BTreeMap<RoadID, EditRoad>,
+    /// One road may have multiple crossings. They're sorted by increasing distance.
+    #[serde(
+        serialize_with = "serialize_btreemap",
+        deserialize_with = "deserialize_btreemap"
+    )]
+    pub crossings: BTreeMap<RoadID, Vec<Crossing>>,
 
     /// Edit history is preserved recursively
     #[serde(skip_serializing, skip_deserializing)]
@@ -84,12 +91,20 @@ impl FilterType {
     }
 }
 
+#[derive(Clone, PartialEq, Serialize, Deserialize)]
+pub struct Crossing {
+    pub kind: CrossingType,
+    pub dist: Distance,
+    pub user_modified: bool,
+}
+
 /// This logically changes every time an edit occurs. MapName isn't captured here.
 #[derive(Default, PartialEq)]
 pub struct ChangeKey {
     roads: BTreeMap<RoadID, RoadFilter>,
     intersections: BTreeMap<IntersectionID, DiagonalFilter>,
     one_ways: BTreeMap<RoadID, EditRoad>,
+    crossings: BTreeMap<RoadID, Vec<Crossing>>,
 }
 
 /// A diagonal filter exists in an intersection. It's defined by two roads (the order is
@@ -233,6 +248,7 @@ impl Edits {
             roads: self.roads.clone(),
             intersections: self.intersections.clone(),
             one_ways: self.one_ways.clone(),
+            crossings: self.crossings.clone(),
         }
     }
 }
