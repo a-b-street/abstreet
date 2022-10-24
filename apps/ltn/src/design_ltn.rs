@@ -454,7 +454,7 @@ fn make_bottom_panel(
             Widget::col(vec![
                 // TODO Only count new filters, not existing
                 format!(
-                    "{} filters added",
+                    "{} filters",
                     app.edits().roads.len() + app.edits().intersections.len()
                 )
                 .text_widget(ctx),
