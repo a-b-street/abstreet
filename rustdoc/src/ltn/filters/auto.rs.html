@@ -233,7 +233,7 @@
 <span class="kw">use</span> <span class="ident">map_model::RoadID</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">Choice</span>, <span class="ident">EventCtx</span>};
 
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">after_edit</span>, <span class="ident">mut_edits</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">mut_edits</span>, <span class="ident">redraw_all_filters</span>, <span class="ident">App</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Heuristic</span> {
@@ -298,7 +298,7 @@
         }
 
         <span class="kw">let</span> <span class="ident">empty</span> <span class="op">=</span> <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">cancel_empty_edit</span>();
-        <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+        <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
         <span class="kw">if</span> <span class="ident">empty</span> {
             <span class="macro">bail!</span>(<span class="string">&quot;No new filters created&quot;</span>);
         } <span class="kw">else</span> {

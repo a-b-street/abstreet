@@ -114,13 +114,15 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
+<span id="117">117</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::mapspace</span>::{<span class="ident">World</span>, <span class="ident">WorldOutcome</span>};
 <span class="kw">use</span> <span class="ident">widgetry::tools::open_browser</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{<span class="ident">lctrl</span>, <span class="ident">EventCtx</span>, <span class="ident">Key</span>, <span class="ident">Text</span>, <span class="ident">Transition</span>};
 
 <span class="kw">use</span> <span class="kw">super</span>::{<span class="ident">road_name</span>, <span class="ident">EditOutcome</span>, <span class="ident">Obj</span>};
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">after_edit</span>, <span class="ident">colors</span>, <span class="ident">mut_edits</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>,
+    <span class="ident">colors</span>, <span class="ident">mut_edits</span>, <span class="ident">redraw_all_filters</span>, <span class="ident">App</span>, <span class="ident">DiagonalFilter</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>,
+    <span class="ident">RoadFilter</span>,
 };
 
 <span class="doccomment">/// Creates clickable objects for managing filters on roads and intersections. Everything is</span>
@@ -210,13 +212,13 @@
                     <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">distance</span>, <span class="ident">app</span>.<span class="ident">session</span>.<span class="ident">filter_type</span>),
                 );
             }
-            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
         }
         <span class="ident">WorldOutcome::ClickedObject</span>(<span class="ident">Obj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {
             <span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">proposals</span>.<span class="ident">before_edit</span>();
             <span class="ident">DiagonalFilter::cycle_through_alternatives</span>(<span class="ident">app</span>, <span class="ident">i</span>);
-            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
         }
         <span class="ident">WorldOutcome::Keypress</span>(<span class="string">&quot;debug&quot;</span>, <span class="ident">Obj::InteriorIntersection</span>(<span class="ident">i</span>)) =&gt; {

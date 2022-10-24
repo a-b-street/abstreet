@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["boundary_roads",""],["draw_crossings",""],["draw_porosity",""],["help",""],["make_bottom_panel",""],["make_world",""],["svg_path",""]],"struct":[["Crossings",""],["ID",""]]};
+window.SIDEBAR_ITEMS = {"enum":[["Obj",""]],"fn":[["boundary_roads",""],["draw_crossings",""],["draw_porosity",""],["help",""],["make_bottom_panel",""],["make_world",""],["populate_existing_crossings",""],["svg_path",""]],"struct":[["Crossings",""]]};

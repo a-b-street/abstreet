@@ -450,6 +450,7 @@
 <span id="450">450</span>
 <span id="451">451</span>
 <span id="452">452</span>
+<span id="453">453</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">one_ways</span>;
@@ -469,7 +470,8 @@
 };
 
 <span class="kw">use</span> <span class="kw">crate</span>::{
-    <span class="ident">after_edit</span>, <span class="ident">is_private</span>, <span class="ident">mut_edits</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>, <span class="ident">Transition</span>,
+    <span class="ident">is_private</span>, <span class="ident">mut_edits</span>, <span class="ident">redraw_all_filters</span>, <span class="ident">App</span>, <span class="ident">FilterType</span>, <span class="ident">Neighbourhood</span>, <span class="ident">RoadFilter</span>,
+    <span class="ident">Transition</span>,
 };
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">EditMode</span> {
@@ -712,7 +714,7 @@
                 );
             }
 
-            <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+            <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 
             <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]);
         }
@@ -785,7 +787,7 @@
                         .<span class="ident">roads</span>
                         .<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">RoadFilter::new_by_user</span>(<span class="ident">dist</span>, <span class="ident">FilterType::BusGate</span>));
                 }
-                <span class="ident">after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+                <span class="ident">redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
             }
 
             <span class="kw">return</span> <span class="ident">Transition::Multi</span>(<span class="macro">vec!</span>[<span class="ident">Transition::Pop</span>, <span class="ident">Transition::Recreate</span>]);

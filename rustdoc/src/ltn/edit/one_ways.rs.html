@@ -217,7 +217,7 @@
                 <span class="macro">mut_edits!</span>(<span class="ident">app</span>).<span class="ident">one_ways</span>.<span class="ident">insert</span>(<span class="ident">r</span>, <span class="ident">r_edit</span>);
             }
 
-            <span class="comment">// We don&#39;t need to call after_edit; no filter icons have changed</span>
+            <span class="comment">// We don&#39;t need to call redraw_all_filters; no icons have changed</span>
 
             <span class="ident">EditOutcome::Transition</span>(<span class="ident">Transition::Recreate</span>)
         }
@@ -270,7 +270,7 @@
     }
 
     <span class="macro">mut_edits!</span>(<span class="ident">app</span>) <span class="op">=</span> <span class="ident">prev</span>;
-    <span class="ident"><span class="kw">crate</span>::after_edit</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
+    <span class="ident"><span class="kw">crate</span>::redraw_all_filters</span>(<span class="ident">ctx</span>, <span class="ident">app</span>);
 }
 </code></pre></div>
 </section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="ltn" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0 (a55dd71d5 2022-09-19)" ></div></body></html>
