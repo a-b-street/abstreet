@@ -7,7 +7,7 @@ use abstutil::Timer;
 use map_model::RoadID;
 use widgetry::{Choice, EventCtx};
 
-use crate::{after_edit, mut_edits, App, Neighbourhood, RoadFilter};
+use crate::{mut_edits, redraw_all_filters, App, Neighbourhood, RoadFilter};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Heuristic {
@@ -72,7 +72,7 @@ impl Heuristic {
         }
 
         let empty = app.per_map.proposals.cancel_empty_edit();
-        after_edit(ctx, app);
+        redraw_all_filters(ctx, app);
         if empty {
             bail!("No new filters created");
         } else {

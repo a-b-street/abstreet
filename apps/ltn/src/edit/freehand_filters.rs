@@ -3,7 +3,8 @@ use widgetry::EventCtx;
 
 use crate::edit::{EditMode, EditOutcome};
 use crate::{
-    after_edit, mut_edits, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter, Transition,
+    mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
+    Transition,
 };
 
 pub fn event(ctx: &mut EventCtx, app: &mut App, neighbourhood: &Neighbourhood) -> EditOutcome {
@@ -70,7 +71,7 @@ fn make_filters_along_path(
             DiagonalFilter::cycle_through_alternatives(app, *i);
         }
     }
-    after_edit(ctx, app);
+    redraw_all_filters(ctx, app);
 
     if !oneways.is_empty() {
         Transition::Push(super::ResolveOneWayAndFilter::new_state(ctx, oneways))

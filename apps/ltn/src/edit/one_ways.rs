@@ -80,7 +80,7 @@ pub fn handle_world_outcome(
                 mut_edits!(app).one_ways.insert(r, r_edit);
             }
 
-            // We don't need to call after_edit; no filter icons have changed
+            // We don't need to call redraw_all_filters; no icons have changed
 
             EditOutcome::Transition(Transition::Recreate)
         }
@@ -133,5 +133,5 @@ pub fn undo_proposal(ctx: &mut EventCtx, app: &mut App) {
     }
 
     mut_edits!(app) = prev;
-    crate::after_edit(ctx, app);
+    crate::redraw_all_filters(ctx, app);
 }

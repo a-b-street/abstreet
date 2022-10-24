@@ -17,7 +17,8 @@ use widgetry::{
 };
 
 use crate::{
-    after_edit, is_private, mut_edits, App, FilterType, Neighbourhood, RoadFilter, Transition,
+    is_private, mut_edits, redraw_all_filters, App, FilterType, Neighbourhood, RoadFilter,
+    Transition,
 };
 
 pub enum EditMode {
@@ -260,7 +261,7 @@ impl State<App> for ResolveOneWayAndFilter {
                 );
             }
 
-            after_edit(ctx, app);
+            redraw_all_filters(ctx, app);
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);
         }
@@ -333,7 +334,7 @@ impl State<App> for ResolveBusGate {
                         .roads
                         .insert(r, RoadFilter::new_by_user(dist, FilterType::BusGate));
                 }
-                after_edit(ctx, app);
+                redraw_all_filters(ctx, app);
             }
 
             return Transition::Multi(vec![Transition::Pop, Transition::Recreate]);

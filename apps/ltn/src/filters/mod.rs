@@ -254,7 +254,7 @@ impl Edits {
 }
 
 impl DiagonalFilter {
-    /// The caller must call this in a `before_edit` / `after_edit` "transaction."
+    /// The caller must call this in a `before_edit` / `redraw_all_filters` "transaction."
     pub fn cycle_through_alternatives(app: &mut App, i: IntersectionID) {
         let map = &app.per_map.map;
         let mut roads = map.get_i(i).get_roads_sorted_by_incoming_angle(map);

@@ -1,6 +1,7 @@
 use anyhow::Result;
 
 use geom::{PolyLine, Pt2D};
+use osm2streets::Direction;
 
 use crate::{App, Neighbourhood};
 
@@ -88,11 +89,54 @@ fn geojson_string(app: &App) -> Result<String> {
         features.push(feature);
     }
 
+    for r in app.edits().one_ways.keys() {
+        let road = app.per_map.map.get_r(*r);
+        let mut feature = Feature {
+            bbox: None,
+            geometry: Some(road.center_pts.to_geojson(None)),
+            id: None,
+            properties: None,
+            foreign_members: None,
+        };
+        feature.set_property("type", "one-way change");
+        feature.set_property(
+            "direction",
+            match road.oneway_for_driving() {
+                Some(Direction::Fwd) => "one-way forwards",
+                Some(Direction::Back) => "one-way backwards",
+                None => "two-ways",
+            },
+        );
+        feature.set_property("stroke", "blue");
+        features.push(feature);
+    }
+
+    for (r, list) in &app.edits().crossings {
+        let road = app.per_map.map.get_r(*r);
+        for crossing in list {
+            let mut feature = Feature {
+                bbox: None,
+                geometry: Some(
+                    road.center_pts
+                        .must_dist_along(crossing.dist)
+                        .0
+                        .to_geojson(None),
+                ),
+                id: None,
+                properties: None,
+                foreign_members: None,
+            };
+            feature.set_property("type", "crossing");
+            feature.set_property("crossing_type", format!("{:?}", crossing.kind));
+            features.push(feature);
+        }
+    }
+
     // Transform to WGS84
     let gps_bounds = map.get_gps_bounds();
     for feature in &mut features {
         // geojson to geo
-        // This could be a Polygon, MultiPolygon, LineString
+        // This could be a Polygon, MultiPolygon, LineString, Point
         let mut geom: geo::Geometry = feature.geometry.take().unwrap().value.try_into()?;
 
         geom.map_coords_in_place(|c| {
