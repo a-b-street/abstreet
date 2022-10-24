@@ -244,8 +244,7 @@ pub fn run_wasm(root_dom_id: String, assets_base_url: String, assets_are_gzipped
     run(settings);
 }
 
-// TODO Rename
-pub fn after_edit(ctx: &EventCtx, app: &mut App) {
+pub fn redraw_all_filters(ctx: &EventCtx, app: &mut App) {
     app.per_map.draw_all_filters = app.edits().draw(ctx, &app.per_map.map);
 }
 

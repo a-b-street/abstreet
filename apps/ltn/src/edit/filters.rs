@@ -4,7 +4,8 @@ use widgetry::{lctrl, EventCtx, Key, Text, Transition};
 
 use super::{road_name, EditOutcome, Obj};
 use crate::{
-    after_edit, colors, mut_edits, App, DiagonalFilter, FilterType, Neighbourhood, RoadFilter,
+    colors, mut_edits, redraw_all_filters, App, DiagonalFilter, FilterType, Neighbourhood,
+    RoadFilter,
 };
 
 /// Creates clickable objects for managing filters on roads and intersections. Everything is
@@ -94,13 +95,13 @@ pub fn handle_world_outcome(
                     RoadFilter::new_by_user(distance, app.session.filter_type),
                 );
             }
-            after_edit(ctx, app);
+            redraw_all_filters(ctx, app);
             EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::ClickedObject(Obj::InteriorIntersection(i)) => {
             app.per_map.proposals.before_edit();
             DiagonalFilter::cycle_through_alternatives(app, i);
-            after_edit(ctx, app);
+            redraw_all_filters(ctx, app);
             EditOutcome::Transition(Transition::Recreate)
         }
         WorldOutcome::Keypress("debug", Obj::InteriorIntersection(i)) => {
