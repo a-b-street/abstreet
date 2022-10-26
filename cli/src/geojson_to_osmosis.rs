@@ -2,18 +2,16 @@ use anyhow::Result;
 
 use geom::LonLat;
 
+// TODO Temporarily making this to exactly the inverse!
 pub fn run(path: String) -> Result<()> {
-    let buffer = fs_err::read_to_string(path)?;
-    for (idx, (points, maybe_name)) in LonLat::parse_geojson_polygons(buffer)?
-        .into_iter()
-        .enumerate()
-    {
-        let name = maybe_name.unwrap_or_else(|| format!("boundary{}", idx));
-        // Canonicalize the filename
-        let name = name.to_ascii_lowercase().replace(" ", "_");
-        let path = format!("{}.poly", name);
-        LonLat::write_osmosis_polygon(&path, &points)?;
-        println!("Wrote {}", path);
+    let input = LonLat::read_osmosis_polygon(&path)?;
+    let mut pts = Vec::new();
+    for pt in input {
+        pts.push(vec![pt.x(), pt.y()]);
     }
+    let polygon = geojson::Geometry::new(geojson::Value::Polygon(vec![pts]));
+    let gj = geom::geometries_with_properties_to_geojson(vec![(polygon, serde_json::Map::new())]);
+    let new_path = path.replace(".poly", ".geojson");
+    let _ = abstio::write_file(new_path, abstutil::to_json(&gj))?;
     Ok(())
 }
