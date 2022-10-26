@@ -463,6 +463,9 @@
 <span id="463">463</span>
 <span id="464">464</span>
 <span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::BTreeMap</span>;
 <span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufReader</span>, <span class="ident">Read</span>};
 <span class="kw">use</span> <span class="ident">std::process::Command</span>;
@@ -794,6 +797,9 @@
             <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/proposals&quot;</span>)
             <span class="op">|</span><span class="op">|</span> <span class="ident">path</span>.<span class="ident">contains</span>(<span class="string">&quot;system/study_areas&quot;</span>)
         {
+            <span class="kw">continue</span>;
+        }
+        <span class="kw">if</span> <span class="ident">path</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.osm&quot;</span>) {
             <span class="kw">continue</span>;
         }
         <span class="ident">paths</span>.<span class="ident">push</span>((<span class="ident">orig_path</span>, <span class="ident">path</span>));
