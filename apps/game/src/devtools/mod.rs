@@ -120,10 +120,10 @@ impl SimpleState<App> for DevToolsMode {
                         app.primary.map.get_city_name().city
                     )))
                     .into_iter()
-                    .filter(|path| path.ends_with(".poly"))
+                    .filter(|path| path.ends_with(".geojson"))
                     .map(|path| Choice::new(abstutil::basename(&path), path))
                     .collect(),
-                    Box::new(|path, ctx, app| match LonLat::read_osmosis_polygon(&path) {
+                    Box::new(|path, ctx, app| match LonLat::read_geojson_polygon(&path) {
                         Ok(pts) => Transition::Replace(polygon::PolygonEditor::new_state(
                             ctx,
                             app,

@@ -7,13 +7,13 @@ use geojson::GeoJson;
 use abstutil::Timer;
 use geom::LonLat;
 
-/// Given the path to an Osmosis boundary polygon, return the URL of a Geofabrik osm.pbf file that
+/// Given the path to a GeoJSON boundary polygon, return the URL of a Geofabrik osm.pbf file that
 /// best covers the boundary.
 ///
 /// If the boundary splits multiple Geofabrik files, the result may be any of the overlapping
 /// files.
 pub async fn pick_geofabrik(input: String) -> Result<String> {
-    let boundary_pts = LonLat::read_osmosis_polygon(&input)?;
+    let boundary_pts = LonLat::read_geojson_polygon(&input)?;
     // For now, just use the boundary's center. Some boundaries might cross multiple geofabrik
     // regions; don't handle that yet.
     let center = LonLat::center(&boundary_pts);

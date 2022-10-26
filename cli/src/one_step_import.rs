@@ -1,5 +1,3 @@
-use std::path::Path;
-
 use anyhow::Result;
 
 use abstio::CityName;
@@ -20,28 +18,13 @@ pub async fn run(
         );
     }
 
-    // Convert to a boundary polygon.
-    {
-        println!("Converting GeoJSON to Osmosis boundary");
-        crate::geojson_to_osmosis::run(geojson_path.clone())?;
-        if Path::new("boundary1.poly").exists() {
-            abstio::delete_file("boundary0.poly");
-            abstio::delete_file("boundary1.poly");
-            // If there were more, leave them around, but at least delete these 2, so the user
-            // can try again.
-            anyhow::bail!(
-                "Your GeoJSON contained multiple polygons. You can only import one at a time."
-            );
-        }
-    }
-
     let city = CityName::new("zz", "oneshot");
     let osm;
     if !use_geofabrik {
         println!("Downloading OSM data from Overpass...");
         osm = city.input_path(format!("osm/{}.osm", name));
 
-        let geojson = abstio::slurp_file(geojson_path)?;
+        let geojson = abstio::slurp_file(geojson_path.clone())?;
         let mut polygons = LonLat::parse_geojson_polygons(String::from_utf8(geojson)?)?;
         let mut filter = "poly:\"".to_string();
         for pt in polygons.pop().unwrap().0 {
@@ -58,7 +41,7 @@ pub async fn run(
             .await?;
     } else {
         println!("Figuring out what Geofabrik file contains your boundary");
-        let url = importer::pick_geofabrik("boundary0.poly".to_string()).await?;
+        let url = importer::pick_geofabrik(geojson_path.clone()).await?;
 
         let pbf = city.input_path(format!("osm/{}.pbf", abstutil::basename(&url)));
         osm = city.input_path(format!("osm/{}.osm", name));
@@ -74,24 +57,20 @@ pub async fn run(
 
         // Clip it
         println!("Clipping osm.pbf file to your boundary");
-        crate::clip_osm::run(pbf, "boundary0.poly".to_string(), osm.clone())?;
+        crate::clip_osm::run(pbf, geojson_path.clone(), osm.clone())?;
     }
 
     // Import!
     println!("Running importer");
     importer::oneshot(
         osm,
-        Some("boundary0.poly".to_string()),
+        Some(geojson_path),
         driving_side,
         filter_crosswalks,
         create_uk_travel_demand_model,
         map_model::RawToMapOptions::default(),
     )
     .await;
-
-    // Clean up temporary files. If we broke before this, deliberately leave them around for
-    // debugging.
-    abstio::delete_file("boundary0.poly");
 
     Ok(())
 }

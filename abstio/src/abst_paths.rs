@@ -151,7 +151,7 @@ impl CityName {
     pub fn list_all_maps_in_city_from_importer_config(&self) -> Vec<MapName> {
         crate::list_dir(format!("importer/config/{}/{}", self.country, self.city))
             .into_iter()
-            .filter(|path| path.ends_with(".poly"))
+            .filter(|path| path.ends_with(".geojson"))
             .map(|path| MapName::from_city(self, &basename(path)))
             .collect()
     }

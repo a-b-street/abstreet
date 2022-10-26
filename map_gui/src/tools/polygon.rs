@@ -18,7 +18,7 @@ impl ObjectID for Obj {}
 
 impl EditPolygon {
     pub fn new(mut points: Vec<Pt2D>) -> Self {
-        if *points.last().unwrap() == points[0] {
+        if !points.is_empty() && *points.last().unwrap() == points[0] {
             points.pop();
         }
         Self {
