@@ -19,6 +19,7 @@ pub struct Layers {
     // (Mode, max zoom, min zoom, bottom bar position)
     panel_cache_key: (Mode, bool, bool, Option<f64>),
     show_bus_routes: bool,
+    pub show_crossing_time: bool,
 }
 
 impl Layers {
@@ -29,6 +30,7 @@ impl Layers {
             minimized: true,
             panel_cache_key: (Mode::Impact, false, false, None),
             show_bus_routes: false,
+            show_crossing_time: false,
         }
     }
 
@@ -62,6 +64,11 @@ impl Layers {
             Outcome::Changed(x) => {
                 if x == "show bus routes" {
                     self.show_bus_routes = self.panel.is_checked("show bus routes");
+                    self.update_panel(ctx, cs, bottom_panel);
+                    return Some(Transition::Keep);
+                } else if x == "show time to nearest crossing" {
+                    self.show_crossing_time =
+                        self.panel.is_checked("show time to nearest crossing");
                     self.update_panel(ctx, cs, bottom_panel);
                     return Some(Transition::Keep);
                 }
@@ -159,6 +166,29 @@ impl Layers {
                 } else {
                     checkbox
                 }
+            },
+            if self.panel_cache_key.0 == Mode::Crossings {
+                Widget::col(vec![
+                    Toggle::checkbox(
+                        ctx,
+                        "show time to nearest crossing",
+                        None,
+                        self.show_crossing_time,
+                    ),
+                    Widget::row(vec![
+                        // TODO White = none
+                        "Time:".text_widget(ctx),
+                        ColorLegend::gradient_with_width(
+                            ctx,
+                            &cs.good_to_bad_red,
+                            vec!["< 1 min", "> 5 mins"],
+                            150.0,
+                        ),
+                    ])
+                    .hide(!self.show_crossing_time),
+                ])
+            } else {
+                Widget::nothing()
             },
             Widget::row(vec![
                 "Adjust the size of text:".text_widget(ctx).centered_vert(),
