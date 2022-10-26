@@ -11,7 +11,7 @@ use osmio::{Node, OSMObj, OSMObjBase, OSMObjectType, OSMReader, OSMWriter, Relat
 use geom::LonLat;
 
 pub fn run(pbf_path: String, clip_path: String, out_path: String) -> Result<()> {
-    let boundary_pts = LonLat::read_osmosis_polygon(&clip_path)?;
+    let boundary_pts = LonLat::read_geojson_polygon(&clip_path)?;
     let raw_pts: Vec<(f64, f64)> = boundary_pts
         .into_iter()
         .map(|pt| (pt.x(), pt.y()))

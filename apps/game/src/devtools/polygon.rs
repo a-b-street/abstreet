@@ -1,4 +1,4 @@
-use geom::LonLat;
+use geom::{LonLat, Ring};
 use map_gui::tools::EditPolygon;
 use widgetry::{
     EventCtx, GfxCtx, HorizontalAlignment, Key, Line, Outcome, Panel, State, VerticalAlignment,
@@ -30,7 +30,7 @@ impl PolygonEditor {
                 ]),
                 ctx.style()
                     .btn_outline
-                    .text("export as an Osmosis polygon filter")
+                    .text("export as a GeoJSON boundary")
                     // TODO Disable based on number of points
                     .hotkey(Key::X)
                     .build_def(ctx),
@@ -52,17 +52,24 @@ impl State<App> for PolygonEditor {
                 "close" => {
                     return Transition::Pop;
                 }
-                "export as an Osmosis polygon filter" => {
+                "export as a GeoJSON boundary" => {
                     if self.edit.get_points().len() >= 3 {
-                        let mut pts = app
-                            .primary
-                            .map
-                            .get_gps_bounds()
-                            .convert_back(self.edit.get_points());
-                        // Have to repeat the first point
+                        let mut pts = self.edit.get_points().to_vec();
                         pts.push(pts[0]);
-                        LonLat::write_osmosis_polygon(&format!("{}.poly", self.name), &pts)
+                        if let Ok(ring) = Ring::new(pts) {
+                            let polygon = ring
+                                .into_polygon()
+                                .to_geojson(Some(app.primary.map.get_gps_bounds()));
+                            let gj = geom::geometries_with_properties_to_geojson(vec![(
+                                polygon,
+                                serde_json::Map::new(),
+                            )]);
+                            abstio::write_file(
+                                format!("{}.geojson", self.name),
+                                abstutil::to_json(&gj),
+                            )
                             .unwrap();
+                        }
                     }
                 }
                 _ => unreachable!(),

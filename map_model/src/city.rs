@@ -30,9 +30,9 @@ impl City {
             city_name.country, city_name.city
         ))
         .into_iter()
-        .filter(|path| path.ends_with(".poly"))
+        .filter(|path| path.ends_with(".geojson"))
         .map(|path| {
-            let pts = LonLat::read_osmosis_polygon(&path).unwrap();
+            let pts = LonLat::read_geojson_polygon(&path).unwrap();
             (
                 MapName::from_city(&city_name, &abstutil::basename(path)),
                 Ring::must_new(huge_map.get_gps_bounds().convert(&pts)).into_polygon(),
@@ -63,11 +63,11 @@ impl City {
             city_name.country, city_name.city
         ))
         .into_iter()
-        .filter(|path| path.ends_with(".poly"))
+        .filter(|path| path.ends_with(".geojson"))
         .map(|path| {
             (
                 MapName::from_city(city_name, &abstutil::basename(&path)),
-                LonLat::read_osmosis_polygon(&path).unwrap(),
+                LonLat::read_geojson_polygon(&path).unwrap(),
             )
         })
         .collect();

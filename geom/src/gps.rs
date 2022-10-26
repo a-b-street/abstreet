@@ -1,8 +1,6 @@
 use std::fmt;
-use std::io::{BufRead, BufReader, Write};
 
 use anyhow::Result;
-use fs_err::File;
 use geojson::{GeoJson, Value};
 use ordered_float::NotNan;
 use serde::{Deserialize, Serialize};
@@ -69,43 +67,6 @@ impl LonLat {
     /// Pretty meaningless units, for comparing distances very roughly
     pub fn fast_dist(self, other: LonLat) -> NotNan<f64> {
         NotNan::new((self.x() - other.x()).powi(2) + (self.y() - other.y()).powi(2)).unwrap()
-    }
-
-    /// Parses a file in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format
-    /// and returns all points.
-    pub fn read_osmosis_polygon(path: &str) -> Result<Vec<LonLat>> {
-        let f = File::open(path)?;
-        let mut pts = Vec::new();
-        for (idx, line) in BufReader::new(f).lines().enumerate() {
-            if idx < 2 {
-                continue;
-            }
-            let line = line?;
-            if line == "END" {
-                break;
-            }
-            let parts = line.trim().split("    ").collect::<Vec<_>>();
-            pts.push(LonLat::new(
-                parts[0].parse::<f64>()?,
-                parts[1].parse::<f64>()?,
-            ));
-        }
-        Ok(pts)
-    }
-
-    /// Writes a set of points to a file in the
-    /// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format. The input should
-    /// be a closed ring, with the first and last point matching.
-    pub fn write_osmosis_polygon(path: &str, pts: &[LonLat]) -> Result<()> {
-        let mut f = File::create(path)?;
-        writeln!(f, "boundary")?;
-        writeln!(f, "1")?;
-        for pt in pts {
-            writeln!(f, "     {}    {}", pt.x(), pt.y())?;
-        }
-        writeln!(f, "END")?;
-        writeln!(f, "END")?;
-        Ok(())
     }
 
     /// Finds the average of a set of coordinates.
@@ -180,6 +141,16 @@ impl LonLat {
             ));
         }
         Ok(polygons)
+    }
+
+    /// Reads a GeoJSON file and returns coordinates from the one polygon contained.
+    pub fn read_geojson_polygon(path: &str) -> Result<Vec<LonLat>> {
+        let raw = fs_err::read_to_string(path)?;
+        let mut list = Self::parse_geojson_polygons(raw)?;
+        if list.len() != 1 {
+            bail!("{path} doesn't contain exactly one polygon");
+        }
+        Ok(list.pop().unwrap().0)
     }
 
     pub fn to_geojson(self) -> geojson::Geometry {

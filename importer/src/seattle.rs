@@ -36,7 +36,8 @@ pub async fn input(config: &ImporterConfiguration, timer: &mut Timer<'_>) {
     .await;
 
     let bounds = geom::GPSBounds::from(
-        geom::LonLat::read_osmosis_polygon("importer/config/us/seattle/huge_seattle.poly").unwrap(),
+        geom::LonLat::read_geojson_polygon("importer/config/us/seattle/huge_seattle.geojson")
+            .unwrap(),
     );
     // From http://data-seattlecitygis.opendata.arcgis.com/datasets/blockface
     download_kml(

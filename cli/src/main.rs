@@ -7,7 +7,6 @@ extern crate log;
 mod augment_scenario;
 mod clip_osm;
 mod generate_houses;
-mod geojson_to_osmosis;
 mod import_grid2demand;
 mod import_scenario;
 mod one_step_import;
@@ -73,21 +72,12 @@ enum Command {
         /// The path to the input .osm.pbf file
         #[structopt(long)]
         pbf_path: String,
-        /// The path to an Osmosis boundary polygon
+        /// The path to a GeoJSON file with one boundary polygon
         #[structopt(long)]
         clip_path: String,
         /// The path to write the XML results
         #[structopt(long)]
         out_path: String,
-    },
-    /// Reads a GeoJSON file, extracts a polygon from every feature, and writes numbered files in
-    /// the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as
-    /// output.
-    #[structopt(name = "geojson-to-osmosis")]
-    GeoJSONToOsmosis {
-        /// The path to a GeoJSON file
-        #[structopt()]
-        input: String,
     },
     /// Import a scenario from https://github.com/asu-trans-ai-lab/grid2demand.
     ImportGrid2Demand {
@@ -149,8 +139,7 @@ enum Command {
     /// This is a useful tool when importing a new map, if you don't already know which geofabrik
     /// file you should use as your OSM input.
     PickGeofabrik {
-        /// The path to an [osmosis polygon boundary
-        /// file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)
+        /// The path to a GeoJSON file with one boundary polygon
         #[structopt()]
         input: String,
     },
@@ -181,8 +170,8 @@ enum Command {
     OneshotImport {
         #[structopt()]
         osm_input: String,
-        /// The path to an Osmosis boundary polygon. If omitted, a boundary will be derived from
-        /// the .osm file, but borders will likely be broken or missing.
+        /// The path to a GeoJSON file with one boundary polygon. If omitted, a boundary will be
+        /// derived from the .osm file, but borders will likely be broken or missing.
         #[structopt(long)]
         clip_path: Option<String>,
         /// Do people drive on the left side of the road in this map?
@@ -274,7 +263,6 @@ async fn main() -> Result<()> {
             clip_path,
             out_path,
         } => clip_osm::run(pbf_path, clip_path, out_path)?,
-        Command::GeoJSONToOsmosis { input } => geojson_to_osmosis::run(input)?,
         Command::ImportGrid2Demand { input, map } => import_grid2demand::run(input, map)?,
         Command::ImportScenario {
             input,

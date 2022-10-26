@@ -35,7 +35,7 @@ pub fn convert(
     map.streets.config = opts.map_config.clone();
 
     if let Some(ref path) = clip_path {
-        let pts = LonLat::read_osmosis_polygon(path).unwrap();
+        let pts = LonLat::read_geojson_polygon(path).unwrap();
         let gps_bounds = GPSBounds::from(pts.clone());
         map.streets.boundary_polygon = Ring::must_new(gps_bounds.convert(&pts)).into_polygon();
         map.streets.gps_bounds = gps_bounds;

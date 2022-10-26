@@ -15,9 +15,7 @@ CITY=`echo $SITE | sed -r 's/-/_/g'`
 # Follow https://a-b-street.github.io/docs/user/new_city.html and import as a new city.
 mkdir -p importer/config/gb/$CITY
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/small-study-area.geojson
-cargo run --bin cli -- geojson-to-osmosis small-study-area.geojson
-rm -fv small-study-area.geojson
-mv boundary0.poly importer/config/gb/$CITY/center.poly
+mv small-study-area.geojson importer/config/gb/$CITY/center.geojson
 
 wget https://raw.githubusercontent.com/cyipt/actdev/main/data-small/$SITE/site.geojson -O data/system/study_areas/$SITE.geojson
 

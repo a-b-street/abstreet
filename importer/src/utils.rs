@@ -127,7 +127,7 @@ pub async fn osm_to_raw(
     }
 
     let boundary_polygon = format!(
-        "importer/config/{}/{}/{}.poly",
+        "importer/config/{}/{}/{}.geojson",
         name.city.country, name.city.city, name.map
     );
     let osm_url = crate::pick_geofabrik(boundary_polygon.clone())
