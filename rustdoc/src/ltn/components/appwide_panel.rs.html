@@ -269,6 +269,7 @@
 <span id="269">269</span>
 <span id="270">270</span>
 <span id="271">271</span>
+<span id="272">272</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">widgetry::tools::ChooseSomething</span>;
 <span class="kw">use</span> <span class="ident">widgetry::tools::PopupMsg</span>;
 <span class="kw">use</span> <span class="ident">widgetry</span>::{
@@ -440,6 +441,7 @@
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_outline</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Crossings&quot;</span>)
+                    .<span class="ident">hotkey</span>(<span class="ident">Key::C</span>)
                     .<span class="ident">disabled</span>(<span class="ident">app</span>.<span class="ident">per_map</span>.<span class="ident">consultation</span>.<span class="ident">is_some</span>())
                     .<span class="ident">disabled_tooltip</span>(<span class="string">&quot;Not supported here yet&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>)

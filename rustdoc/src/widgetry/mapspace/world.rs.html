@@ -681,6 +681,15 @@
 <span id="681">681</span>
 <span id="682">682</span>
 <span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
+<span id="692">692</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 <span class="kw">use</span> <span class="ident">std::fmt::Debug</span>;
 <span class="kw">use</span> <span class="ident">std::hash::Hash</span>;
@@ -925,6 +934,15 @@
     <span class="doccomment">/// Mark that an object is hoverable, but don&#39;t actually draw anything while hovering on it</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">invisibly_hoverable</span>(<span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="self">self</span>.<span class="ident">draw_hovered</span>(<span class="ident">GeomBatch::new</span>())
+    }
+
+    <span class="doccomment">/// Maybe draw a tooltip while hovering over this object.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">maybe_tooltip</span>(<span class="self">self</span>, <span class="ident">txt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Text</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">txt</span>) <span class="op">=</span> <span class="ident">txt</span> {
+            <span class="self">self</span>.<span class="ident">tooltip</span>(<span class="ident">txt</span>)
+        } <span class="kw">else</span> {
+            <span class="self">self</span>
+        }
     }
 
     <span class="doccomment">/// Draw a tooltip while hovering over this object.</span>
