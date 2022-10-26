@@ -169,6 +169,7 @@ fn make_top_panel(ctx: &mut EventCtx, app: &App, mode: Mode) -> Panel {
                 ctx.style()
                     .btn_outline
                     .text("Crossings")
+                    .hotkey(Key::C)
                     .disabled(app.per_map.consultation.is_some())
                     .disabled_tooltip("Not supported here yet")
                     .build_def(ctx)

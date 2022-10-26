@@ -244,6 +244,15 @@ impl<'a, ID: ObjectID> ObjectBuilder<'a, ID> {
         self.draw_hovered(GeomBatch::new())
     }
 
+    /// Maybe draw a tooltip while hovering over this object.
+    pub fn maybe_tooltip(self, txt: Option<Text>) -> Self {
+        if let Some(txt) = txt {
+            self.tooltip(txt)
+        } else {
+            self
+        }
+    }
+
     /// Draw a tooltip while hovering over this object.
     pub fn tooltip(mut self, txt: Text) -> Self {
         assert!(self.tooltip.is_none(), "already specified tooltip");

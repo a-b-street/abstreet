@@ -1,6 +1,7 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::cmp::Ordering;
+use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
-use geom::Circle;
+use geom::{Circle, Duration};
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::RoadID;
 use osm2streets::CrossingType;
@@ -27,6 +28,8 @@ pub struct Crossings {
     labels: DrawSimpleRoadLabels,
     draw_porosity: Drawable,
     draw_crossings: Toggle3Zoomed,
+    draw_nearest_crossing: Option<Drawable>,
+    time_to_nearest_crossing: BTreeMap<RoadID, Duration>,
 }
 
 impl Crossings {
@@ -47,17 +50,28 @@ impl Crossings {
             labels: DrawSimpleRoadLabels::only_major_roads(ctx, app, colors::ROAD_LABEL),
             draw_porosity: Drawable::empty(ctx),
             draw_crossings: Toggle3Zoomed::empty(ctx),
+            draw_nearest_crossing: None,
+            time_to_nearest_crossing: BTreeMap::new(),
         };
         state.update(ctx, app);
         Box::new(state)
     }
 
     fn update(&mut self, ctx: &mut EventCtx, app: &App) {
-        self.world = make_world(ctx, app);
         self.draw_porosity = draw_porosity(ctx, app);
         self.draw_crossings = draw_crossings(ctx, app);
         let contents = make_bottom_panel(ctx, app);
         self.bottom_panel = BottomPanel::new(ctx, &self.appwide_panel, contents);
+        self.draw_nearest_crossing = None;
+        self.time_to_nearest_crossing.clear();
+
+        if app.session.layers.show_crossing_time {
+            let (draw, time) = draw_nearest_crossing(ctx, app);
+            self.draw_nearest_crossing = Some(draw);
+            self.time_to_nearest_crossing = time;
+        }
+
+        self.world = make_world(ctx, app, &self.time_to_nearest_crossing);
     }
 }
 
@@ -74,6 +88,18 @@ impl State<App> for Crossings {
                 .layers
                 .event(ctx, &app.cs, Mode::Crossings, Some(&self.bottom_panel))
         {
+            if app.session.layers.show_crossing_time != self.draw_nearest_crossing.is_some() {
+                if app.session.layers.show_crossing_time {
+                    let (draw, time) = draw_nearest_crossing(ctx, app);
+                    self.draw_nearest_crossing = Some(draw);
+                    self.time_to_nearest_crossing = time;
+                } else {
+                    self.draw_nearest_crossing = None;
+                    self.time_to_nearest_crossing.clear();
+                }
+                self.world = make_world(ctx, app, &self.time_to_nearest_crossing);
+            }
+
             return t;
         }
         if let Outcome::Clicked(x) = self.bottom_panel.event(ctx) {
@@ -137,6 +163,9 @@ impl State<App> for Crossings {
         g.redraw(&self.draw_porosity);
         self.labels.draw(g);
         app.per_map.draw_poi_icons.draw(g);
+        if let Some(ref draw) = self.draw_nearest_crossing {
+            g.redraw(draw);
+        }
         self.draw_crossings.draw(g);
         // Draw on top of crossings, so hover state is visible
         self.world.draw(g);
@@ -231,7 +260,11 @@ enum Obj {
 
 impl ObjectID for Obj {}
 
-fn make_world(ctx: &EventCtx, app: &App) -> World<Obj> {
+fn make_world(
+    ctx: &EventCtx,
+    app: &App,
+    time_to_nearest_crossing: &BTreeMap<RoadID, Duration>,
+) -> World<Obj> {
     let map = &app.per_map.map;
     let mut world = World::bounded(map.get_bounds());
 
@@ -266,6 +299,13 @@ fn make_world(ctx: &EventCtx, app: &App) -> World<Obj> {
             .hover_color(colors::HOVER)
             .zorder(0)
             .clickable()
+            .maybe_tooltip(if let Some(time) = time_to_nearest_crossing.get(&r) {
+                Some(Text::from(Line(format!(
+                    "{time} walking to the nearest crossing"
+                ))))
+            } else {
+                None
+            })
             .build(ctx);
     }
 
@@ -368,5 +408,98 @@ pub fn populate_existing_crossings(app: &mut App) {
             });
             list.sort_by_key(|c| c.dist);
         }
+    }
+}
+
+fn draw_nearest_crossing(ctx: &EventCtx, app: &App) -> (Drawable, BTreeMap<RoadID, Duration>) {
+    // Consider the undirected graph of boundary roads. Floodfill from each crossing and count the
+    // walking time to the nearest crossing, at road segment granularity.
+    //
+    // Note this is weird -- the nearest crossing might not be in the direction someone wants to
+    // go!
+    let boundary_roads = boundary_roads(app);
+
+    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
+
+    for r in &boundary_roads {
+        if app.edits().crossings.contains_key(r) {
+            queue.push(Item {
+                cost: Duration::ZERO,
+                node: *r,
+            });
+        }
+    }
+
+    let mut cost_per_node: BTreeMap<RoadID, Duration> = BTreeMap::new();
+    while let Some(current) = queue.pop() {
+        if cost_per_node.contains_key(&current.node) {
+            continue;
+        }
+        cost_per_node.insert(current.node, current.cost);
+
+        // Walk to all boundary roads connected at either endpoint
+        for next in app.per_map.map.get_next_roads(current.node) {
+            if boundary_roads.contains(&next) {
+                let cost = app.per_map.map.get_r(next).length() / map_model::MAX_WALKING_SPEED;
+                queue.push(Item {
+                    cost: current.cost + cost,
+                    node: next,
+                });
+            }
+        }
+    }
+
+    let mut drawn_intersections = BTreeSet::new();
+    let mut batch = GeomBatch::new();
+    for (r, time) in &cost_per_node {
+        let scale = if *time < Duration::minutes(1) {
+            continue;
+        } else if *time < Duration::minutes(2) {
+            0.2
+        } else if *time < Duration::minutes(3) {
+            0.4
+        } else if *time < Duration::minutes(4) {
+            0.6
+        } else if *time < Duration::minutes(5) {
+            0.8
+        } else {
+            1.0
+        };
+        let color = app.cs.good_to_bad_red.eval(scale);
+        let road = app.per_map.map.get_r(*r);
+        batch.push(color, road.get_thick_polygon());
+
+        // Color the intersections too, and don't worry if the colors differ. Just be less weird
+        // looking.
+        for i in [road.src_i, road.dst_i] {
+            if drawn_intersections.contains(&i) {
+                continue;
+            }
+            drawn_intersections.insert(i);
+            batch.push(color, app.per_map.map.get_i(i).polygon.clone());
+        }
+    }
+    (ctx.upload(batch), cost_per_node)
+}
+
+#[derive(PartialEq, Eq)]
+struct Item {
+    cost: Duration,
+    node: RoadID,
+}
+impl PartialOrd for Item {
+    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Item {
+    fn cmp(&self, other: &Item) -> Ordering {
+        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
+        let ord = other.cost.cmp(&self.cost);
+        if ord != Ordering::Equal {
+            return ord;
+        }
+        self.node.cmp(&other.node)
     }
 }
