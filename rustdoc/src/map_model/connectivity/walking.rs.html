@@ -190,33 +190,9 @@
 <span id="190">190</span>
 <span id="191">191</span>
 <span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
-<span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::collections</span>::{<span class="ident">BinaryHeap</span>, <span class="ident">HashMap</span>, <span class="ident">HashSet</span>};
 
-<span class="kw">use</span> <span class="ident">abstutil::MultiMap</span>;
+<span class="kw">use</span> <span class="ident">abstutil</span>::{<span class="ident">MultiMap</span>, <span class="ident">PriorityQueueItem</span>};
 <span class="kw">use</span> <span class="ident">geom</span>::{<span class="ident">Duration</span>, <span class="ident">Speed</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::connectivity::Spot</span>;
@@ -251,28 +227,6 @@
     }
 }
 
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Eq</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Item</span> {
-    <span class="ident">cost</span>: <span class="ident">Duration</span>,
-    <span class="ident">node</span>: <span class="ident">WalkingNode</span>,
-}
-<span class="kw">impl</span> <span class="ident">PartialOrd</span> <span class="kw">for</span> <span class="ident">Item</span> {
-    <span class="kw">fn</span> <span class="ident">partial_cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Ordering</span><span class="op">&gt;</span> {
-        <span class="prelude-val">Some</span>(<span class="self">self</span>.<span class="ident">cmp</span>(<span class="ident">other</span>))
-    }
-}
-
-<span class="kw">impl</span> <span class="ident">Ord</span> <span class="kw">for</span> <span class="ident">Item</span> {
-    <span class="kw">fn</span> <span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="ident">Item</span>) -&gt; <span class="ident">Ordering</span> {
-        <span class="comment">// BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.</span>
-        <span class="kw">let</span> <span class="ident">ord</span> <span class="op">=</span> <span class="ident">other</span>.<span class="ident">cost</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">cost</span>);
-        <span class="kw">if</span> <span class="ident">ord</span> <span class="op">!</span><span class="op">=</span> <span class="ident">Ordering::Equal</span> {
-            <span class="kw">return</span> <span class="ident">ord</span>;
-        }
-        <span class="self">self</span>.<span class="ident">node</span>.<span class="ident">cmp</span>(<span class="kw-2">&amp;</span><span class="ident">other</span>.<span class="ident">node</span>)
-    }
-}
-
 <span class="doccomment">/// Starting from some initial buildings, calculate the cost to all others. If a destination isn&#39;t</span>
 <span class="doccomment">/// reachable, it won&#39;t be included in the results. Ignore results greater than the time_limit</span>
 <span class="doccomment">/// away.</span>
@@ -285,14 +239,14 @@
     <span class="ident">time_limit</span>: <span class="ident">Duration</span>,
     <span class="ident">opts</span>: <span class="ident">WalkingOptions</span>,
 ) -&gt; <span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">BuildingID</span>, <span class="ident">Duration</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">Item</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BinaryHeap::new</span>();
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">queue</span>: <span class="ident">BinaryHeap</span><span class="op">&lt;</span><span class="ident">PriorityQueueItem</span><span class="op">&lt;</span><span class="ident">Duration</span>, <span class="ident">WalkingNode</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">BinaryHeap::new</span>();
 
     <span class="kw">for</span> <span class="ident">spot</span> <span class="kw">in</span> <span class="ident">starts</span> {
         <span class="kw">match</span> <span class="ident">spot</span> {
             <span class="ident">Spot::Building</span>(<span class="ident">b_id</span>) =&gt; {
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
                     <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                    <span class="ident">node</span>: <span class="ident">WalkingNode::closest</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b_id</span>).<span class="ident">sidewalk_pos</span>, <span class="ident">map</span>),
+                    <span class="ident">value</span>: <span class="ident">WalkingNode::closest</span>(<span class="ident">map</span>.<span class="ident">get_b</span>(<span class="ident">b_id</span>).<span class="ident">sidewalk_pos</span>, <span class="ident">map</span>),
                 });
             }
             <span class="ident">Spot::Border</span>(<span class="ident">i_id</span>) =&gt; {
@@ -307,9 +261,9 @@
                     .<span class="ident">filter</span>(<span class="op">|</span><span class="ident">l</span><span class="op">|</span> <span class="ident">l</span>.<span class="ident">is_walkable</span>())
                     .<span class="ident">collect</span>();
                 <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="ident">walkable_lanes</span> {
-                    <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                    <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
                         <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                        <span class="ident">node</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(
+                        <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(
                             <span class="ident">lane</span>.<span class="ident">get_directed_parent</span>(),
                             <span class="ident">lane</span>.<span class="ident">src_i</span> <span class="op">==</span> <span class="ident">i_id</span>,
                         ),
@@ -318,13 +272,13 @@
             }
             <span class="ident">Spot::DirectedRoad</span>(<span class="ident">dr</span>) =&gt; {
                 <span class="comment">// Start from either end</span>
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
                     <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                    <span class="ident">node</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">false</span>),
+                    <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">false</span>),
                 });
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
                     <span class="ident">cost</span>: <span class="ident">Duration::ZERO</span>,
-                    <span class="ident">node</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">true</span>),
+                    <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dr</span>, <span class="bool-val">true</span>),
                 });
             }
         }
@@ -333,7 +287,7 @@
     <span class="kw">if</span> <span class="op">!</span><span class="ident">opts</span>.<span class="ident">allow_shoulders</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">shoulder_endpoint</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
         <span class="kw">for</span> <span class="ident">q</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">queue</span> {
-            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dir_r</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">q</span>.<span class="ident">node</span> {
+            <span class="kw">if</span> <span class="kw">let</span> <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">dir_r</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">q</span>.<span class="ident">value</span> {
                 <span class="kw">for</span> <span class="ident">lane</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">map</span>.<span class="ident">get_r</span>(<span class="ident">dir_r</span>.<span class="ident">road</span>).<span class="ident">lanes</span> {
                     <span class="ident">shoulder_endpoint</span>.<span class="ident">push</span>(<span class="ident">lane</span>.<span class="ident">lane_type</span> <span class="op">==</span> <span class="ident">LaneType::Shoulder</span>);
                 }
@@ -353,15 +307,15 @@
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">visited_nodes</span> <span class="op">=</span> <span class="ident">HashSet::new</span>();
     <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">current</span>) <span class="op">=</span> <span class="ident">queue</span>.<span class="ident">pop</span>() {
-        <span class="kw">if</span> <span class="ident">visited_nodes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>.<span class="ident">node</span>) {
+        <span class="kw">if</span> <span class="ident">visited_nodes</span>.<span class="ident">contains</span>(<span class="kw-2">&amp;</span><span class="ident">current</span>.<span class="ident">value</span>) {
             <span class="kw">continue</span>;
         }
         <span class="kw">if</span> <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">&gt;</span> <span class="ident">time_limit</span> {
             <span class="kw">continue</span>;
         }
-        <span class="ident">visited_nodes</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">node</span>);
+        <span class="ident">visited_nodes</span>.<span class="ident">insert</span>(<span class="ident">current</span>.<span class="ident">value</span>);
 
-        <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">is_dst_i</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">current</span>.<span class="ident">node</span> {
+        <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">is_dst_i</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">current</span>.<span class="ident">value</span> {
             <span class="ident">WalkingNode::SidewalkEndpoint</span>(<span class="ident">r</span>, <span class="ident">is_dst_i</span>) =&gt; (<span class="ident">r</span>, <span class="ident">is_dst_i</span>),
             <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
         };
@@ -398,9 +352,9 @@
                     }
                 }
 
-                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+                <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
                     <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span> <span class="op">+</span> <span class="ident">sidewalk_len</span> <span class="op">/</span> <span class="ident">speed</span>,
-                    <span class="ident">node</span>: <span class="ident">cross_to_node</span>,
+                    <span class="ident">value</span>: <span class="ident">cross_to_node</span>,
                 });
             }
         }
@@ -409,7 +363,7 @@
             <span class="kw">if</span> (<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span> <span class="op">==</span> <span class="ident">lane</span>.<span class="ident">dst_i</span>) <span class="op">!</span><span class="op">=</span> <span class="ident">is_dst_i</span> {
                 <span class="kw">continue</span>;
             }
-            <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">Item</span> {
+            <span class="ident">queue</span>.<span class="ident">push</span>(<span class="ident">PriorityQueueItem</span> {
                 <span class="ident">cost</span>: <span class="ident">current</span>.<span class="ident">cost</span>
                     <span class="op">+</span> <span class="ident">turn</span>.<span class="ident">geom</span>.<span class="ident">length</span>()
                         <span class="op">/</span> <span class="ident">PathStep::Turn</span>(<span class="ident">turn</span>.<span class="ident">id</span>).<span class="ident">max_speed_along</span>(
@@ -418,7 +372,7 @@
                             <span class="ident">map</span>,
                         )
                     <span class="op">+</span> <span class="ident">zone_cost</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">to_movement</span>(<span class="ident">map</span>), <span class="ident">PathConstraints::Pedestrian</span>, <span class="ident">map</span>),
-                <span class="ident">node</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(
+                <span class="ident">value</span>: <span class="ident">WalkingNode::SidewalkEndpoint</span>(
                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">get_directed_parent</span>(),
                     <span class="ident">map</span>.<span class="ident">get_l</span>(<span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">dst</span>).<span class="ident">dst_i</span> <span class="op">==</span> <span class="ident">turn</span>.<span class="ident">id</span>.<span class="ident">parent</span>,
                 ),

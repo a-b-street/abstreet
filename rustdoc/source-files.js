@@ -1,6 +1,6 @@
 var sourcesIndex = JSON.parse('{\
 "abstio":["",[],["abst_data.rs","abst_paths.rs","download.rs","http.rs","io.rs","io_native.rs","lib.rs"]],\
-"abstutil":["",[],["cli.rs","clone.rs","collections.rs","lib.rs","logger.rs","process.rs","serde.rs","time.rs","utils.rs"]],\
+"abstutil":["",[],["cli.rs","clone.rs","collections.rs","lib.rs","logger.rs","priority_queue.rs","process.rs","serde.rs","time.rs","utils.rs"]],\
 "cli":["",[],["augment_scenario.rs","clip_osm.rs","generate_houses.rs","geojson_to_osmosis.rs","import_grid2demand.rs","import_scenario.rs","main.rs","one_step_import.rs"]],\
 "collisions":["",[],["lib.rs"]],\
 "convert_osm":["",[],["elevation.rs","extract.rs","gtfs.rs","lib.rs","parking.rs"]],\

@@ -30,6 +30,8 @@
 <span id="30">30</span>
 <span id="31">31</span>
 <span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
 </pre><pre class="rust"><code><span class="doccomment">//! The contents of this crate need to be organized better:</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! - Timer (a mix of logging, profiling, and even parallel execution)</span>
@@ -48,6 +50,7 @@
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">clone</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">collections</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">logger</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">priority_queue</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">process</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">time</span>::<span class="kw-2">*</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">utils</span>::<span class="kw-2">*</span>;
@@ -56,6 +59,7 @@
 <span class="kw">mod</span> <span class="ident">clone</span>;
 <span class="kw">mod</span> <span class="ident">collections</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">logger</span>;
+<span class="kw">mod</span> <span class="ident">priority_queue</span>;
 <span class="kw">mod</span> <span class="ident">process</span>;
 <span class="kw">mod</span> <span class="ident">serde</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">time</span>;

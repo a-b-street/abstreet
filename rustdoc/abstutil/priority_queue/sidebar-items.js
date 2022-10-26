@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["PriorityQueueItem","Use with `BinaryHeap`. Since it’s a max-heap, reverse the comparison to get the smallest cost first."]]};
