@@ -599,6 +599,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "console_error_panic_hook"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
+dependencies = [
+ "cfg-if",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "console_log"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2172,6 +2182,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "js-importer"
+version = "0.1.0"
+dependencies = [
+ "abstio",
+ "abstutil",
+ "anyhow",
+ "console_error_panic_hook",
+ "convert_osm",
+ "geom",
+ "getrandom",
+ "instant",
+ "js-sys",
+ "log",
+ "map_model",
+ "serde",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+]
+
+[[package]]
 name = "js-sys"
 version = "0.3.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2448,10 +2479,12 @@ dependencies = [
  "geojson",
  "geom",
  "instant",
+ "js-sys",
  "lazy_static",
  "log",
  "lyon",
  "map_model",
+ "raw_map",
  "regex",
  "rfd",
  "serde",
@@ -2460,6 +2493,7 @@ dependencies = [
  "subprocess",
  "synthpop",
  "wasm-bindgen",
+ "wasm-bindgen-futures",
  "web-sys",
  "widgetry",
 ]

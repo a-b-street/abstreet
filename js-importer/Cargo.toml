@@ -1,0 +1,25 @@
+[package]
+name = "js-importer"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+abstio = { path = "../abstio" }
+abstutil = { path = "../abstutil" }
+anyhow = { workspace = true }
+console_error_panic_hook = "0.1.6"
+convert_osm = { path = "../convert_osm" }
+geom = { path = "../geom" }
+getrandom = { workspace = true, features = ["js"] }
+instant = { workspace = true, features = ["wasm-bindgen"] }
+js-sys = "0.3.47"
+log = { workspace = true }
+map_model = { path = "../map_model" }
+serde = { version = "1", features = ["derive"] }
+wasm-bindgen = { workspace = true }
+# TODO Why do we need this?
+wasm-bindgen-futures = "0.4.20"
+web-sys = { workspace = true, features=["Document"] }
