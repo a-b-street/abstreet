@@ -11,6 +11,7 @@ anyhow = { workspace = true }
 csv = "1.1.4"
 fs-err = { workspace = true }
 geo = { workspace = true }
+geojson = { workspace = true }
 geom = { path = "../geom" }
 importer = { path = "../importer" }
 log = { workspace = true }
@@ -20,6 +21,7 @@ rand  = "0.8.3"
 rand_xorshift = { workspace = true }
 raw_map = { path = "../raw_map" }
 serde = { workspace = true }
+serde_json = { workspace = true }
 sim = { path = "../sim" }
 synthpop = { path = "../synthpop" }
 structopt = { workspace = true }
