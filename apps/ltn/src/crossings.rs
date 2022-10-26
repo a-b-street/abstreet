@@ -1,6 +1,6 @@
-use std::cmp::Ordering;
 use std::collections::{BTreeMap, BTreeSet, BinaryHeap};
 
+use abstutil::PriorityQueueItem;
 use geom::{Circle, Duration};
 use map_gui::tools::DrawSimpleRoadLabels;
 use map_model::RoadID;
@@ -419,31 +419,31 @@ fn draw_nearest_crossing(ctx: &EventCtx, app: &App) -> (Drawable, BTreeMap<RoadI
     // go!
     let boundary_roads = boundary_roads(app);
 
-    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
+    let mut queue: BinaryHeap<PriorityQueueItem<Duration, RoadID>> = BinaryHeap::new();
 
     for r in &boundary_roads {
         if app.edits().crossings.contains_key(r) {
-            queue.push(Item {
+            queue.push(PriorityQueueItem {
                 cost: Duration::ZERO,
-                node: *r,
+                value: *r,
             });
         }
     }
 
     let mut cost_per_node: BTreeMap<RoadID, Duration> = BTreeMap::new();
     while let Some(current) = queue.pop() {
-        if cost_per_node.contains_key(&current.node) {
+        if cost_per_node.contains_key(&current.value) {
             continue;
         }
-        cost_per_node.insert(current.node, current.cost);
+        cost_per_node.insert(current.value, current.cost);
 
         // Walk to all boundary roads connected at either endpoint
-        for next in app.per_map.map.get_next_roads(current.node) {
+        for next in app.per_map.map.get_next_roads(current.value) {
             if boundary_roads.contains(&next) {
                 let cost = app.per_map.map.get_r(next).length() / map_model::MAX_WALKING_SPEED;
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: current.cost + cost,
-                    node: next,
+                    value: next,
                 });
             }
         }
@@ -480,26 +480,4 @@ fn draw_nearest_crossing(ctx: &EventCtx, app: &App) -> (Drawable, BTreeMap<RoadI
         }
     }
     (ctx.upload(batch), cost_per_node)
-}
-
-#[derive(PartialEq, Eq)]
-struct Item {
-    cost: Duration,
-    node: RoadID,
-}
-impl PartialOrd for Item {
-    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Item {
-    fn cmp(&self, other: &Item) -> Ordering {
-        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
-        let ord = other.cost.cmp(&self.cost);
-        if ord != Ordering::Equal {
-            return ord;
-        }
-        self.node.cmp(&other.node)
-    }
 }

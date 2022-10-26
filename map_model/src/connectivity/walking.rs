@@ -1,7 +1,6 @@
-use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
-use abstutil::MultiMap;
+use abstutil::{MultiMap, PriorityQueueItem};
 use geom::{Duration, Speed};
 
 use crate::connectivity::Spot;
@@ -36,28 +35,6 @@ impl WalkingOptions {
     }
 }
 
-#[derive(PartialEq, Eq)]
-struct Item {
-    cost: Duration,
-    node: WalkingNode,
-}
-impl PartialOrd for Item {
-    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Item {
-    fn cmp(&self, other: &Item) -> Ordering {
-        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
-        let ord = other.cost.cmp(&self.cost);
-        if ord != Ordering::Equal {
-            return ord;
-        }
-        self.node.cmp(&other.node)
-    }
-}
-
 /// Starting from some initial buildings, calculate the cost to all others. If a destination isn't
 /// reachable, it won't be included in the results. Ignore results greater than the time_limit
 /// away.
@@ -70,14 +47,14 @@ pub fn all_walking_costs_from(
     time_limit: Duration,
     opts: WalkingOptions,
 ) -> HashMap<BuildingID, Duration> {
-    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
+    let mut queue: BinaryHeap<PriorityQueueItem<Duration, WalkingNode>> = BinaryHeap::new();
 
     for spot in starts {
         match spot {
             Spot::Building(b_id) => {
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: Duration::ZERO,
-                    node: WalkingNode::closest(map.get_b(b_id).sidewalk_pos, map),
+                    value: WalkingNode::closest(map.get_b(b_id).sidewalk_pos, map),
                 });
             }
             Spot::Border(i_id) => {
@@ -92,9 +69,9 @@ pub fn all_walking_costs_from(
                     .filter(|l| l.is_walkable())
                     .collect();
                 for lane in walkable_lanes {
-                    queue.push(Item {
+                    queue.push(PriorityQueueItem {
                         cost: Duration::ZERO,
-                        node: WalkingNode::SidewalkEndpoint(
+                        value: WalkingNode::SidewalkEndpoint(
                             lane.get_directed_parent(),
                             lane.src_i == i_id,
                         ),
@@ -103,13 +80,13 @@ pub fn all_walking_costs_from(
             }
             Spot::DirectedRoad(dr) => {
                 // Start from either end
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: Duration::ZERO,
-                    node: WalkingNode::SidewalkEndpoint(dr, false),
+                    value: WalkingNode::SidewalkEndpoint(dr, false),
                 });
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: Duration::ZERO,
-                    node: WalkingNode::SidewalkEndpoint(dr, true),
+                    value: WalkingNode::SidewalkEndpoint(dr, true),
                 });
             }
         }
@@ -118,7 +95,7 @@ pub fn all_walking_costs_from(
     if !opts.allow_shoulders {
         let mut shoulder_endpoint = Vec::new();
         for q in &queue {
-            if let WalkingNode::SidewalkEndpoint(dir_r, _) = q.node {
+            if let WalkingNode::SidewalkEndpoint(dir_r, _) = q.value {
                 for lane in &map.get_r(dir_r.road).lanes {
                     shoulder_endpoint.push(lane.lane_type == LaneType::Shoulder);
                 }
@@ -138,15 +115,15 @@ pub fn all_walking_costs_from(
 
     let mut visited_nodes = HashSet::new();
     while let Some(current) = queue.pop() {
-        if visited_nodes.contains(&current.node) {
+        if visited_nodes.contains(&current.value) {
             continue;
         }
         if current.cost > time_limit {
             continue;
         }
-        visited_nodes.insert(current.node);
+        visited_nodes.insert(current.value);
 
-        let (r, is_dst_i) = match current.node {
+        let (r, is_dst_i) = match current.value {
             WalkingNode::SidewalkEndpoint(r, is_dst_i) => (r, is_dst_i),
             _ => unreachable!(),
         };
@@ -183,9 +160,9 @@ pub fn all_walking_costs_from(
                     }
                 }
 
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: current.cost + sidewalk_len / speed,
-                    node: cross_to_node,
+                    value: cross_to_node,
                 });
             }
         }
@@ -194,7 +171,7 @@ pub fn all_walking_costs_from(
             if (turn.id.parent == lane.dst_i) != is_dst_i {
                 continue;
             }
-            queue.push(Item {
+            queue.push(PriorityQueueItem {
                 cost: current.cost
                     + turn.geom.length()
                         / PathStep::Turn(turn.id).max_speed_along(
@@ -203,7 +180,7 @@ pub fn all_walking_costs_from(
                             map,
                         )
                     + zone_cost(turn.id.to_movement(map), PathConstraints::Pedestrian, map),
-                node: WalkingNode::SidewalkEndpoint(
+                value: WalkingNode::SidewalkEndpoint(
                     map.get_l(turn.id.dst).get_directed_parent(),
                     map.get_l(turn.id.dst).dst_i == turn.id.parent,
                 ),

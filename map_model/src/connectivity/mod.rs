@@ -1,11 +1,11 @@
 // TODO Possibly these should be methods on Map.
 
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 use std::collections::{BinaryHeap, HashMap, HashSet};
 
 use petgraph::graphmap::DiGraphMap;
 
+use abstutil::PriorityQueueItem;
 use geom::Duration;
 
 pub use self::walking::{all_walking_costs_from, WalkingOptions};
@@ -84,15 +84,15 @@ pub fn all_vehicle_costs_from(
         }
     }
 
-    let mut queue: BinaryHeap<Item> = BinaryHeap::new();
+    let mut queue: BinaryHeap<PriorityQueueItem<Duration, DirectedRoadID>> = BinaryHeap::new();
 
     for spot in starts {
         match spot {
             Spot::Building(b_id) => {
                 if let Some(start_road) = bldg_to_road.get(&b_id).cloned() {
-                    queue.push(Item {
+                    queue.push(PriorityQueueItem {
                         cost: Duration::ZERO,
-                        node: start_road,
+                        value: start_road,
                     });
                 }
             }
@@ -105,16 +105,16 @@ pub fn all_vehicle_costs_from(
                 all_lanes.append(&mut outgoing_lanes);
 
                 for l_id in all_lanes {
-                    queue.push(Item {
+                    queue.push(PriorityQueueItem {
                         cost: Duration::ZERO,
-                        node: map.get_l(l_id).get_directed_parent(),
+                        value: map.get_l(l_id).get_directed_parent(),
                     });
                 }
             }
             Spot::DirectedRoad(dr) => {
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: Duration::ZERO,
-                    node: dr,
+                    value: dr,
                 });
             }
         }
@@ -122,21 +122,21 @@ pub fn all_vehicle_costs_from(
 
     let mut cost_per_node: HashMap<DirectedRoadID, Duration> = HashMap::new();
     while let Some(current) = queue.pop() {
-        if cost_per_node.contains_key(&current.node) {
+        if cost_per_node.contains_key(&current.value) {
             continue;
         }
         if current.cost > time_limit {
             continue;
         }
-        cost_per_node.insert(current.node, current.cost);
+        cost_per_node.insert(current.value, current.cost);
 
-        for mvmnt in map.get_movements_for(current.node, constraints) {
+        for mvmnt in map.get_movements_for(current.value, constraints) {
             if let Some(cost) =
                 vehicle_cost(mvmnt.from, mvmnt, constraints, map.routing_params(), map)
             {
-                queue.push(Item {
+                queue.push(PriorityQueueItem {
                     cost: current.cost + cost,
-                    node: mvmnt.to,
+                    value: mvmnt.to,
                 });
             }
         }
@@ -149,26 +149,4 @@ pub fn all_vehicle_costs_from(
         }
     }
     results
-}
-
-#[derive(PartialEq, Eq)]
-struct Item {
-    cost: Duration,
-    node: DirectedRoadID,
-}
-impl PartialOrd for Item {
-    fn partial_cmp(&self, other: &Item) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Item {
-    fn cmp(&self, other: &Item) -> Ordering {
-        // BinaryHeap is a max-heap, so reverse the comparison to get smallest times first.
-        let ord = other.cost.cmp(&self.cost);
-        if ord != Ordering::Equal {
-            return ord;
-        }
-        self.node.cmp(&other.node)
-    }
 }
