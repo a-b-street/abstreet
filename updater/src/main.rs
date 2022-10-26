@@ -331,6 +331,9 @@ fn generate_manifest(truth: &Manifest) -> Manifest {
         {
             continue;
         }
+        if path.ends_with(".osm") {
+            continue;
+        }
         paths.push((orig_path, path));
     }
 
