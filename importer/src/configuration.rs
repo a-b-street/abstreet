@@ -3,7 +3,7 @@ use serde::Deserialize;
 #[derive(Deserialize)]
 #[serde(default)]
 pub struct ImporterConfiguration {
-    pub osmconvert: String,
+    pub osmium: String,
     pub unzip: String,
     pub gunzip: String,
     pub gunzip_args: String,
@@ -12,7 +12,7 @@ pub struct ImporterConfiguration {
 impl Default for ImporterConfiguration {
     fn default() -> ImporterConfiguration {
         ImporterConfiguration {
-            osmconvert: String::from("osmconvert"),
+            osmium: String::from("osmium"),
             unzip: String::from("unzip"),
             gunzip: String::from("gunzip"),
             gunzip_args: String::from(""),

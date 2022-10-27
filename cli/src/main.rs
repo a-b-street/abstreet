@@ -66,8 +66,8 @@ enum Command {
         #[structopt(long, default_value = "42")]
         rng_seed: u64,
     },
-    /// Clips an OSM file to a boundary. This is a simple Rust port of `osmconvert large_map.osm
-    /// -B=clipping.poly --complete-ways -o=smaller_map.osm`.
+    /// Clips an OSM file to a boundary. This is a simple Rust port of `osmium extract large_map.osm
+    /// -p clipping.poly -o smaller_map.osm`.
     ClipOSM {
         /// The path to the input .osm.pbf file
         #[structopt(long)]
