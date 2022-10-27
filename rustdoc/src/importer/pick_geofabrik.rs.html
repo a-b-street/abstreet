@@ -84,13 +84,13 @@
 <span class="kw">use</span> <span class="ident">abstutil::Timer</span>;
 <span class="kw">use</span> <span class="ident">geom::LonLat</span>;
 
-<span class="doccomment">/// Given the path to an Osmosis boundary polygon, return the URL of a Geofabrik osm.pbf file that</span>
+<span class="doccomment">/// Given the path to a GeoJSON boundary polygon, return the URL of a Geofabrik osm.pbf file that</span>
 <span class="doccomment">/// best covers the boundary.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// If the boundary splits multiple Geofabrik files, the result may be any of the overlapping</span>
 <span class="doccomment">/// files.</span>
 <span class="kw">pub</span> <span class="kw">async</span> <span class="kw">fn</span> <span class="ident">pick_geofabrik</span>(<span class="ident">input</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">boundary_pts</span> <span class="op">=</span> <span class="ident">LonLat::read_osmosis_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">boundary_pts</span> <span class="op">=</span> <span class="ident">LonLat::read_geojson_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">input</span>)<span class="question-mark">?</span>;
     <span class="comment">// For now, just use the boundary&#39;s center. Some boundaries might cross multiple geofabrik</span>
     <span class="comment">// regions; don&#39;t handle that yet.</span>
     <span class="kw">let</span> <span class="ident">center</span> <span class="op">=</span> <span class="ident">LonLat::center</span>(<span class="kw-2">&amp;</span><span class="ident">boundary_pts</span>);

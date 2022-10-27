@@ -114,7 +114,7 @@
 <span class="kw">use</span> <span class="ident">geom::LonLat</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">run</span>(<span class="ident">pbf_path</span>: <span class="ident">String</span>, <span class="ident">clip_path</span>: <span class="ident">String</span>, <span class="ident">out_path</span>: <span class="ident">String</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">boundary_pts</span> <span class="op">=</span> <span class="ident">LonLat::read_osmosis_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">clip_path</span>)<span class="question-mark">?</span>;
+    <span class="kw">let</span> <span class="ident">boundary_pts</span> <span class="op">=</span> <span class="ident">LonLat::read_geojson_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">clip_path</span>)<span class="question-mark">?</span>;
     <span class="kw">let</span> <span class="ident">raw_pts</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">f64</span>, <span class="ident">f64</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">boundary_pts</span>
         .<span class="ident">into_iter</span>()
         .<span class="ident">map</span>(<span class="op">|</span><span class="ident">pt</span><span class="op">|</span> (<span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>()))

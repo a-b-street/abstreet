@@ -169,40 +169,9 @@
 <span id="169">169</span>
 <span id="170">170</span>
 <span id="171">171</span>
-<span id="172">172</span>
-<span id="173">173</span>
-<span id="174">174</span>
-<span id="175">175</span>
-<span id="176">176</span>
-<span id="177">177</span>
-<span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
-<span id="188">188</span>
-<span id="189">189</span>
-<span id="190">190</span>
-<span id="191">191</span>
-<span id="192">192</span>
-<span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">std::fmt</span>;
-<span class="kw">use</span> <span class="ident">std::io</span>::{<span class="ident">BufRead</span>, <span class="ident">BufReader</span>, <span class="ident">Write</span>};
 
 <span class="kw">use</span> <span class="ident">anyhow::Result</span>;
-<span class="kw">use</span> <span class="ident">fs_err::File</span>;
 <span class="kw">use</span> <span class="ident">geojson</span>::{<span class="ident">GeoJson</span>, <span class="ident">Value</span>};
 <span class="kw">use</span> <span class="ident">ordered_float::NotNan</span>;
 <span class="kw">use</span> <span class="ident">serde</span>::{<span class="ident">Deserialize</span>, <span class="ident">Serialize</span>};
@@ -269,43 +238,6 @@
     <span class="doccomment">/// Pretty meaningless units, for comparing distances very roughly</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fast_dist</span>(<span class="self">self</span>, <span class="ident">other</span>: <span class="ident">LonLat</span>) -&gt; <span class="ident">NotNan</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span> {
         <span class="ident">NotNan::new</span>((<span class="self">self</span>.<span class="ident">x</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">x</span>()).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="self">self</span>.<span class="ident">y</span>() <span class="op">-</span> <span class="ident">other</span>.<span class="ident">y</span>()).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">unwrap</span>()
-    }
-
-    <span class="doccomment">/// Parses a file in the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format</span>
-    <span class="doccomment">/// and returns all points.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_osmosis_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::open</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pts</span> <span class="op">=</span> <span class="ident">Vec::new</span>();
-        <span class="kw">for</span> (<span class="ident">idx</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="ident">BufReader::new</span>(<span class="ident">f</span>).<span class="ident">lines</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">idx</span> <span class="op">&lt;</span> <span class="number">2</span> {
-                <span class="kw">continue</span>;
-            }
-            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="ident">line</span><span class="question-mark">?</span>;
-            <span class="kw">if</span> <span class="ident">line</span> <span class="op">==</span> <span class="string">&quot;END&quot;</span> {
-                <span class="kw">break</span>;
-            }
-            <span class="kw">let</span> <span class="ident">parts</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&quot;    &quot;</span>).<span class="ident">collect</span>::<span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="kw">_</span><span class="op">&gt;</span><span class="op">&gt;</span>();
-            <span class="ident">pts</span>.<span class="ident">push</span>(<span class="ident">LonLat::new</span>(
-                <span class="ident">parts</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
-                <span class="ident">parts</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>()<span class="question-mark">?</span>,
-            ));
-        }
-        <span class="prelude-val">Ok</span>(<span class="ident">pts</span>)
-    }
-
-    <span class="doccomment">/// Writes a set of points to a file in the</span>
-    <span class="doccomment">/// https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format. The input should</span>
-    <span class="doccomment">/// be a closed ring, with the first and last point matching.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">write_osmosis_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">pts</span>: <span class="kw-2">&amp;</span>[<span class="ident">LonLat</span>]) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>()<span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">File::create</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;boundary&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;1&quot;</span>)<span class="question-mark">?</span>;
-        <span class="kw">for</span> <span class="ident">pt</span> <span class="kw">in</span> <span class="ident">pts</span> {
-            <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;     {}    {}&quot;</span>, <span class="ident">pt</span>.<span class="ident">x</span>(), <span class="ident">pt</span>.<span class="ident">y</span>())<span class="question-mark">?</span>;
-        }
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;END&quot;</span>)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(<span class="ident">f</span>, <span class="string">&quot;END&quot;</span>)<span class="question-mark">?</span>;
-        <span class="prelude-val">Ok</span>(())
     }
 
     <span class="doccomment">/// Finds the average of a set of coordinates.</span>
@@ -380,6 +312,16 @@
             ));
         }
         <span class="prelude-val">Ok</span>(<span class="ident">polygons</span>)
+    }
+
+    <span class="doccomment">/// Reads a GeoJSON file and returns coordinates from the one polygon contained.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">read_geojson_polygon</span>(<span class="ident">path</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">LonLat</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">raw</span> <span class="op">=</span> <span class="ident">fs_err::read_to_string</span>(<span class="ident">path</span>)<span class="question-mark">?</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">list</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::parse_geojson_polygons</span>(<span class="ident">raw</span>)<span class="question-mark">?</span>;
+        <span class="kw">if</span> <span class="ident">list</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">1</span> {
+            <span class="macro">bail!</span>(<span class="string">&quot;{path} doesn&#39;t contain exactly one polygon&quot;</span>);
+        }
+        <span class="prelude-val">Ok</span>(<span class="ident">list</span>.<span class="ident">pop</span>().<span class="ident">unwrap</span>().<span class="number">0</span>)
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_geojson</span>(<span class="self">self</span>) -&gt; <span class="ident">geojson::Geometry</span> {

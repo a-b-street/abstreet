@@ -437,18 +437,6 @@
 <span id="437">437</span>
 <span id="438">438</span>
 <span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
 </pre><pre class="rust"><code><span class="doccomment">//! A collection of tools, mostly related to importing maps and scenarios. These are bundled as a</span>
 <span class="doccomment">//! single executable to reduce the cost of static linking in the release&#39;s file size.</span>
 
@@ -458,7 +446,6 @@
 <span class="kw">mod</span> <span class="ident">augment_scenario</span>;
 <span class="kw">mod</span> <span class="ident">clip_osm</span>;
 <span class="kw">mod</span> <span class="ident">generate_houses</span>;
-<span class="kw">mod</span> <span class="ident">geojson_to_osmosis</span>;
 <span class="kw">mod</span> <span class="ident">import_grid2demand</span>;
 <span class="kw">mod</span> <span class="ident">import_scenario</span>;
 <span class="kw">mod</span> <span class="ident">one_step_import</span>;
@@ -518,27 +505,18 @@
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>, <span class="ident">default_value</span> <span class="op">=</span> <span class="string">&quot;42&quot;</span>)]</span>
         <span class="ident">rng_seed</span>: <span class="ident">u64</span>,
     },
-    <span class="doccomment">/// Clips an OSM file to a boundary. This is a simple Rust port of `osmconvert large_map.osm</span>
-    <span class="doccomment">/// -B=clipping.poly --complete-ways -o=smaller_map.osm`.</span>
+    <span class="doccomment">/// Clips an OSM file to a boundary. This is a simple Rust port of `osmium extract large_map.osm</span>
+    <span class="doccomment">/// -p clipping.poly -o smaller_map.osm`.</span>
     <span class="ident">ClipOSM</span> {
         <span class="doccomment">/// The path to the input .osm.pbf file</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">pbf_path</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to an Osmosis boundary polygon</span>
+        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">clip_path</span>: <span class="ident">String</span>,
         <span class="doccomment">/// The path to write the XML results</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">out_path</span>: <span class="ident">String</span>,
-    },
-    <span class="doccomment">/// Reads a GeoJSON file, extracts a polygon from every feature, and writes numbered files in</span>
-    <span class="doccomment">/// the https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format format as</span>
-    <span class="doccomment">/// output.</span>
-    <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">name</span> <span class="op">=</span> <span class="string">&quot;geojson-to-osmosis&quot;</span>)]</span>
-    <span class="ident">GeoJSONToOsmosis</span> {
-        <span class="doccomment">/// The path to a GeoJSON file</span>
-        <span class="attribute">#[<span class="ident">structopt</span>()]</span>
-        <span class="ident">input</span>: <span class="ident">String</span>,
     },
     <span class="doccomment">/// Import a scenario from https://github.com/asu-trans-ai-lab/grid2demand.</span>
     <span class="ident">ImportGrid2Demand</span> {
@@ -600,8 +578,7 @@
     <span class="doccomment">/// This is a useful tool when importing a new map, if you don&#39;t already know which geofabrik</span>
     <span class="doccomment">/// file you should use as your OSM input.</span>
     <span class="ident">PickGeofabrik</span> {
-        <span class="doccomment">/// The path to an [osmosis polygon boundary</span>
-        <span class="doccomment">/// file](https://wiki.openstreetmap.org/wiki/Osmosis/Polygon_Filter_File_Format)</span>
+        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon</span>
         <span class="attribute">#[<span class="ident">structopt</span>()]</span>
         <span class="ident">input</span>: <span class="ident">String</span>,
     },
@@ -632,8 +609,8 @@
     <span class="ident">OneshotImport</span> {
         <span class="attribute">#[<span class="ident">structopt</span>()]</span>
         <span class="ident">osm_input</span>: <span class="ident">String</span>,
-        <span class="doccomment">/// The path to an Osmosis boundary polygon. If omitted, a boundary will be derived from</span>
-        <span class="doccomment">/// the .osm file, but borders will likely be broken or missing.</span>
+        <span class="doccomment">/// The path to a GeoJSON file with one boundary polygon. If omitted, a boundary will be</span>
+        <span class="doccomment">/// derived from the .osm file, but borders will likely be broken or missing.</span>
         <span class="attribute">#[<span class="ident">structopt</span>(<span class="ident">long</span>)]</span>
         <span class="ident">clip_path</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="doccomment">/// Do people drive on the left side of the road in this map?</span>
@@ -725,7 +702,6 @@
             <span class="ident">clip_path</span>,
             <span class="ident">out_path</span>,
         } =&gt; <span class="ident">clip_osm::run</span>(<span class="ident">pbf_path</span>, <span class="ident">clip_path</span>, <span class="ident">out_path</span>)<span class="question-mark">?</span>,
-        <span class="ident">Command::GeoJSONToOsmosis</span> { <span class="ident">input</span> } =&gt; <span class="ident">geojson_to_osmosis::run</span>(<span class="ident">input</span>)<span class="question-mark">?</span>,
         <span class="ident">Command::ImportGrid2Demand</span> { <span class="ident">input</span>, <span class="ident">map</span> } =&gt; <span class="ident">import_grid2demand::run</span>(<span class="ident">input</span>, <span class="ident">map</span>)<span class="question-mark">?</span>,
         <span class="ident">Command::ImportScenario</span> {
             <span class="ident">input</span>,

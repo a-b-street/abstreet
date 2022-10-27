@@ -144,7 +144,7 @@
 
 <span class="kw">impl</span> <span class="ident">EditPolygon</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="kw-2">mut</span> <span class="ident">points</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Pt2D</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
-        <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">points</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">points</span>[<span class="number">0</span>] {
+        <span class="kw">if</span> <span class="op">!</span><span class="ident">points</span>.<span class="ident">is_empty</span>() <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">points</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>() <span class="op">==</span> <span class="ident">points</span>[<span class="number">0</span>] {
             <span class="ident">points</span>.<span class="ident">pop</span>();
         }
         <span class="self">Self</span> {
