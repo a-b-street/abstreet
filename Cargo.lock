@@ -2953,7 +2953,7 @@ dependencies = [
 [[package]]
 name = "osm2streets"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#8c01821c787c8988e2201f0e03fc230185cc71ad"
+source = "git+https://github.com/a-b-street/osm2streets#670bd72acd6d82ef43f325b8f64b12f6700ba68e"
 dependencies = [
  "aabb-quadtree",
  "abstutil",
@@ -3977,14 +3977,14 @@ checksum = "ef5430c8e36b713e13b48a9f709cc21e046723fe44ce34587b73a830203b533e"
 [[package]]
 name = "streets_reader"
 version = "0.1.0"
-source = "git+https://github.com/a-b-street/osm2streets#8c01821c787c8988e2201f0e03fc230185cc71ad"
+source = "git+https://github.com/a-b-street/osm2streets#670bd72acd6d82ef43f325b8f64b12f6700ba68e"
 dependencies = [
  "abstutil",
  "anyhow",
  "geom",
  "log",
  "osm2streets",
- "roxmltree",
+ "xmlparser",
 ]
 
 [[package]]
@@ -5175,9 +5175,9 @@ checksum = "b07db065a5cf61a7e4ba64f29e67db906fb1787316516c4e6e5ff0fea1efcd8a"
 
 [[package]]
 name = "xmlparser"
-version = "0.13.3"
+version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "114ba2b24d2167ef6d67d7d04c8cc86522b87f490025f39f0303b7db5bf5e3d8"
+checksum = "4d25c75bf9ea12c4040a97f829154768bbbce366287e2dc044af160cd79a13fd"
 
 [[package]]
 name = "xmltree"
