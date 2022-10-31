@@ -209,7 +209,7 @@ fn draw_crossings(ctx: &EventCtx, app: &App) -> Toggle3Zoomed {
                 let rewrite_color = if crossing.user_modified {
                     RewriteColor::NoOp
                 } else {
-                    RewriteColor::ChangeAlpha(0.8)
+                    RewriteColor::ChangeAlpha(0.7)
                 };
 
                 let icon = &icons[&crossing.kind];

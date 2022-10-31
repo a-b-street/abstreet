@@ -162,7 +162,7 @@ impl Edits {
             let rewrite_color = if filter.user_modified {
                 RewriteColor::NoOp
             } else {
-                RewriteColor::ChangeAlpha(0.8)
+                RewriteColor::ChangeAlpha(0.7)
             };
 
             let road = map.get_r(*r);
@@ -201,7 +201,7 @@ impl Edits {
             let rewrite_color = if filter.user_modified {
                 RewriteColor::NoOp
             } else {
-                RewriteColor::ChangeAlpha(0.8)
+                RewriteColor::ChangeAlpha(0.7)
             };
 
             let line = filter.geometry(map);
