@@ -451,6 +451,9 @@
 <span id="451">451</span>
 <span id="452">452</span>
 <span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
 </pre><pre class="rust"><code><span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">filters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">freehand_filters</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">one_ways</span>;
@@ -645,13 +648,14 @@
 <span class="kw">impl</span> <span class="ident">ResolveOneWayAndFilter</span> {
     <span class="kw">fn</span> <span class="ident">new_state</span>(<span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">roads</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">RoadID</span><span class="op">&gt;</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Error&quot;</span>).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A one-way street can&#39;t have a filter&quot;</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Warning&quot;</span>).<span class="ident">small_heading</span>());
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A modal filter cannot be placed on a one-way street.&quot;</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;You can make the street two-way first, then place a filter.&quot;</span>);
 
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">text</span>(<span class="string">&quot;OK, do nothing&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
                 <span class="ident">ctx</span>.<span class="ident">style</span>()
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">text</span>(<span class="kw">if</span> <span class="ident">roads</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">1</span> {
@@ -663,6 +667,7 @@
                         )
                     })
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
@@ -674,7 +679,7 @@
 <span class="kw">impl</span> <span class="ident">State</span><span class="op">&lt;</span><span class="ident">App</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ResolveOneWayAndFilter</span> {
     <span class="kw">fn</span> <span class="ident">event</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">ctx</span>: <span class="kw-2">&amp;mut</span> <span class="ident">EventCtx</span>, <span class="ident">app</span>: <span class="kw-2">&amp;mut</span> <span class="ident">App</span>) -&gt; <span class="ident">Transition</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">Outcome::Clicked</span>(<span class="ident">x</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">panel</span>.<span class="ident">event</span>(<span class="ident">ctx</span>) {
-            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;OK, do nothing&quot;</span> {
+            <span class="kw">if</span> <span class="ident">x</span> <span class="op">==</span> <span class="string">&quot;Cancel&quot;</span> {
                 <span class="kw">return</span> <span class="ident">Transition::Pop</span>;
             }
 
@@ -747,10 +752,8 @@
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">txt</span> <span class="op">=</span> <span class="ident">Text::new</span>();
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="ident">Line</span>(<span class="string">&quot;Warning&quot;</span>).<span class="ident">small_heading</span>());
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A regular modal filter would block bus routes here.&quot;</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;A bus gate uses signage and camera enforcement to only allow buses&quot;</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;The following bus routes cross this road. Adding a regular modal filter would block them.&quot;</span>);
         <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
-        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;The following bus routes cross this road:&quot;</span>);
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">routes</span> <span class="op">=</span> <span class="ident">BTreeSet::new</span>();
         <span class="kw">for</span> (<span class="ident">r</span>, <span class="kw">_</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">roads</span> {
@@ -760,6 +763,9 @@
             <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="macro">format!</span>(<span class="string">&quot;- {route}&quot;</span>));
         }
 
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;&quot;</span>);
+        <span class="ident">txt</span>.<span class="ident">add_line</span>(<span class="string">&quot;You can use a bus gate instead.&quot;</span>);
+
         <span class="kw">let</span> <span class="ident">panel</span> <span class="op">=</span> <span class="ident">Panel::new_builder</span>(<span class="ident">Widget::col</span>(<span class="macro">vec!</span>[
             <span class="ident">txt</span>.<span class="ident">into_widget</span>(<span class="ident">ctx</span>),
             <span class="ident">Widget::row</span>(<span class="macro">vec!</span>[
@@ -768,7 +774,7 @@
                     .<span class="ident">btn_solid_primary</span>
                     .<span class="ident">text</span>(<span class="string">&quot;Place bus gates&quot;</span>)
                     .<span class="ident">build_def</span>(<span class="ident">ctx</span>),
-                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_solid</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
+                <span class="ident">ctx</span>.<span class="ident">style</span>().<span class="ident">btn_outline</span>.<span class="ident">text</span>(<span class="string">&quot;Cancel&quot;</span>).<span class="ident">build_def</span>(<span class="ident">ctx</span>),
             ]),
         ]))
         .<span class="ident">build</span>(<span class="ident">ctx</span>);
