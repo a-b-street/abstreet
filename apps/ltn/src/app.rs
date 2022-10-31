@@ -109,7 +109,7 @@ pub struct Session {
     // Remember form settings in different tabs.
     // Pick areas:
     pub draw_neighbourhood_style: crate::pick_area::Style,
-    // Pathfinding
+    // Pathfinding:
     pub main_road_penalty: f64,
     pub show_walking_cycling_routes: bool,
 

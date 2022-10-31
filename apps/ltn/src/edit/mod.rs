@@ -192,13 +192,14 @@ struct ResolveOneWayAndFilter {
 impl ResolveOneWayAndFilter {
     fn new_state(ctx: &mut EventCtx, roads: Vec<RoadID>) -> Box<dyn State<App>> {
         let mut txt = Text::new();
-        txt.add_line(Line("Error").small_heading());
-        txt.add_line("A one-way street can't have a filter");
+        txt.add_line(Line("Warning").small_heading());
+        txt.add_line("A modal filter cannot be placed on a one-way street.");
+        txt.add_line("");
+        txt.add_line("You can make the street two-way first, then place a filter.");
 
         let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
             Widget::row(vec![
-                ctx.style().btn_solid.text("OK, do nothing").build_def(ctx),
                 ctx.style()
                     .btn_solid_primary
                     .text(if roads.len() == 1 {
@@ -210,6 +211,7 @@ impl ResolveOneWayAndFilter {
                         )
                     })
                     .build_def(ctx),
+                ctx.style().btn_outline.text("Cancel").build_def(ctx),
             ]),
         ]))
         .build(ctx);
@@ -221,7 +223,7 @@ impl ResolveOneWayAndFilter {
 impl State<App> for ResolveOneWayAndFilter {
     fn event(&mut self, ctx: &mut EventCtx, app: &mut App) -> Transition {
         if let Outcome::Clicked(x) = self.panel.event(ctx) {
-            if x == "OK, do nothing" {
+            if x == "Cancel" {
                 return Transition::Pop;
             }
 
@@ -294,10 +296,8 @@ impl ResolveBusGate {
 
         let mut txt = Text::new();
         txt.add_line(Line("Warning").small_heading());
-        txt.add_line("A regular modal filter would block bus routes here.");
-        txt.add_line("A bus gate uses signage and camera enforcement to only allow buses");
+        txt.add_line("The following bus routes cross this road. Adding a regular modal filter would block them.");
         txt.add_line("");
-        txt.add_line("The following bus routes cross this road:");
 
         let mut routes = BTreeSet::new();
         for (r, _) in &roads {
@@ -307,6 +307,9 @@ impl ResolveBusGate {
             txt.add_line(format!("- {route}"));
         }
 
+        txt.add_line("");
+        txt.add_line("You can use a bus gate instead.");
+
         let panel = Panel::new_builder(Widget::col(vec![
             txt.into_widget(ctx),
             Widget::row(vec![
@@ -315,7 +318,7 @@ impl ResolveBusGate {
                     .btn_solid_primary
                     .text("Place bus gates")
                     .build_def(ctx),
-                ctx.style().btn_solid.text("Cancel").build_def(ctx),
+                ctx.style().btn_outline.text("Cancel").build_def(ctx),
             ]),
         ]))
         .build(ctx);
