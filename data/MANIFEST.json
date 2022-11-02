@@ -425,6 +425,11 @@
       "uncompressed_size_bytes": 16069144,
       "compressed_size_bytes": 3060265
     },
+    "data/input/gb/brighton/raw_maps/shoreham_by_sea.bin": {
+      "checksum": "636d21de9c904232034cab6a2173221f",
+      "uncompressed_size_bytes": 2678909,
+      "compressed_size_bytes": 649460
+    },
     "data/input/gb/bristol/osm/bristol-latest.osm.pbf": {
       "checksum": "7d5fa6d50e0500272e2cd700a3efef86",
       "uncompressed_size_bytes": 15305931,
@@ -489,6 +494,16 @@
       "checksum": "0d6bc71c5afc74215ffc23452d200e59",
       "uncompressed_size_bytes": 22488886,
       "compressed_size_bytes": 4315077
+    },
+    "data/input/gb/chichester/osm/west-sussex-latest.osm.pbf": {
+      "checksum": "f90044401d4f3aa2e3c2c6e1a1ea3b6f",
+      "uncompressed_size_bytes": 34705804,
+      "compressed_size_bytes": 34672813
+    },
+    "data/input/gb/chichester/raw_maps/center.bin": {
+      "checksum": "8ea3d4de76ee5e4c9c171fc292e3c425",
+      "uncompressed_size_bytes": 3316001,
+      "compressed_size_bytes": 647619
     },
     "data/input/gb/chorlton/osm/greater-manchester-latest.osm.pbf": {
       "checksum": "dc17001eaf90a2960983d1dcdd34ea9c",
@@ -1014,6 +1029,11 @@
       "checksum": "17bfb20a9efcc8046e571d01c61f915b",
       "uncompressed_size_bytes": 8661415,
       "compressed_size_bytes": 1783117
+    },
+    "data/input/gb/manchester/raw_maps/stockport.bin": {
+      "checksum": "3ff695043ff57b5cd76ea6e1e3450a46",
+      "uncompressed_size_bytes": 13348716,
+      "compressed_size_bytes": 2955235
     },
     "data/input/gb/marsh_barton/osm/devon-latest.osm.pbf": {
       "checksum": "d0972fd420aa71930f70f4725dec7d28",
@@ -2660,10 +2680,20 @@
       "uncompressed_size_bytes": 45303537,
       "compressed_size_bytes": 17024618
     },
+    "data/system/gb/brighton/maps/shoreham_by_sea.bin": {
+      "checksum": "9aabd0861e730ec0f758618b4ea411ee",
+      "uncompressed_size_bytes": 7047872,
+      "compressed_size_bytes": 2757209
+    },
     "data/system/gb/brighton/scenarios/center/background.bin": {
       "checksum": "a1442617062d65271c179432c0f4a2f1",
       "uncompressed_size_bytes": 9587686,
       "compressed_size_bytes": 2511704
+    },
+    "data/system/gb/brighton/scenarios/shoreham_by_sea/background.bin": {
+      "checksum": "92d36be890d0391ed133998d55e3a34e",
+      "uncompressed_size_bytes": 2031436,
+      "compressed_size_bytes": 494433
     },
     "data/system/gb/bristol/maps/east.bin": {
       "checksum": "dcf2515768c32d14cb2a9b3496389a63",
@@ -2759,6 +2789,16 @@
       "checksum": "e277d7a09f885d1dc12dd2d6e80fbdbc",
       "uncompressed_size_bytes": 16431560,
       "compressed_size_bytes": 4469200
+    },
+    "data/system/gb/chichester/maps/center.bin": {
+      "checksum": "85562833369977324d78a592a6698b27",
+      "uncompressed_size_bytes": 12435622,
+      "compressed_size_bytes": 4754179
+    },
+    "data/system/gb/chichester/scenarios/center/background.bin": {
+      "checksum": "81cf1175f1d2df444bc7a9bb7106c142",
+      "uncompressed_size_bytes": 2838798,
+      "compressed_size_bytes": 703377
     },
     "data/system/gb/chorlton/maps/center.bin": {
       "checksum": "da8b2aa997c2f55cebb4f69e694f026c",
@@ -3635,10 +3675,20 @@
       "uncompressed_size_bytes": 31366821,
       "compressed_size_bytes": 11935508
     },
+    "data/system/gb/manchester/maps/stockport.bin": {
+      "checksum": "d065f440ce0dede38fe976633ad56f73",
+      "uncompressed_size_bytes": 41581335,
+      "compressed_size_bytes": 15564818
+    },
     "data/system/gb/manchester/scenarios/levenshulme/background.bin": {
       "checksum": "07be9d3ca4fa5501090d79bbc99183f5",
       "uncompressed_size_bytes": 11535287,
       "compressed_size_bytes": 3075085
+    },
+    "data/system/gb/manchester/scenarios/stockport/background.bin": {
+      "checksum": "88926f850746c762250fabd398f3210a",
+      "uncompressed_size_bytes": 10488486,
+      "compressed_size_bytes": 2776923
     },
     "data/system/gb/marsh_barton/maps/center.bin": {
       "checksum": "153144d0d99cf594ccc42237a2102b07",
