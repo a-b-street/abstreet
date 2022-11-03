@@ -60,15 +60,11 @@ impl Manifest {
                     if data_packs.input.iter().any(|x| x.starts_with("gb/")) {
                         continue;
                     }
-                } else if path.ends_with("kc_2016_lidar.tif")
-                    || path.ends_with("seattle_contours.geojson")
-                {
+                } else if path.ends_with("kc_2016_lidar.tif") {
                     if data_packs.input.contains("us/seattle") {
                         continue;
                     }
                 } else if !data_packs.input.is_empty() {
-                    // All of the SRTM files land here. Hard to associate them with a country or
-                    // city code, and it seems like we may want to share these between cities.
                     continue;
                 }
             }

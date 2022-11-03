@@ -103,10 +103,7 @@ pub fn config_for_map(name: &MapName) -> convert_osm::Options {
         } else {
             None
         },
-        // The underlying elevation source works well in Seattle, but is half-baked (and uses low
-        // resolution SRTM) elsewhere. Since the results aren't good and the cost of running this
-        // isn't cheap, only keep it for two places
-        elevation: name.city == CityName::new("us", "seattle")
-            || name.city == CityName::new("us", "san_francisco"),
+        // We only have one city-specific elevation source working well enough to keep.
+        elevation: name.city == CityName::new("us", "seattle"),
     }
 }
