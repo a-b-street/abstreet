@@ -208,6 +208,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("newcastle_upon_tyne", "center") => "Newcastle upon Tyne",
             ("nottingham", "center") => "Nottingham (city center)",
             ("nottingham", "huge") => "Nottingham (entire area)",
+            ("nottingham", "stapleford") => "Stapleford",
             ("northwick_park", "center") => "Northwick Park",
             ("oxford", "center") => "Oxford",
             ("poundbury", "center") => "Poundbury",
