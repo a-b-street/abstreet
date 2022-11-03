@@ -212,6 +212,7 @@ pub fn nice_map_name(name: &MapName) -> &str {
             ("oxford", "center") => "Oxford",
             ("poundbury", "center") => "Poundbury",
             ("priors_hall", "center") => "Priors Hall",
+            ("sheffield", "darnall") => "Darnall",
             ("st_albans", "center") => "St Albans",
             ("taunton_firepool", "center") => "Taunton Firepool",
             ("taunton_garden", "center") => "Taunton Garden",

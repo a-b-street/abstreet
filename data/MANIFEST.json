@@ -1175,6 +1175,16 @@
       "uncompressed_size_bytes": 6341329,
       "compressed_size_bytes": 1486521
     },
+    "data/input/gb/sheffield/osm/south-yorkshire-latest.osm.pbf": {
+      "checksum": "a2e28a2674843b1f43742b23a3ce790f",
+      "uncompressed_size_bytes": 21246061,
+      "compressed_size_bytes": 21225824
+    },
+    "data/input/gb/sheffield/raw_maps/darnall.bin": {
+      "checksum": "8afdf600f91a97bd78006ba922e35433",
+      "uncompressed_size_bytes": 5740648,
+      "compressed_size_bytes": 1130172
+    },
     "data/input/gb/st_albans/osm/hertfordshire-latest.osm.pbf": {
       "checksum": "19a43f538dc990c374a9188d8e4cfd4b",
       "uncompressed_size_bytes": 19060336,
@@ -3569,6 +3579,16 @@
       "checksum": "780e9162ec2e250720cfc469f64a682c",
       "uncompressed_size_bytes": 5145704,
       "compressed_size_bytes": 1305482
+    },
+    "data/system/gb/sheffield/maps/darnall.bin": {
+      "checksum": "86ffc9765a9584fb3c2b6310df1b4239",
+      "uncompressed_size_bytes": 20310637,
+      "compressed_size_bytes": 7700921
+    },
+    "data/system/gb/sheffield/scenarios/darnall/background.bin": {
+      "checksum": "969a3ce3f546f57d4dbdc1eda5131517",
+      "uncompressed_size_bytes": 8276067,
+      "compressed_size_bytes": 2137145
     },
     "data/system/gb/st_albans/maps/center.bin": {
       "checksum": "634a035220e9ec4ff78fdbb30fb95c5f",
